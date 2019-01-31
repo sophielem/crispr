@@ -45,7 +45,7 @@ def humanize_bytes(bytes, precision=1):
 
 def _statDir(location):
     data = {}
-    for subDir in glob(location + "/*/"):       
+    for subDir in glob(location + "/*/"):
         data[subDir] = 0
         for dirpath, dirnames, filenames in os.walk(subDir):
             for f in filenames:
@@ -127,20 +127,28 @@ def sort_genomes_desc(list_genomes,fasta_path,dict_org_code):
     genomes_sorted=[i[1] for i in sorted(tmp_list,key=lambda genome:genome[0],reverse=True)]   ##Sort by ascending size
     return(genomes_sorted)
 
+
 def unzip_files(list_genomes,dict_org_code):
     '''Unzip required files for reserach'''
     eprint('-- Unzip selected genomes --')
     eprint('location ' + WORKDIR)
-    out=open(WORKDIR+'/unzip.sh','w')
-    out.write('cd ' + WORKDIR + '\n');
     for genome in list_genomes:
         ref=dict_org_code[genome][0]
-        out.write('tar xf '+REF_GEN_DIR+'/fasta/'+ref+'.tar.gz\ntar xf '+REF_GEN_DIR+'/index2/'+ref+'.tar.gz\n')
-    out.close()
-    os.system('bash ' + WORKDIR + '/unzip.sh')
-    
+        extract_unzip_file(REF_GEN_DIR, ref, "/fasta/")
+        extract_unzip_file(REF_GEN_DIR, ref, "/index2/")
+
     stats = _statDir(WORKDIR)
     eprint( "Temporary file size\n" + str(stats) )
+
+
+def extract_unzip_file(REF_GEN_DIR, ref, folder):
+    """
+    Extract files from a tar.gz compression
+    """
+    tar = tarfile.open(REF_GEN_DIR + folder + ref + '.tar.gz')
+    tar.extractall(WORKDIR + "/")
+    tar.close()
+
 
 def write_to_fasta_parallel(dic_seq, num_file):
     '''Write sequences in fasta file, and separate its in several files if specified.'''
