@@ -1,5 +1,6 @@
 from __future__ import print_function
 import os,sys,json,re,subprocess
+import tarfile
 from Bio import SeqIO
 from Queue import Queue
 from threading import Thread
@@ -128,24 +129,24 @@ def sort_genomes_desc(list_genomes,fasta_path,dict_org_code):
     return(genomes_sorted)
 
 
-def unzip_files(list_genomes,dict_org_code):
+def unzip_files(ref_gen_dir, list_genomes, dict_org_code):
     '''Unzip required files for reserach'''
     eprint('-- Unzip selected genomes --')
     eprint('location ' + WORKDIR)
     for genome in list_genomes:
         ref=dict_org_code[genome][0]
-        extract_unzip_file(REF_GEN_DIR, ref, "/fasta/")
-        extract_unzip_file(REF_GEN_DIR, ref, "/index2/")
+        extract_unzip_file(ref_gen_dir, ref, "/fasta/")
+        extract_unzip_file(ref_gen_dir, ref, "/index2/")
 
     stats = _statDir(WORKDIR)
     eprint( "Temporary file size\n" + str(stats) )
 
 
-def extract_unzip_file(REF_GEN_DIR, ref, folder):
+def extract_unzip_file(ref_gen_dir, ref, folder):
     """
     Extract files from a tar.gz compression
     """
-    tar = tarfile.open(REF_GEN_DIR + folder + ref + '.tar.gz')
+    tar = tarfile.open(ref_gen_dir + folder + ref + '.tar.gz')
     tar.extractall(WORKDIR + "/")
     tar.close()
 

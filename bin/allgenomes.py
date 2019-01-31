@@ -162,7 +162,7 @@ def construction(fasta_path,PAM,non_PAM_motif_length,genomes_IN,genomes_NOT_IN,d
     num_file=4
     cf.eprint('## Search for',len(genomes_IN),"included genomes and",len(genomes_NOT_IN),'excluded genomes with',num_thread,'thread(s) ##')
 
-    cf.unzip_files(genomes_IN+genomes_NOT_IN,dict_org_code)
+    cf.unzip_files(UNCOMPRESSED_GEN_DIR, genomes_IN+genomes_NOT_IN, dict_org_code)
 
     if len(genomes_IN)!=1:
         sorted_genomes=cf.sort_genomes(genomes_IN,fasta_path,dict_org_code)
@@ -236,7 +236,6 @@ def setGlobalEnvironment(param):
     TASK_KEY=str(uuid.uuid1())
     cf.TASK_KEY=TASK_KEY
     UNCOMPRESSED_GEN_DIR=param.rfg
-    cf.REF_GEN_DIR=UNCOMPRESSED_GEN_DIR
     ASYNC = param.async
 
 def main():
@@ -254,8 +253,8 @@ def main():
     else:
         WORKDIR=cf.setupWorkSpace(parameters)
         cf.WORKDIR=WORKDIR
-    
-    
+
+
     fasta_path  = WORKDIR + '/reference_genomes/fasta'
 
     dict_organism_code = cf.readJsonDic(UNCOMPRESSED_GEN_DIR + '/genome_ref_taxid.json')  ##Keys: organism, values: genomic reference (ncbi)
