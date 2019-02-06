@@ -72,7 +72,7 @@ def index_bowtie_blast(list_ref):
     os.system('bash index.sh')
     os.system('rm index.sh')  
 
-def store_positions(seq_list_forward,seq_list_reverse,organism_code,PAM,non_PAM_motif_length):
+def store_positions(seq_list_forward,seq_list_reverse,organism_code,pam,non_pam_motif_length):
     '''
     Same function as construct_seq_dict except the dictionnary will not be like value=list of coordinates. It add the information about organism with dictionnary values like : dictionnary with key=organism and value=list of coordinates in this organism
     '''
@@ -81,7 +81,7 @@ def store_positions(seq_list_forward,seq_list_reverse,organism_code,PAM,non_PAM_
     genome_seq=genome_seqrecord.seq
     seq_dict={}
     for indice in seq_list_forward: 
-        end=indice+len(PAM)+non_PAM_motif_length
+        end=indice+len(pam)+non_pam_motif_length
         seq=genome_seq[indice:end].reverse_complement()
         seq=str(seq)
         if seq not in seq_dict: 
@@ -89,7 +89,7 @@ def store_positions(seq_list_forward,seq_list_reverse,organism_code,PAM,non_PAM_
         seq_dict[seq].append('+('+str(indice+1)+','+str(end)+')')    
 
     for indice in seq_list_reverse: 
-        end=indice+len(PAM)+non_PAM_motif_length
+        end=indice+len(pam)+non_pam_motif_length
         seq=genome_seq[indice:end]
         seq=str(seq)
         if seq not in seq_dict: 
@@ -109,22 +109,22 @@ def build_expression(seq):
             result = result + c
     return result
 
-def find_PAM(seq,motif): 
+def find_pam(seq,motif): 
     list_seq=[]
     reg_exp = build_expression(motif) 
     indices = [m.start() for m in re.finditer('(?=' + reg_exp + ')', seq, re.I)]
     return indices    
 
-def find_sgRNA(organism_code,PAM,non_PAM_motif_length):
+def find_sgrna(organism_code,pam,non_pam_motif_length):
     fasta_file='reference_genomes/fasta/' + organism_code +'_genomic.fna'
     genome_seqrecord=next(SeqIO.parse(fasta_file, 'fasta'))
     genome_seq=str(genome_seqrecord.seq)
-    sgRNA='' 
-    for i in range(non_PAM_motif_length): 
-        sgRNA+='N'
-    sgRNA+=PAM    
-    seq_list_forward=find_PAM(genome_seq,reverse_complement(sgRNA))
-    seq_list_reverse=find_PAM(genome_seq,sgRNA)
+    sgrna='' 
+    for i in range(non_pam_motif_length): 
+        sgrna+='N'
+    sgrna+=pam    
+    seq_list_forward=find_pam(genome_seq,reverse_complement(sgrna))
+    seq_list_reverse=find_pam(genome_seq,sgrna)
 
     return seq_list_forward,seq_list_reverse    
 
@@ -135,7 +135,7 @@ def pre_calculate(list_ref):
         count+=1
         print(count)
         if ref+'_dicpos.pic' not in os.listdir('reference_genomes/pre_calculate'): 
-            list_forward,list_reverse=find_sgRNA(ref,'NGG',20)
+            list_forward,list_reverse=find_sgrna(ref,'NGG',20)
             store_positions(list_forward,list_reverse,ref,'NGG',20)
 
 def create_lineage_objects(dic_tax):
