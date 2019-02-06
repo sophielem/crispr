@@ -55,7 +55,7 @@ def humanize_bytes(bytes, precision=1):
 
 def _statdir(location):
     """
-    Definition
+    Calcul the size of a given location
     """
     data = {}
     for sub_dir in glob(location + "/*/"):
@@ -70,7 +70,8 @@ def _statdir(location):
 
 class Hit():
     """
-    Definition
+    Object Hit containing the CRISPR sequence, indexes where it is found
+    and its associated score
     """
     def __init__(self, sequence, in_dic):
         self.sequence = sequence
@@ -107,7 +108,8 @@ def reverse_complement(sequence):
 
 def build_expression(seq):
     """
-    Definition
+    Build the regular expression by replacing the letter by iupac code or
+    the letter itself
     """
     result = ''
     iupac_code = {'R': '[AG]', 'Y': '[CT]', 'S': '[GC]', 'W': '[AT]',
@@ -131,7 +133,7 @@ def find_sgrna_seq(seq, pam):
     return indices
 
 
-def sort_genomes(list_genomes, fasta_path, dict_org_code):
+def sort_genomes(list_genomes, fasta_path, dict_org_code, descending):
     """
     Sort genomes by ascending size
     """
@@ -144,28 +146,10 @@ def sort_genomes(list_genomes, fasta_path, dict_org_code):
                                       '_genomic.fna', 'fasta'):
             len_genome += len(seq_record)
         tmp_list.append((len_genome, genome))
-    # Sort by ascending size
-    genomes_sorted = [i[1] for i in sorted(tmp_list, key=lambda genome: genome[0])]
+    # Sort by ascending or descending size
+    genomes_sorted = [i[1] for i in sorted(tmp_list, key=lambda genome: genome[0], reverse=descending)]
     return genomes_sorted
-
-
-def sort_genomes_desc(list_genomes, fasta_path, dict_org_code):
-    """
-    Sort genomes by descending size
-    """
-    tmp_list = []
-    for genome in list_genomes:
-        len_genome = 0
-        for seq_record in SeqIO.parse(fasta_path + '/' +
-                                      dict_org_code[genome][0] + '/' +
-                                      dict_org_code[genome][0] +
-                                      '_genomic.fna', 'fasta'):
-            len_genome += len(seq_record)
-        tmp_list.append((len_genome, genome))
-    # Sort by ascending size
-    genomes_sorted = [i[1] for i in sorted(tmp_list, key=lambda genome: genome[0], reverse=True)]
-    return genomes_sorted
-
+    
 
 def unzip_files(ref_gen_dir, list_genomes, dict_org_code):
     """
