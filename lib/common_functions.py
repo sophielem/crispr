@@ -139,17 +139,17 @@ def sort_genomes(list_genomes, fasta_path, dict_org_code, descending):
     """
     tmp_list = []
     for genome in list_genomes:
-        len_genome = 0
-        for seq_record in SeqIO.parse(fasta_path + '/' +
-                                      dict_org_code[genome][0] + '/' +
-                                      dict_org_code[genome][0] +
-                                      '_genomic.fna', 'fasta'):
-            len_genome += len(seq_record)
+        seq_record = SeqIO.parse(fasta_path + '/' + dict_org_code[genome][0] +
+                                 '/' + dict_org_code[genome][0] +
+                                 '_genomic.fna', 'fasta')
+        # seq_record is an iterator object containing 1 sequence
+        len_genome = len(next(seq_record))
         tmp_list.append((len_genome, genome))
+
     # Sort by ascending or descending size
     genomes_sorted = [i[1] for i in sorted(tmp_list, key=lambda genome: genome[0], reverse=descending)]
     return genomes_sorted
-    
+
 
 def unzip_files(ref_gen_dir, list_genomes, dict_org_code):
     """

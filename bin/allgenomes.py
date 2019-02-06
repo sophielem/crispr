@@ -212,7 +212,7 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_
         sorted_genomes = genomes_in
 
     if len(genomes_not_in) >= 1:
-        sorted_genomes_notin = cf.sort_genomes_desc(genomes_not_in, fasta_path,
+        sorted_genomes_notin = cf.sort_genomes(genomes_not_in, fasta_path,
                                                     dict_org_code, True)
     else:
         sorted_genomes_notin = []
