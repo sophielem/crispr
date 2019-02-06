@@ -1,15 +1,17 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 # -*-coding:Utf-8 -*-
 
-
 from __future__ import print_function
-import common_functions as cf
-import uuid,time,argparse,sys
-from Bio import SeqIO
-from Queue import Queue
-from threading import Thread
+import uuid
+import time
+import argparse
+import sys
 import os
+from Bio import SeqIO
+from queue import Queue
+from threading import Thread
+import common_functions as cf
 
 #Global variable
 TASK_KEY = str(uuid.uuid1())
@@ -96,12 +98,17 @@ def add_in_parallel(num_thread,list_fasta,organism_code,dic_seq,genome,len_sgrna
             res=open(resultFile, 'r')
             dic_result={}
             for l in res:
+                # not a comment
                 if l[0]!='@':
+                    # can align these 2 reads
                     if l.split('\t')[2]!='*':
                         l_split=l.split('\t')
+                        #CIGAR string representation of alignment
                         cigar=l_split[5]
                         if cigar=='23M':
+                            # reads quality
                             mm=l_split[-2]
+                            # Name of reference sequence where alignment occurs
                             ref=l_split[2]
                             if mm.split(':')[-1]=='23':
                                 seq=l_split[0]

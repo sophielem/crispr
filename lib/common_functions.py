@@ -1,10 +1,19 @@
+"""
+    Definition
+"""
+
 from __future__ import print_function
-import os,sys,json,re,subprocess
+import os
+import sys
+import json
+import re
+import subprocess
 import tarfile
 from Bio import SeqIO
-from Queue import Queue
+from queue import Queue
 from threading import Thread
 from glob import glob
+
 
 def humanize_bytes(bytes, precision=1):
     """Return a humanized string representation of a number of bytes.
@@ -29,11 +38,11 @@ def humanize_bytes(bytes, precision=1):
     '1.3 GB'
     """
     abbrevs = (
-        (1<<50L, 'PB'),
-        (1<<40L, 'TB'),
-        (1<<30L, 'GB'),
-        (1<<20L, 'MB'),
-        (1<<10L, 'kB'),
+        (1<<50, 'PB'),
+        (1<<40, 'TB'),
+        (1<<30, 'GB'),
+        (1<<20, 'MB'),
+        (1<<10, 'kB'),
         (1, 'bytes')
     )
     if bytes == 1:
