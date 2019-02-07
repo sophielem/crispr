@@ -205,7 +205,7 @@ def write_to_fasta_parallel(dic_seq, num_file):
 
 def run_bowtie(organism_code, fasta_file, num):
     """
-    Definition
+    Execute the bowtie command and return the result file
     """
     result_file = WORKDIR + '/results_bowtie' + num + '.sam'
     bowtie_tab = ['bowtie2', '-x ' + WORKDIR + '/reference_genomes/index2/' +
@@ -217,12 +217,14 @@ def run_bowtie(organism_code, fasta_file, num):
 
 def treat_bowtie_notin(result_file, e, dic_seq):
     """
-    Definition
+    Retrieve sequences does not match with genome
     """
     res = open(result_file, 'r')
     dic_result = {}
     for l in res:
+        # not a comment
         if l[0] != '@':
+            # does not match
             if l.split('\t')[2] == '*':
                 seq = l.split('\t')[0]
                 dic_result[seq] = dic_seq[seq]
@@ -235,11 +237,11 @@ def add_notin_parallel(num_thread, list_fasta, organism_code, dic_seq):
     Launch bowtie alignments for excluded genomes and treat the results,
     with parallelization (ie if 4 threads are selected,
     then 4 bowtie will be launch at the same time, with 4 subfiles
-    of the beginning file.
+    of the beginning file.)
     For excluded genomes, only the sequence NOT matching with genome
     will be conserved.
     """
-    def worker():
+    def worker(is_in):
         """
         Definition
         """
@@ -253,7 +255,7 @@ def add_notin_parallel(num_thread, list_fasta, organism_code, dic_seq):
 
     q = Queue()
     for i in range(num_thread):
-        t = Thread(target=worker)
+        t = Thread(target=worker, args=(is_in, ))
         t.daemon = True
         t.start()
 
