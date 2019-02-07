@@ -151,31 +151,31 @@ def sort_genomes(list_genomes, fasta_path, dict_org_code, descending):
     return genomes_sorted
 
 
-def unzip_files(ref_gen_dir, list_genomes, dict_org_code):
+def unzip_files(ref_gen_dir, list_genomes, dict_org_code, workdir):
     """
     Unzip required files for reserach
     """
     eprint('-- Unzip selected genomes --')
-    eprint('location ' + WORKDIR)
+    eprint('location ' + workdir)
     for genome in list_genomes:
         ref = dict_org_code[genome][0]
-        extract_unzip_file(ref_gen_dir, ref, "/fasta/")
-        extract_unzip_file(ref_gen_dir, ref, "/index2/")
+        extract_unzip_file(ref_gen_dir, ref, "/fasta/", workdir)
+        extract_unzip_file(ref_gen_dir, ref, "/index2/", workdir)
 
-    stats = _statdir(WORKDIR)
+    stats = _statdir(workdir)
     eprint("Temporary file size\n" + str(stats))
 
 
-def extract_unzip_file(ref_gen_dir, ref, folder):
+def extract_unzip_file(ref_gen_dir, ref, folder, workdir):
     """
     Extract files from a tar.gz compression
     """
     tar = tarfile.open(ref_gen_dir + folder + ref + '.tar.gz')
-    tar.extractall(WORKDIR + "/")
+    tar.extractall(workdir + "/")
     tar.close()
 
 
-def write_to_fasta_parallel(dic_seq, num_file):
+def write_to_fasta_parallel(dic_seq, num_file, workdir):
     """
     Write sequences in fasta file, and separate its
     in several files if specified.
@@ -184,9 +184,9 @@ def write_to_fasta_parallel(dic_seq, num_file):
     sep = len(dic_seq) // num_file
     list_dic_fasta = []
     for num in range(num_file):
-        out = open(WORKDIR + '/sgrna' + str(num) + '.fa', 'w')
+        out = open(workdir + '/sgrna' + str(num) + '.fa', 'w')
         list_dic_fasta.append({'num': num,
-                               'input_fasta': WORKDIR + '/sgrna' + str(num) + '.fa',
+                               'input_fasta': workdir + '/sgrna' + str(num) + '.fa',
                                'results': None
                               })
         i = 0
@@ -203,12 +203,12 @@ def write_to_fasta_parallel(dic_seq, num_file):
     return list_dic_fasta
 
 
-def run_bowtie(organism_code, fasta_file, num):
+def run_bowtie(organism_code, fasta_file, num, workdir):
     """
     Execute the bowtie command and return the result file
     """
-    result_file = WORKDIR + '/results_bowtie' + num + '.sam'
-    bowtie_tab = ['bowtie2', '-x ' + WORKDIR + '/reference_genomes/index2/' +
+    result_file = workdir + '/results_bowtie' + num + '.sam'
+    bowtie_tab = ['bowtie2', '-x ' + workdir + '/reference_genomes/index2/' +
                   organism_code + '/' + organism_code + ' -f ' + fasta_file +
                   ' -S ' + result_file + ' -L 13 -a --quiet ']
     subprocess.call(bowtie_tab)
@@ -271,7 +271,7 @@ def treat_bowtie_in(result_file, dic_seq, genome, len_sgrna):
     return dic_result
 
 
-def bowtie_multithr(num_thread, list_fasta, organism_code, dic_seq, genome, len_sgrna, is_in):
+def bowtie_multithr(num_thread, list_fasta, organism_code, dic_seq, genome, len_sgrna, workdir, is_in):
     """
     Launch bowtie alignments for excluded genomes and treat the results,
     with parallelization (ie if 4 threads are selected,
@@ -280,11 +280,11 @@ def bowtie_multithr(num_thread, list_fasta, organism_code, dic_seq, genome, len_
     For excluded genomes, only the sequence NOT matching with genome
     will be conserved.
     """
-     # Create workers
+    # Create workers
     my_pool = mp.Pool(num_thread)
     func_pll = ftools.partial(threading_bowtie, organism_code=organism_code,
                               dic_seq=dic_seq, genome=genome,
-                              len_sgrna=len_sgrna, is_in=is_in)
+                              len_sgrna=len_sgrna, is_in=is_in, workdir=workdir)
     # Launch workers
     rslt_bowtie = my_pool.map(func_pll, list_fasta)
     my_pool.close()
@@ -295,13 +295,13 @@ def bowtie_multithr(num_thread, list_fasta, organism_code, dic_seq, genome, len_
     return total_results
 
 
-def threading_bowtie(list_fasta, organism_code, dic_seq, genome, len_sgrna, is_in):
+def threading_bowtie(list_fasta, organism_code, dic_seq, genome, len_sgrna, is_in, workdir):
     """
     Launch bowtie and retrieve the result file. Then, treat it
     """
     fasta_file = list_fasta["input_fasta"]
     num_str = str(list_fasta["num"])
-    result_file = run_bowtie(organism_code, fasta_file, num_str)
+    result_file = run_bowtie(organism_code, fasta_file, num_str, workdir)
     dic_seq_matched = {}
     if is_in:
         dic_seq_matched["results"] = treat_bowtie_in(result_file, dic_seq,
@@ -311,17 +311,17 @@ def threading_bowtie(list_fasta, organism_code, dic_seq, genome, len_sgrna, is_i
     return dic_seq_matched
 
 
-def delete_used_files():
+def delete_used_files(workdir):
     """
     Delete unzipped files that have been used for research
     """
     eprint("Deleting stuff")
     eprint('-- Delete selected genomes --')
-    out = open(WORKDIR + '/delete.sh', 'w')
-    out.write('rm -r ' + WORKDIR + '/*.sam\nrm -r ' + WORKDIR +
-              '/reference_genomes\nrm ' + WORKDIR + '/delete.sh\n')
+    out = open(workdir + '/delete.sh', 'w')
+    out.write('rm -r ' + workdir + '/*.sam\nrm -r ' + workdir +
+              '/reference_genomes\nrm ' + workdir + '/delete.sh\n')
     out.close()
-    os.system('bash ' + WORKDIR + '/delete.sh')
+    os.system('bash ' + workdir + '/delete.sh')
 
 
 def construct_hitlist(dict_seq):
@@ -340,7 +340,7 @@ def construct_hitlist(dict_seq):
     return hits_list
 
 
-def write_to_file(genomes_in, genomes_not_in, hit_list, pam, non_pam_motif_length):
+def write_to_file(genomes_in, genomes_not_in, hit_list, pam, non_pam_motif_length, workdir):
     """
     Write results in a file.
     The file is a tabulated file, with first column=sgrna sequence,
@@ -348,7 +348,7 @@ def write_to_file(genomes_in, genomes_not_in, hit_list, pam, non_pam_motif_lengt
     of the sequence in each.
     """
     eprint('-- Write results to file --')
-    rep_rslt_file = WORKDIR + '/results_allgenome.txt'
+    rep_rslt_file = workdir + '/results_allgenome.txt'
     output = open(rep_rslt_file, 'w')
     gi = ','.join(genomes_in)
     gni = ','.join(genomes_not_in)
@@ -403,13 +403,13 @@ def create_list_occurences(dic_occurences):
     return list_occurences
 
 
-def output_interface(hit_list):
+def output_interface(hit_list, workdir):
     """
     Reformat the results to create a json file.
     It will be parsed in javascript to display it in interface.
     """
     eprint('-- Construct results for graphical interface --')
-    json_result_file = WORKDIR + '/results.json'
+    json_result_file = workdir + '/results.json'
     # print(json_result_file)
     list_dic = []
 
