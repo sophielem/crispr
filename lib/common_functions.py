@@ -9,8 +9,8 @@ import json
 import re
 import subprocess
 import tarfile
-from queue import Queue
-from threading import Thread
+import multiprocessing as mp
+import functools as ftools
 from glob import glob
 from Bio import SeqIO
 
@@ -215,24 +215,63 @@ def run_bowtie(organism_code, fasta_file, num):
     return result_file
 
 
-def treat_bowtie_notin(result_file, e, dic_seq):
+def treat_bowtie_notin(result_file, dic_seq):
     """
     Retrieve sequences does not match with genome
     """
-    res = open(result_file, 'r')
     dic_result = {}
-    for l in res:
-        # not a comment
-        if l[0] != '@':
-            # does not match
-            if l.split('\t')[2] == '*':
-                seq = l.split('\t')[0]
-                dic_result[seq] = dic_seq[seq]
-    e['results'] = dic_result
-    res.close()
+    with open(result_file, 'r') as res:
+        for line in res:
+            # not a comment
+            if line[0] != '@':
+                # does not match
+                if line.split('\t')[2] == '*':
+                    seq = line.split('\t')[0]
+                    dic_result[seq] = dic_seq[seq]
+    return dic_result
 
 
-def add_notin_parallel(num_thread, list_fasta, organism_code, dic_seq):
+def treat_bowtie_in(result_file, dic_seq, genome, len_sgrna):
+    """
+    Retrieve sequences match with genome and keep coordinate
+    """
+    dic_result = {}
+    with open(result_file, 'r') as res:
+        for line in res:
+            # not a comment
+            if line[0] != '@':
+                # can align these 2 reads
+                if line.split('\t')[2] != '*':
+                    l_split = line.split('\t')
+                    # CIGAR string representation of alignment
+                    cigar = l_split[5]
+                    if cigar == '23M':
+                        # reads quality
+                        read_quality = l_split[-2]
+                        # Name of reference sequence where alignment occurs
+                        ref = l_split[2]
+                        if read_quality.split(':')[-1] == '23':
+                            seq = l_split[0]
+                            if seq not in dic_result:
+                                dic_result[seq] = dic_seq[seq]
+                            if genome not in dic_result[seq]:
+                                dic_result[seq][genome] = {}
+                            seq_align = l_split[9]
+                            if seq != seq_align:
+                                strand = '+'
+                            else:
+                                strand = '-'
+                            start = l_split[3]
+                            end = int(start) + len_sgrna - 1
+                            if ref not in dic_result[seq][genome]:
+                                dic_result[seq][genome][ref] = []
+                            coord = (strand + '(' + start + ',' +
+                                     str(end) + ')')
+                            dic_result[seq][genome][ref].append(coord)
+    return dic_result
+
+
+def bowtie_multithr(num_thread, list_fasta, organism_code, dic_seq, genome, len_sgrna, is_in):
     """
     Launch bowtie alignments for excluded genomes and treat the results,
     with parallelization (ie if 4 threads are selected,
@@ -241,33 +280,35 @@ def add_notin_parallel(num_thread, list_fasta, organism_code, dic_seq):
     For excluded genomes, only the sequence NOT matching with genome
     will be conserved.
     """
-    def worker(is_in):
-        """
-        Definition
-        """
-        while True:
-            e = q.get()
-            fasta_file = e['input_fasta']
-            num_str = str(e['num'])
-            result_file = run_bowtie(organism_code, fasta_file, num_str)
-            treat_bowtie_notin(result_file, e, dic_seq)
-            q.task_done()
-
-    q = Queue()
-    for i in range(num_thread):
-        t = Thread(target=worker, args=(is_in, ))
-        t.daemon = True
-        t.start()
-
-    for e in list_fasta:
-        q.put(e)
-
-    q.join()
+     # Create workers
+    my_pool = mp.Pool(num_thread)
+    func_pll = ftools.partial(threading_bowtie, organism_code=organism_code,
+                              dic_seq=dic_seq, genome=genome,
+                              len_sgrna=len_sgrna, is_in=is_in)
+    # Launch workers
+    rslt_bowtie = my_pool.map(func_pll, list_fasta)
+    my_pool.close()
+    # Join results obtained by the different bowtie on the same genome
     total_results = {}
-    for e in list_fasta:
-        total_results.update(e['results'])
-
+    for res in rslt_bowtie:
+        total_results.update(res['results'])
     return total_results
+
+
+def threading_bowtie(list_fasta, organism_code, dic_seq, genome, len_sgrna, is_in):
+    """
+    Launch bowtie and retrieve the result file. Then, treat it
+    """
+    fasta_file = list_fasta["input_fasta"]
+    num_str = str(list_fasta["num"])
+    result_file = run_bowtie(organism_code, fasta_file, num_str)
+    dic_seq_matched = {}
+    if is_in:
+        dic_seq_matched["results"] = treat_bowtie_in(result_file, dic_seq,
+                                                     genome, len_sgrna)
+    else:
+        dic_seq_matched["results"] = treat_bowtie_notin(result_file, dic_seq)
+    return dic_seq_matched
 
 
 def delete_used_files():

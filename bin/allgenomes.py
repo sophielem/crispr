@@ -10,8 +10,6 @@ import time
 import argparse
 import sys
 import os
-from queue import Queue
-from threading import Thread
 from Bio import SeqIO
 import common_functions as cf
 
@@ -103,77 +101,6 @@ def construct_in(fasta_path, organism, organism_code, pam, non_pam_motif_length)
     return seq_dict
 
 
-def add_in_parallel(num_thread, list_fasta, organism_code, dic_seq, genome, len_sgrna):
-    """
-    Launch bowtie alignments for included genomes and treat the results,
-    with parallelization (ie if 4 threads are selected, then 4 bowtie will be
-    launch at the same time, with 4 subfiles of the beginning file.
-    For included genomes, only the sequences matching exactly
-    (no mismatch) with genome will be conserved.
-    """
-    def worker():
-        """
-        Definition
-        """
-        while True:
-            e = q.get()
-            fasta_file = e['input_fasta']
-            num_str = str(e['num'])
-            result_file = cf.run_bowtie(organism_code, fasta_file, num_str)
-            res = open(result_file, 'r')
-            dic_result = {}
-            for line in res:
-                # not a comment
-                if line[0] != '@':
-                    # can align these 2 reads
-                    if line.split('\t')[2] != '*':
-                        l_split = line.split('\t')
-                        # CIGAR string representation of alignment
-                        cigar = l_split[5]
-                        if cigar == '23M':
-                            # reads quality
-                            read_quality = l_split[-2]
-                            # Name of reference sequence where alignment occurs
-                            ref = l_split[2]
-                            if read_quality.split(':')[-1] == '23':
-                                seq = l_split[0]
-                                if seq not in dic_result:
-                                    dic_result[seq] = dic_seq[seq]
-                                if genome not in dic_result[seq]:
-                                    dic_result[seq][genome] = {}
-                                seq_align = l_split[9]
-                                if seq != seq_align:
-                                    strand = '+'
-                                else:
-                                    strand = '-'
-                                start = l_split[3]
-                                end = int(start) + len_sgrna - 1
-                                if ref not in dic_result[seq][genome]:
-                                    dic_result[seq][genome][ref] = []
-                                coord = (strand + '(' + start + ',' +
-                                         str(end) + ')')
-                                dic_result[seq][genome][ref].append(coord)
-            e['results'] = dic_result
-            res.close()
-            q.task_done()
-
-    q = Queue()
-    for i in range(num_thread):
-        t = Thread(target=worker)
-        t.daemon = True
-        t.start()
-
-    for e in list_fasta:
-        q.put(e)
-
-    q.join()
-    total_results = {}
-    for e in list_fasta:
-        total_results.update(e['results'])
-
-    return total_results
-
-
 def sort_hits(hitlist):
     """
     Scoring of the hits found, where positive scores mean stronger
@@ -239,8 +166,9 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_
     for i in list_order:
         genome = i[0]
         if i[1] == 'notin':
-            dic_seq = cf.add_notin_parallel(num_thread, list_fasta,
-                                            dict_org_code[genome][0], dic_seq)
+            dic_seq = cf.bowtie_multithr(num_thread, list_fasta,
+                                         dict_org_code[genome][0], dic_seq,
+                                         genome, len(pam) + non_pam_motif_length, False)
             if not dic_seq:
                 print("Program terminated&No hits remain after exclude genome "
                       + genome)
@@ -254,9 +182,9 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_
             list_fasta = cf.write_to_fasta_parallel(dic_seq, num_file)
 
         elif i[1] == 'in':
-            dic_seq = add_in_parallel(num_thread, list_fasta,
-                                      dict_org_code[genome][0], dic_seq,
-                                      genome, len(pam) + non_pam_motif_length)
+            dic_seq = cf.bowtie_multithr(num_thread, list_fasta,
+                                         dict_org_code[genome][0], dic_seq,
+                                         genome, len(pam) + non_pam_motif_length, True)
             if not dic_seq:
                 print("Program terminated&No hits remain after include genome "
                       + genome)
