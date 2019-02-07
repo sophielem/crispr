@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Definition
+    Find sgRNA sequence for the CRISP/CAS9 method. Find sgRNA common to some
+    bacteria and exclude some bacteria.
 """
-# -*-coding:Utf-8 -*-
 
 from __future__ import print_function
 import uuid
@@ -10,6 +10,7 @@ import time
 import argparse
 import sys
 import os
+import pickle
 from Bio import SeqIO
 import common_functions as cf
 
@@ -97,6 +98,8 @@ def construct_in(fasta_path, organism, organism_code, pam, non_pam_motif_length)
                 seq_dict[seq][organism][ref] = []
             seq_dict[seq][organism][ref].append('-(' + str(indice+1) + ',' +
                                                 str(end) + ')')
+    pickle.dump(seq_dict, open(UNCOMPRESSED_GEN_DIR + "/pickle/" + organism +
+                               "." + organism_code + ".p", "wb"), protocol=3)
     return seq_dict
 
 
@@ -119,7 +122,7 @@ def sort_hits(hitlist):
 
 def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_in, dict_org_code, workdir):
     """
-    Definition
+    Principal algorithm to launch to find sgRNA common
     """
     start_time = time.time()
     num_thread = 4
@@ -146,9 +149,15 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_
     cf.eprint('-- RESEARCH --')
 
     # Research in first genome
-    dic_seq = construct_in(fasta_path, sorted_genomes[0],
-                           dict_org_code[sorted_genomes[0]][0], pam,
-                           non_pam_motif_length)
+    pickle_file = (UNCOMPRESSED_GEN_DIR + "/pickle/" + sorted_genomes[0] +
+                   "." + dict_org_code[sorted_genomes[0]][0] + ".p")
+    if not os.path.isdir(UNCOMPRESSED_GEN_DIR + "/pickle"): os.mkdir(UNCOMPRESSED_GEN_DIR + "/pickle")
+    if os.path.isfile(pickle_file):
+        dic_seq = pickle.load(open(pickle_file, "rb"))
+    else:
+        dic_seq = construct_in(fasta_path, sorted_genomes[0],
+                               dict_org_code[sorted_genomes[0]][0], pam,
+                               non_pam_motif_length)
     cf.eprint(str(len(dic_seq)) + ' hits in first included genome ' +
               sorted_genomes[0])
     list_fasta = cf.write_to_fasta_parallel(dic_seq, num_file, workdir)
@@ -211,7 +220,7 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_
 
 def set_globel_env(param):
     """
-    Definition
+    Set global variable
     """
     global TASK_KEY
     global UNCOMPRESSED_GEN_DIR
@@ -224,7 +233,8 @@ def set_globel_env(param):
 
 def main():
     """
-    Definition
+    Main function. Create the organism - code dictionnary and launch
+    comparisons between selected genomes
     """
 
     start_time = time.time()
