@@ -9,6 +9,7 @@ import json
 import re
 import subprocess
 import tarfile
+import operator
 import multiprocessing as mp
 import functools as ftools
 from glob import glob
@@ -441,54 +442,47 @@ def order_for_research(list_in, list_notin, genome, dict_org_code, dist_dic, lis
     """
     ref1 = dict_org_code[genome][0]
     if list_in and list_notin:
-        in_compare = -1
-        for gi in list_in:
-            ref2 = dict_org_code[gi][0]
-            dist = dist_dic[ref1][ref2]
-            if dist > in_compare:
-                in_compare = dist
-                in_compare_genome = gi
-        notin_compare = 11
-        for gni in list_notin:
-            ref2 = dict_org_code[gni][0]
-            dist = dist_dic[ref1][ref2]
-            if dist < notin_compare:
-                notin_compare = dist
-                notin_compare_genome = gni
+        in_compare_genome, in_compare = compare_dist_btw_genome(dict_org_code, dist_dic, ref1, list_in, -1, operator.gt)
+        notin_compare_genome, notin_compare = compare_dist_btw_genome(dict_org_code, dist_dic, ref1, list_notin, 11, operator.lt)
 
         if in_compare > notin_compare:
-            new_genome = in_compare_genome
-            list_order.append((new_genome, 'in'))
-            list_in.remove(new_genome)
+            list_order, list_in, new_genome = update_list_order(list_order, list_in, in_compare_genome, "in")
         else:
-            new_genome = notin_compare_genome
-            list_order.append((new_genome, 'notin'))
-            list_notin.remove(new_genome)
+            list_order, list_notin, new_genome = update_list_order(list_order, list_notin, notin_compare_genome, "notin")
 
     elif list_in:
-        in_compare = -1
-        for gi in list_in:
-            ref2 = dict_org_code[gi][0]
-            dist = dist_dic[ref1][ref2]
-            if dist > in_compare:
-                in_compare = dist
-                in_compare_genome = gi
-        new_genome = in_compare_genome
-        list_order.append((new_genome, 'in'))
-        list_in.remove(new_genome)
+        in_compare_genome, in_compare = compare_dist_btw_genome(dict_org_code, dist_dic, ref1, list_in, -1, operator.gt)
+        list_order, list_in, new_genome = update_list_order(list_order, list_in, in_compare_genome, "in")
 
     elif list_notin:
-        notin_compare = 11
-        for gni in list_notin:
-            ref2 = dict_org_code[gni][0]
-            dist = dist_dic[ref1][ref2]
-            if dist < notin_compare:
-                notin_compare = dist
-                notin_compare_genome = gni
-        new_genome = notin_compare_genome
-        list_order.append((new_genome, 'notin'))
-        list_notin.remove(new_genome)
+        notin_compare_genome, notin_compare = compare_dist_btw_genome(dict_org_code, dist_dic, ref1, list_notin, 11, operator.lt)
+        list_order, list_notin, new_genome = update_list_order(list_order, list_notin, notin_compare_genome, "notin")
     else:
         return list_order
 
     return order_for_research(list_in, list_notin, new_genome, dict_org_code, dist_dic, list_order)
+
+
+def compare_dist_btw_genome(dict_org_code, dist_dic, ref1, list_genomes, dist_compare, comp):
+    """
+    Compare distance between a reference genome and the list of genomes in or out
+    to find the or the closest genome. Then return the distance between these 2 genomes
+    and the name of the genome
+    """
+    for genome in list_genomes:
+        ref2 = dict_org_code[genome][0]
+        dist = dist_dic[ref1][ref2]
+        if comp(dist, dist_compare):
+            dist_compare = dist
+            compare_genome = genome
+    return (compare_genome, dist_compare)
+
+
+def update_list_order(list_order, list_in, in_compare_genome, is_in):
+    """
+    Add the genome to the order list and remove it from the original list
+    """
+    new_genome = in_compare_genome
+    list_order.append((new_genome, 'in'))
+    list_in.remove(new_genome)
+    return (list_order, list_in, new_genome)
