@@ -466,7 +466,7 @@ def order_for_research(list_in, list_notin, genome, dict_org_code, dist_dic, lis
 def compare_dist_btw_genome(dict_org_code, dist_dic, ref1, list_genomes, dist_compare, comp):
     """
     Compare distance between a reference genome and the list of genomes in or out
-    to find the or the closest genome. Then return the distance between these 2 genomes
+    to find the farthest or the closest genome. Then return the distance between these 2 genomes
     and the name of the genome
     """
     for genome in list_genomes:

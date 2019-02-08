@@ -59,7 +59,7 @@ def setup_application(parameters, dict_organism_code):
     return organisms_selected, organisms_excluded, parameters.pam, non_pam_motif_length
 
 
-def construct_in(fasta_path, organism, organism_code, pam, non_pam_motif_length):
+def construct_in(fasta_path, organism, organism_code, pam, non_pam_motif_length, pickle_file):
     """
     Construct the sequences for first organism,
     with python regular expression research
@@ -98,8 +98,7 @@ def construct_in(fasta_path, organism, organism_code, pam, non_pam_motif_length)
                 seq_dict[seq][organism][ref] = []
             seq_dict[seq][organism][ref].append('-(' + str(indice+1) + ',' +
                                                 str(end) + ')')
-    pickle.dump(seq_dict, open(UNCOMPRESSED_GEN_DIR + "/pickle/" + organism +
-                               "." + organism_code + ".p", "wb"), protocol=3)
+    pickle.dump(seq_dict, open(pickle_file, "wb"), protocol=3)
     return seq_dict
 
 
@@ -149,7 +148,8 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_
     cf.eprint('-- RESEARCH --')
 
     # Research in first genome
-    pickle_file = (UNCOMPRESSED_GEN_DIR + "/pickle/" + sorted_genomes[0] +
+    name_file = sorted_genomes[0].replace("/", "_")
+    pickle_file = (UNCOMPRESSED_GEN_DIR + "/pickle/" + name_file +
                    "." + dict_org_code[sorted_genomes[0]][0] + ".p")
     if not os.path.isdir(UNCOMPRESSED_GEN_DIR + "/pickle"): os.mkdir(UNCOMPRESSED_GEN_DIR + "/pickle")
     if os.path.isfile(pickle_file):
@@ -157,7 +157,7 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_
     else:
         dic_seq = construct_in(fasta_path, sorted_genomes[0],
                                dict_org_code[sorted_genomes[0]][0], pam,
-                               non_pam_motif_length)
+                               non_pam_motif_length, pickle_file)
     cf.eprint(str(len(dic_seq)) + ' hits in first included genome ' +
               sorted_genomes[0])
     list_fasta = cf.write_to_fasta_parallel(dic_seq, num_file, workdir)
