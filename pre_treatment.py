@@ -131,24 +131,29 @@ def create_lineage_objects(dic_tax):
     for ref in dic_tax:
         lineage_object = Lineage()
         tax_ref = dic_tax[ref]
-        lineage = ncbi.get_lineage(tax_ref)
-        names = ncbi.get_taxid_translator(lineage)
-        ranks = ncbi.get_rank(lineage)
-        for i in ranks:
-            if ranks[i] == 'species':
-                lineage_object.species = names[i]
-            elif ranks[i] == 'genus':
-                lineage_object.genus = names[i]
-            elif ranks[i] == 'family':
-                lineage_object.family = names[i]
-            elif ranks[i] == 'order':
-                lineage_object.order = names[i]
-            elif ranks[i] == 'class':
-                lineage_object.classe = names[i]
-            elif ranks[i] == 'phylum':
-                lineage_object.phylum = names[i]
-        dic_lineage[ref] = (lineage_object, count)
-        count += 1
+        try:
+            lineage = ncbi.get_lineage(tax_ref)
+            names = ncbi.get_taxid_translator(lineage)
+            ranks = ncbi.get_rank(lineage)
+            for i in ranks:
+                if ranks[i] == 'species':
+                    lineage_object.species = names[i]
+                elif ranks[i] == 'genus':
+                    lineage_object.genus = names[i]
+                elif ranks[i] == 'family':
+                    lineage_object.family = names[i]
+                elif ranks[i] == 'order':
+                    lineage_object.order = names[i]
+                elif ranks[i] == 'class':
+                    lineage_object.classe = names[i]
+                elif ranks[i] == 'phylum':
+                    lineage_object.phylum = names[i]
+            dic_lineage[ref] = (lineage_object, count)
+            count += 1
+        except Exception as e:
+            with open("problem_taxon.log", "a") as filout:
+                filout.write(tax_ref + "\n")
+
     return dic_lineage
 
 
@@ -159,7 +164,7 @@ def distance_dic(dic_lineage, ref_new, param):
     """
     with open(param.rfg + "/distance_dic.json", "r") as json_data:
         dic = json.load(json_data)
-
+    dic[ref_new] = {}
     for ref1 in dic_lineage:
         if ref_new == ref1:
             dic[ref_new][ref1] = 0
@@ -200,14 +205,14 @@ def json_tree(bdd_path):
 
 def compress(param, ref):
     # Compress the fasta file in the database
-    with tarfile.open(ref + ".tar.gz", "w:gz") as tar:
+    with tarfile.open(param.rfg + "/fasta/" + ref + ".tar.gz", "w:gz") as tar:
         tar.add("reference_genomes/fasta/" + ref + "/" + ref + "_genomic.fna")
         tar.add("reference_genomes/fasta/" + ref + "/" + ref + "_genomic.fna.nhr")
         tar.add("reference_genomes/fasta/" + ref + "/" + ref + "_genomic.fna.nin")
         tar.add("reference_genomes/fasta/" + ref + "/" + ref + "_genomic.fna.nsq")
 
     # Compress the fasta file in the database
-    with tarfile.open(ref + "2.tar.gz", "w:gz") as tar:
+    with tarfile.open(param.rfg + "/index2/" + ref + ".tar.gz", "w:gz") as tar:
         tar.add("reference_genomes/index2/" + ref + "/" + ref + ".1.bt2")
         tar.add("reference_genomes/index2/" + ref + "/" + ref + ".2.bt2")
         tar.add("reference_genomes/index2/" + ref + "/" + ref + ".3.bt2")
@@ -218,12 +223,15 @@ def compress(param, ref):
 
 if __name__ == '__main__':
     PARAM = args_gestion()
+    # Create dictionnary with all taxon ID
     DIC_TAXID, REF_NEW = set_dic_taxid(PARAM)
+    # Index the new genome
     index_bowtie_blast(REF_NEW)
+    # Compress the indexation and the fasta file
     compress(PARAM, REF_NEW)
+    # Calcul distances between new and old genomes
     distance_matrix(DIC_TAXID, REF_NEW, PARAM)
 
-
-    # json_tree(param.rfg)
-
-    # shutil.rmtree("reference_genomes")
+    json_tree(PARAM.rfg)
+    # Delete temporary directory
+    shutil.rmtree("reference_genomes")
