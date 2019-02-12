@@ -20,6 +20,16 @@ UNCOMPRESSED_GEN_DIR = None
 ASYNC = False
 
 
+def str2bool(v):
+    "Convert string to boolean"
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
+
 def args_gestion():
     """
     Take and treat arguments that user gives in command line
@@ -42,6 +52,10 @@ def args_gestion():
                         help="The path to the reference genome folder")
     parser.add_argument("-cah", metavar="<str>",
                         help="The path to cache folder for the webservice")
+    parser.add_argument("-copy", type=str2bool,
+                        help="Copy or not the fasta file")
+    parser.add_argument("-pickle", type=str2bool,
+                        help="Use or create pickle files")
     args = parser.parse_args()
     return args
 
@@ -59,7 +73,7 @@ def setup_application(parameters, dict_organism_code):
     return organisms_selected, organisms_excluded, parameters.pam, non_pam_motif_length
 
 
-def construct_in(fasta_path, organism, organism_code, pam, non_pam_motif_length, pickle_file):
+def construct_in(fasta_path, organism, organism_code, pam, non_pam_motif_length):
     """
     Construct the sequences for first organism,
     with python regular expression research
@@ -98,7 +112,6 @@ def construct_in(fasta_path, organism, organism_code, pam, non_pam_motif_length,
                 seq_dict[seq][organism][ref] = []
             seq_dict[seq][organism][ref].append('-(' + str(indice+1) + ',' +
                                                 str(end) + ')')
-    pickle.dump(seq_dict, open(pickle_file, "wb"), protocol=3)
     return seq_dict
 
 
@@ -129,9 +142,13 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_
     cf.eprint('## Search for', len(genomes_in), "included genomes and",
               len(genomes_not_in), 'excluded genomes with', num_thread,
               'thread(s) ##')
-
-    cf.unzip_files(UNCOMPRESSED_GEN_DIR, genomes_in + genomes_not_in,
-                   dict_org_code, workdir)
+    if COPY:
+        cf.unzip_files(UNCOMPRESSED_GEN_DIR, genomes_in + genomes_not_in,
+                       dict_org_code, workdir)
+        bd_dir = workdir + "/reference_genomes"
+    else:
+        cf.eprint('Not copying files')
+        bd_dir = UNCOMPRESSED_GEN_DIR
 
     if len(genomes_in) != 1:
         sorted_genomes = cf.sort_genomes(genomes_in, fasta_path, dict_org_code,
@@ -149,15 +166,21 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_
 
     # Research in first genome
     name_file = sorted_genomes[0].replace("/", "_")
-    pickle_file = (UNCOMPRESSED_GEN_DIR + "/pickle/" + name_file +
-                   "." + dict_org_code[sorted_genomes[0]][0] + ".p")
-    if not os.path.isdir(UNCOMPRESSED_GEN_DIR + "/pickle"): os.mkdir(UNCOMPRESSED_GEN_DIR + "/pickle")
-    if os.path.isfile(pickle_file):
-        dic_seq = pickle.load(open(pickle_file, "rb"))
+    if PICKLE:
+        pickle_file = (UNCOMPRESSED_GEN_DIR + "/pickle/" + name_file +
+                       "." + dict_org_code[sorted_genomes[0]][0] + ".p")
+        if not os.path.isdir(UNCOMPRESSED_GEN_DIR + "/pickle"): os.mkdir(UNCOMPRESSED_GEN_DIR + "/pickle")
+        if os.path.isfile(pickle_file):
+            dic_seq = pickle.load(open(pickle_file, "rb"))
+        else:
+            dic_seq = construct_in(fasta_path, sorted_genomes[0],
+                                   dict_org_code[sorted_genomes[0]][0], pam,
+                                   non_pam_motif_length)
+            pickle.dump(dic_seq, open(pickle_file, "wb"), protocol=3)
     else:
         dic_seq = construct_in(fasta_path, sorted_genomes[0],
                                dict_org_code[sorted_genomes[0]][0], pam,
-                               non_pam_motif_length, pickle_file)
+                               non_pam_motif_length)
     cf.eprint(str(len(dic_seq)) + ' hits in first included genome ' +
               sorted_genomes[0])
     list_fasta = cf.write_to_fasta_parallel(dic_seq, num_file, workdir)
@@ -176,14 +199,14 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_
         if i[1] == 'notin':
             dic_seq = cf.bowtie_multithr(num_thread, list_fasta,
                                          dict_org_code[genome][0], dic_seq,
-                                         genome, len(pam) + non_pam_motif_length, workdir, False)
+                                         genome, len(pam) + non_pam_motif_length, workdir, bd_dir, False)
             if not dic_seq:
                 print("Program terminated&No hits remain after exclude genome "
                       + genome)
                 end_time = time.time()
                 total_time = end_time - start_time
                 cf.eprint('TIME', total_time)
-                cf.delete_used_files()
+                cf.delete_used_files(workdir, COPY)
                 sys.exit(1)
             cf.eprint(str(len(dic_seq)) + " hits remain after exclude genome "
                       + genome)
@@ -192,20 +215,20 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_
         elif i[1] == 'in':
             dic_seq = cf.bowtie_multithr(num_thread, list_fasta,
                                          dict_org_code[genome][0], dic_seq,
-                                         genome, len(pam) + non_pam_motif_length, workdir, True)
+                                         genome, len(pam) + non_pam_motif_length, workdir, bd_dir, True)
             if not dic_seq:
                 print("Program terminated&No hits remain after include genome "
                       + genome)
                 end_time = time.time()
                 total_time = end_time - start_time
                 cf.eprint('TIME', total_time)
-                cf.delete_used_files()
+                cf.delete_used_files(workdir, COPY)
                 sys.exit(1)
             cf.eprint(str(len(dic_seq)) + " hits remain after include genome "
                       + genome)
             list_fasta = cf.write_to_fasta_parallel(dic_seq, num_file, workdir)
 
-    cf.delete_used_files(workdir)
+    cf.delete_used_files(workdir, COPY)
 
     hit_list = cf.construct_hitlist(dic_seq)
     hit_list = sort_hits(hit_list)
@@ -225,10 +248,14 @@ def set_globel_env(param):
     global TASK_KEY
     global UNCOMPRESSED_GEN_DIR
     global ASYNC  # A switch to properly configure sbatch delagation
+    global COPY
+    global PICKLE
     TASK_KEY = str(uuid.uuid1())
     cf.TASK_KEY = TASK_KEY
     UNCOMPRESSED_GEN_DIR = param.rfg
     ASYNC = param.async
+    COPY = param.copy
+    PICKLE = param.pickle
 
 
 def main():
@@ -247,8 +274,10 @@ def main():
         WORKDIR = os.getcwd()
     else:
         WORKDIR = cf.setup_work_space(parameters)
-
-    fasta_path = WORKDIR + '/reference_genomes/fasta'
+    if COPY:
+        fasta_path = WORKDIR + '/reference_genomes/fasta'
+    else:
+        fasta_path = UNCOMPRESSED_GEN_DIR + "/fasta"
     # Keys: organism, values: genomic reference (ncbi)
     dict_organism_code = cf.read_json_dic(UNCOMPRESSED_GEN_DIR +
                                           '/genome_ref_taxid.json')

@@ -204,12 +204,12 @@ def write_to_fasta_parallel(dic_seq, num_file, workdir):
     return list_dic_fasta
 
 
-def run_bowtie(organism_code, fasta_file, num, workdir):
+def run_bowtie(organism_code, fasta_file, num, workdir, bd_dir):
     """
     Execute the bowtie command and return the result file
     """
     result_file = workdir + '/results_bowtie' + num + '.sam'
-    bowtie_tab = ['bowtie2', '-x ' + workdir + '/reference_genomes/index2/' +
+    bowtie_tab = ['bowtie2', '-x ' + bd_dir + '/index2/' +
                   organism_code + '/' + organism_code + ' -f ' + fasta_file +
                   ' -S ' + result_file + ' -L 13 -a --quiet ']
     subprocess.call(bowtie_tab)
@@ -272,7 +272,7 @@ def treat_bowtie_in(result_file, dic_seq, genome, len_sgrna):
     return dic_result
 
 
-def bowtie_multithr(num_thread, list_fasta, organism_code, dic_seq, genome, len_sgrna, workdir, is_in):
+def bowtie_multithr(num_thread, list_fasta, organism_code, dic_seq, genome, len_sgrna, workdir, bd_dir, is_in):
     """
     Launch bowtie alignments for excluded genomes and treat the results,
     with parallelization (ie if 4 threads are selected,
@@ -285,7 +285,7 @@ def bowtie_multithr(num_thread, list_fasta, organism_code, dic_seq, genome, len_
     my_pool = mp.Pool(num_thread)
     func_pll = ftools.partial(threading_bowtie, organism_code=organism_code,
                               dic_seq=dic_seq, genome=genome,
-                              len_sgrna=len_sgrna, is_in=is_in, workdir=workdir)
+                              len_sgrna=len_sgrna, is_in=is_in, workdir=workdir, bd_dir=bd_dir)
     # Launch workers
     rslt_bowtie = my_pool.map(func_pll, list_fasta)
     my_pool.close()
@@ -296,13 +296,13 @@ def bowtie_multithr(num_thread, list_fasta, organism_code, dic_seq, genome, len_
     return total_results
 
 
-def threading_bowtie(list_fasta, organism_code, dic_seq, genome, len_sgrna, is_in, workdir):
+def threading_bowtie(list_fasta, organism_code, dic_seq, genome, len_sgrna, is_in, workdir, bd_dir):
     """
     Launch bowtie and retrieve the result file. Then, treat it
     """
     fasta_file = list_fasta["input_fasta"]
     num_str = str(list_fasta["num"])
-    result_file = run_bowtie(organism_code, fasta_file, num_str, workdir)
+    result_file = run_bowtie(organism_code, fasta_file, num_str, workdir, bd_dir)
     dic_seq_matched = {}
     if is_in:
         dic_seq_matched["results"] = treat_bowtie_in(result_file, dic_seq,
@@ -312,15 +312,19 @@ def threading_bowtie(list_fasta, organism_code, dic_seq, genome, len_sgrna, is_i
     return dic_seq_matched
 
 
-def delete_used_files(workdir):
+def delete_used_files(workdir, copyBool):
     """
     Delete unzipped files that have been used for research
     """
     eprint("Deleting stuff")
     eprint('-- Delete selected genomes --')
     out = open(workdir + '/delete.sh', 'w')
-    out.write('rm -r ' + workdir + '/*.sam\nrm -r ' + workdir +
-              '/reference_genomes\nrm ' + workdir + '/delete.sh\n')
+    rmCmd =   'rm -r ' + workdir + '/*.sam\n'\
+            + 'rm -r ' + workdir + '/*.fa\n' \
+            + 'rm '    + workdir + '/delete.sh\n'
+    if copyBool:
+        rmCmd += 'rm -r ' + workdir + '/reference_genomes\n'
+    out.write(rmCmd)
     out.close()
     os.system('bash ' + workdir + '/delete.sh')
 
