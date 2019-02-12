@@ -1,9 +1,20 @@
+"""
+    Definition
+"""
+
 from __future__ import print_function
-import os,sys,json,re,subprocess
-from Bio import SeqIO
-from Queue import Queue
-from threading import Thread
+import os
+import sys
+import json
+import re
+import subprocess
+import tarfile
+import operator
+import multiprocessing as mp
+import functools as ftools
 from glob import glob
+from Bio import SeqIO
+
 
 def humanize_bytes(bytes, precision=1):
     """Return a humanized string representation of a number of bytes.
@@ -28,11 +39,11 @@ def humanize_bytes(bytes, precision=1):
     '1.3 GB'
     """
     abbrevs = (
-        (1<<50L, 'PB'),
-        (1<<40L, 'TB'),
-        (1<<30L, 'GB'),
-        (1<<20L, 'MB'),
-        (1<<10L, 'kB'),
+        (1 << 50, 'PB'),
+        (1 << 40, 'TB'),
+        (1 << 30, 'GB'),
+        (1 << 20, 'MB'),
+        (1 << 10, 'kB'),
         (1, 'bytes')
     )
     if bytes == 1:
@@ -43,33 +54,44 @@ def humanize_bytes(bytes, precision=1):
     return '%.*f %s' % (precision, bytes / factor, suffix)
 
 
-def _statDir(location):
+def _statdir(location):
+    """
+    Calcul the size of a given location
+    """
     data = {}
-    for subDir in glob(location + "/*/"):       
-        data[subDir] = 0
-        for dirpath, dirnames, filenames in os.walk(subDir):
-            for f in filenames:
-                fp = os.path.join(dirpath, f)
-                data[subDir] += os.path.getsize(fp)
-        data[subDir] = humanize_bytes( data[subDir] )
+    for sub_dir in glob(location + "/*/"):
+        data[sub_dir] = 0
+        for dirpath, dirnames, filenames in os.walk(sub_dir):
+            for file in filenames:
+                fpath = os.path.join(dirpath, file)
+                data[sub_dir] += os.path.getsize(fpath)
+        data[sub_dir] = humanize_bytes(data[sub_dir])
     return data
 
+
 class Hit():
-    def __init__(self,sequence,in_dic):
-        self.sequence=sequence
-        self.genomes_Dict=in_dic
-        self.score=0
+    """
+    Object Hit containing the CRISPR sequence, indexes where it is found
+    and its associated score
+    """
+    def __init__(self, sequence, in_dic):
+        self.sequence = sequence
+        self.genomes_dict = in_dic
+        self.score = 0
 
 
 def eprint(*args, **kwargs):
-    '''For printing only on the terminal'''
+    """
+    For printing only on the terminal
+    """
     print(*args, file=sys.stderr, **kwargs)
 
 
 def reverse_complement(sequence):
-    '''
-    Function for turning a 5'-3' nucleotidic sequence into its 5'-3' reverse complement.
-    '''
+    """
+    Function for turning a 5'-3' nucleotidic sequence into
+    its 5'-3' reverse complement.
+    """
     rev_comp = []
     for idx in range(len(sequence) - 1, -1, -1):
         if sequence[idx] == 'A':
@@ -84,79 +106,94 @@ def reverse_complement(sequence):
             rev_comp = rev_comp + ['N']
     return "".join(rev_comp)
 
+
 def build_expression(seq):
+    """
+    Build the regular expression by replacing the letter by iupac code or
+    the letter itself
+    """
     result = ''
-    iupac_code={'R':'[AG]', 'Y':'[CT]', 'S':'[GC]', 'W':'[AT]', 'K':'[GT]', 'M':'[AC]', 'B':'[CGT]', 'D':'[AGT]', 'H':'[ACT]', 'V':'[ACG]', 'N':'[ACGT]'}
-    for c in seq:
-        if c in iupac_code:
-            result = result + iupac_code[c]
+    iupac_code = {'R': '[AG]', 'Y': '[CT]', 'S': '[GC]', 'W': '[AT]',
+                  'K': '[GT]', 'M': '[AC]', 'B': '[CGT]', 'D': '[AGT]',
+                  'H': '[ACT]', 'V': '[ACG]', 'N': '[ACGT]'}
+    for letter in seq:
+        if letter in iupac_code:
+            result = result + iupac_code[letter]
         else:
-            result = result + c
+            result = result + letter
     return result
 
 
-def find_sgRNA_seq(seq,pam):
-    '''
-    Uses Regular expression matching of the PAM motif to the reference genome to get the start
-    positions (0-based) of each match
-    '''
-    list_seq=[]
+def find_sgrna_seq(seq, pam):
+    """
+    Uses Regular expression matching of the pam motif to the reference genome
+    to get the start positions (0-based) of each match
+    """
     reg_exp = build_expression(pam)
     indices = [m.start() for m in re.finditer('(?=' + reg_exp + ')', seq, re.I)]
     return indices
 
-def sort_genomes(list_genomes,fasta_path,dict_org_code):
-    '''Sort genomes by ascending size'''
-    tmp_list=[]
-    for genome in list_genomes:
-        len_genome=0
-        for seq_record in SeqIO.parse(fasta_path +'/' + dict_org_code[genome][0] +'/' + dict_org_code[genome][0] +'_genomic.fna', 'fasta'):
-            len_genome+=len(seq_record)
-        tmp_list.append((len_genome,genome))
-    genomes_sorted=[i[1] for i in sorted(tmp_list,key=lambda genome:genome[0])]   ##Sort by ascending size
-    return(genomes_sorted)
 
-def sort_genomes_desc(list_genomes,fasta_path,dict_org_code):
-    '''Sort genomes by descending size'''
-    tmp_list=[]
+def sort_genomes(list_genomes, fasta_path, dict_org_code, descending):
+    """
+    Sort genomes by ascending size
+    """
+    tmp_list = []
     for genome in list_genomes:
-        len_genome=0
-        for seq_record in SeqIO.parse(fasta_path +'/' + dict_org_code[genome][0] +'/' + dict_org_code[genome][0]+'_genomic.fna', 'fasta'):
-            len_genome+=len(seq_record)
-        tmp_list.append((len_genome,genome))
-    genomes_sorted=[i[1] for i in sorted(tmp_list,key=lambda genome:genome[0],reverse=True)]   ##Sort by ascending size
-    return(genomes_sorted)
+        seq_record = SeqIO.parse(fasta_path + '/' + dict_org_code[genome][0] +
+                                 '/' + dict_org_code[genome][0] +
+                                 '_genomic.fna', 'fasta')
+        # seq_record is an iterator object containing 1 sequence
+        len_genome = len(next(seq_record))
+        tmp_list.append((len_genome, genome))
 
-def unzip_files(list_genomes,dict_org_code):
-    '''Unzip required files for reserach'''
+    # Sort by ascending or descending size
+    genomes_sorted = [i[1] for i in sorted(tmp_list, key=lambda genome: genome[0], reverse=descending)]
+    return genomes_sorted
+
+
+def unzip_files(ref_gen_dir, list_genomes, dict_org_code, workdir):
+    """
+    Unzip required files for reserach
+    """
     eprint('-- Unzip selected genomes --')
-    eprint('location ' + WORKDIR)
-    out=open(WORKDIR+'/unzip.sh','w')
-    out.write('cd ' + WORKDIR + '\n');
+    eprint('location ' + workdir)
     for genome in list_genomes:
-        ref=dict_org_code[genome][0]
-        out.write('tar xf '+REF_GEN_DIR+'/fasta/'+ref+'.tar.gz\ntar xf '+REF_GEN_DIR+'/index2/'+ref+'.tar.gz\n')
-    out.close()
-    os.system('bash ' + WORKDIR + '/unzip.sh')
-    
-    stats = _statDir(WORKDIR)
-    eprint( "Temporary file size\n" + str(stats) )
+        ref = dict_org_code[genome][0]
+        extract_unzip_file(ref_gen_dir, ref, "/fasta/", workdir)
+        extract_unzip_file(ref_gen_dir, ref, "/index2/", workdir)
 
-def write_to_fasta_parallel(dic_seq, num_file):
-    '''Write sequences in fasta file, and separate its in several files if specified.'''
-    list_seq=list(dic_seq.keys())
-    sep=len(dic_seq)//num_file
-    list_dic_fasta=[]
+    stats = _statdir(workdir)
+    eprint("Temporary file size\n" + str(stats))
+
+
+def extract_unzip_file(ref_gen_dir, ref, folder, workdir):
+    """
+    Extract files from a tar.gz compression
+    """
+    tar = tarfile.open(ref_gen_dir + folder + ref + '.tar.gz')
+    tar.extractall(workdir + "/")
+    tar.close()
+
+
+def write_to_fasta_parallel(dic_seq, num_file, workdir):
+    """
+    Write sequences in fasta file, and separate its
+    in several files if specified.
+    """
+    list_seq = list(dic_seq.keys())
+    sep = len(dic_seq) // num_file
+    list_dic_fasta = []
     for num in range(num_file):
-        out=open(WORKDIR + '/sgRNA'+str(num)+'.fa','w')
-        list_dic_fasta.append({ 'num' : num,
-                      'input_fasta' : WORKDIR + '/sgRNA' + str(num) + '.fa',
-                      'results' : None
-                    })
-        i=0
+        out = open(workdir + '/sgrna' + str(num) + '.fa', 'w')
+        list_dic_fasta.append({'num': num,
+                               'input_fasta': workdir + '/sgrna' + str(num) + '.fa',
+                               'results': None
+                              })
+        i = 0
         for seq in list_seq:
-            while(i < sep):
-                remove_seq=list_seq.pop()
+            while i < sep:
+                remove_seq = list_seq.pop()
                 out.write('>' + remove_seq + '\n' + remove_seq + '\n')
                 i += 1
         if num == num_file-1:
@@ -164,207 +201,288 @@ def write_to_fasta_parallel(dic_seq, num_file):
                 for seq in list_seq:
                     out.write('>' + seq + '\n' + seq + '\n')
         out.close()
-    return(list_dic_fasta)
+    return list_dic_fasta
 
-def run_bowtie(organism_code,fasta_file,num):
-    resultFile = WORKDIR + '/results_bowtie' + num + '.sam'
-    bowtie_tab=['bowtie2','-x ' + WORKDIR + '/reference_genomes/index2/' + organism_code + '/' + organism_code + ' -f ' + fasta_file + ' -S ' + resultFile + ' -L 13 -a --quiet ']
+
+def run_bowtie(organism_code, fasta_file, num, workdir):
+    """
+    Execute the bowtie command and return the result file
+    """
+    result_file = workdir + '/results_bowtie' + num + '.sam'
+    bowtie_tab = ['bowtie2', '-x ' + workdir + '/reference_genomes/index2/' +
+                  organism_code + '/' + organism_code + ' -f ' + fasta_file +
+                  ' -S ' + result_file + ' -L 13 -a --quiet ']
     subprocess.call(bowtie_tab)
-    return resultFile
-
-def treat_bowtie_notin(resultFile,e,dic_seq):
-    res=open(resultFile, 'r')
-    dic_result={}
-    for l in res:
-        if l[0]!='@':
-            if l.split('\t')[2]=='*':
-                seq=l.split('\t')[0]
-                dic_result[seq]=dic_seq[seq]
-    e['results']=dic_result
-    res.close()
+    return result_file
 
 
-def add_notin_parallel(num_thread,list_fasta,organism_code,dic_seq):
-    '''Launch bowtie alignments for excluded genomes and treat the results, with parallelization (ie if 4 threads are selected, then 4 bowtie will be launch at the same time, with 4 subfiles of the beginning file.
-    For excluded genomes, only the sequence NOT matching with genome will be conserved.
-    '''
-    def worker():
-        while True:
-            e = q.get()
-            fasta_file=e['input_fasta']
-            num_str=str(e['num'])
-            resultFile = run_bowtie(organism_code,fasta_file,num_str)
-            treat_bowtie_notin(resultFile,e,dic_seq)
-            q.task_done()
+def treat_bowtie_notin(result_file, dic_seq):
+    """
+    Retrieve sequences does not match with genome
+    """
+    dic_result = {}
+    with open(result_file, 'r') as res:
+        for line in res:
+            # not a comment
+            if line[0] != '@':
+                # does not match
+                if line.split('\t')[2] == '*':
+                    seq = line.split('\t')[0]
+                    dic_result[seq] = dic_seq[seq]
+    return dic_result
 
-    q = Queue()
-    for i in range(num_thread):
-        t = Thread(target=worker)
-        t.daemon = True
-        t.start()
 
-    for e in list_fasta:
-        q.put(e)
+def treat_bowtie_in(result_file, dic_seq, genome, len_sgrna):
+    """
+    Retrieve sequences match with genome and keep coordinate
+    """
+    dic_result = {}
+    with open(result_file, 'r') as res:
+        for line in res:
+            # not a comment
+            if line[0] != '@':
+                # can align these 2 reads
+                if line.split('\t')[2] != '*':
+                    l_split = line.split('\t')
+                    # CIGAR string representation of alignment
+                    cigar = l_split[5]
+                    if cigar == '23M':
+                        # reads quality
+                        read_quality = l_split[-2]
+                        # Name of reference sequence where alignment occurs
+                        ref = l_split[2]
+                        if read_quality.split(':')[-1] == '23':
+                            seq = l_split[0]
+                            if seq not in dic_result:
+                                dic_result[seq] = dic_seq[seq]
+                            if genome not in dic_result[seq]:
+                                dic_result[seq][genome] = {}
+                            seq_align = l_split[9]
+                            if seq != seq_align:
+                                strand = '+'
+                            else:
+                                strand = '-'
+                            start = l_split[3]
+                            end = int(start) + len_sgrna - 1
+                            if ref not in dic_result[seq][genome]:
+                                dic_result[seq][genome][ref] = []
+                            coord = (strand + '(' + start + ',' +
+                                     str(end) + ')')
+                            dic_result[seq][genome][ref].append(coord)
+    return dic_result
 
-    q.join()
-    total_results={}
-    for e in list_fasta:
-        total_results.update(e['results'])
 
+def bowtie_multithr(num_thread, list_fasta, organism_code, dic_seq, genome, len_sgrna, workdir, is_in):
+    """
+    Launch bowtie alignments for excluded genomes and treat the results,
+    with parallelization (ie if 4 threads are selected,
+    then 4 bowtie will be launch at the same time, with 4 subfiles
+    of the beginning file.)
+    For excluded genomes, only the sequence NOT matching with genome
+    will be conserved.
+    """
+    # Create workers
+    my_pool = mp.Pool(num_thread)
+    func_pll = ftools.partial(threading_bowtie, organism_code=organism_code,
+                              dic_seq=dic_seq, genome=genome,
+                              len_sgrna=len_sgrna, is_in=is_in, workdir=workdir)
+    # Launch workers
+    rslt_bowtie = my_pool.map(func_pll, list_fasta)
+    my_pool.close()
+    # Join results obtained by the different bowtie on the same genome
+    total_results = {}
+    for res in rslt_bowtie:
+        total_results.update(res['results'])
     return total_results
 
 
-def delete_used_files():
+def threading_bowtie(list_fasta, organism_code, dic_seq, genome, len_sgrna, is_in, workdir):
+    """
+    Launch bowtie and retrieve the result file. Then, treat it
+    """
+    fasta_file = list_fasta["input_fasta"]
+    num_str = str(list_fasta["num"])
+    result_file = run_bowtie(organism_code, fasta_file, num_str, workdir)
+    dic_seq_matched = {}
+    if is_in:
+        dic_seq_matched["results"] = treat_bowtie_in(result_file, dic_seq,
+                                                     genome, len_sgrna)
+    else:
+        dic_seq_matched["results"] = treat_bowtie_notin(result_file, dic_seq)
+    return dic_seq_matched
+
+
+def delete_used_files(workdir):
+    """
+    Delete unzipped files that have been used for research
+    """
     eprint("Deleting stuff")
-    '''Delete unzipped files that have been used for research'''
     eprint('-- Delete selected genomes --')
-    out=open(WORKDIR+'/delete.sh','w')
-    out.write('rm -r '+ WORKDIR +'/*.sam\nrm -r '+ WORKDIR +'/reference_genomes\nrm ' + WORKDIR +'/delete.sh\n')
+    out = open(workdir + '/delete.sh', 'w')
+    out.write('rm -r ' + workdir + '/*.sam\nrm -r ' + workdir +
+              '/reference_genomes\nrm ' + workdir + '/delete.sh\n')
     out.close()
-    os.system('bash '+WORKDIR+'/delete.sh')
+    os.system('bash ' + workdir + '/delete.sh')
 
 
 def construct_hitlist(dict_seq):
     '''
-    Will construct an object Hit for each sequence in dictionnary, and store all Hits in a list.
-    These function only fill the attributes sequence and genomes_Dict of the object
+    Will construct an object Hit for each sequence in dictionnary,
+    and store all Hits in a list. These function only fill the attributes
+    sequence and genomes_dict of the object
     '''
     eprint('-- Construct final list --')
-    hits_list=[]
-    count=0
+    hits_list = []
+    count = 0
     for seq in dict_seq:
-        count+=1
-        new_hit=Hit(seq,dict_seq[seq])
+        count += 1
+        new_hit = Hit(seq, dict_seq[seq])
         hits_list.append(new_hit)
-    return(hits_list)
+    return hits_list
 
-def write_to_file(genomes_IN,genomes_NOT_IN,hit_list,PAM,non_PAM_motif_length):
-    '''Write results in a file.
-    The file is a tabulated file, with first column=sgRNA sequence, then one column for each included organisms with list of positions of the sequence in each.
-    '''
+
+def write_to_file(genomes_in, genomes_not_in, hit_list, pam, non_pam_motif_length, workdir):
+    """
+    Write results in a file.
+    The file is a tabulated file, with first column=sgrna sequence,
+    then one column for each included organisms with list of positions
+    of the sequence in each.
+    """
     eprint('-- Write results to file --')
-    responseResultFile = WORKDIR + '/results_allgenome.txt'
-    output=open(responseResultFile,'w')
-    not_in=True
-    gi=','.join(genomes_IN)
-    gni=','.join(genomes_NOT_IN)
-    if gni=='':
-        gni='None'
-        not_in=False
-    output.write('#ALL GENOMES\n#Genomes included :'+gi+' ; Genomes excluded :'+gni+'\n'+'#Parameters: PAM:'+PAM+' ; sgRNA size:'+str(non_PAM_motif_length)+'\n')
-    output.write('sgRNA sequence')
-    for genome_i in genomes_IN:
-        output.write('\t'+genome_i)
+    rep_rslt_file = workdir + '/results_allgenome.txt'
+    output = open(rep_rslt_file, 'w')
+    gi = ','.join(genomes_in)
+    gni = ','.join(genomes_not_in)
+    if gni == '':
+        gni = 'None'
+    output.write('#ALL GENOMES\n#Genomes included :' + gi +
+                 ' ; Genomes excluded :' + gni + '\n'+'#Parameters: pam:' +
+                 pam + ' ; sgrna size:' + str(non_pam_motif_length) + '\n')
+    output.write('sgrna sequence')
+    for genome_i in genomes_in:
+        output.write('\t' + genome_i)
     output.write('\n')
     for hit in hit_list:
         output.write(hit.sequence+'\t')
-        for gi in genomes_IN:
-            for ref in hit.genomes_Dict[gi]:
-                to_write=ref+':'+','.join(hit.genomes_Dict[gi][ref])+';'
-        to_write=to_write.strip(';')
-        output.write(to_write+'\n')
+        for gi in genomes_in:
+            for ref in hit.genomes_dict[gi]:
+                to_write = ref + ':' + ','.join(hit.genomes_dict[gi][ref]) + ';'
+        to_write = to_write.strip(';')
+        output.write(to_write + '\n')
     output.close()
 
-def setupWorkSpace(parameters):
-    '''Create the work folder where all temporary or results files will be stored'''
-    workFolder = parameters.cah + '/' + TASK_KEY
-    os.mkdir(workFolder)
-    return workFolder
 
-def list_ref(dic_ref):
-    list_ref=[]
+def setup_work_space(parameters):
+    """
+    Create the work folder where all temporary or
+    results files will be stored
+    """
+    work_folder = parameters.cah + '/' + TASK_KEY
+    os.mkdir(work_folder)
+    return work_folder
+
+
+def create_list_ref(dic_ref):
+    """
+    Definition
+    """
+    list_ref = []
     for ref in dic_ref:
-        dic={"ref":ref,"coords":dic_ref[ref]}
+        dic = {"ref": ref, "coords": dic_ref[ref]}
         list_ref.append(dic)
     return list_ref
 
-def list_occurences(dic_occurences):
-    list_occurences=[]
+
+def create_list_occurences(dic_occurences):
+    """
+    Definition
+    """
+    list_occurences = []
     for genome in dic_occurences:
-        dic_genome={'org':genome,'all_ref':list_ref(dic_occurences[genome])}
+        dic_genome = {'org': genome, 'all_ref': create_list_ref(dic_occurences[genome])}
         list_occurences.append(dic_genome)
     return list_occurences
 
 
-def output_interface(hit_list):
-    '''
+def output_interface(hit_list, workdir):
+    """
     Reformat the results to create a json file.
     It will be parsed in javascript to display it in interface.
-    '''
+    """
     eprint('-- Construct results for graphical interface --')
-    json_result_file=WORKDIR+'/results.json'
-    #print(json_result_file)
-    list_dic=[]
+    json_result_file = workdir + '/results.json'
+    # print(json_result_file)
+    list_dic = []
 
     for hit in hit_list:
-        dic={'sequence':hit.sequence,'occurences':list_occurences(hit.genomes_Dict)}
+        dic = {'sequence': hit.sequence, 'occurences': create_list_occurences(hit.genomes_dict)}
         list_dic.append(dic)
 
     list_dic.reverse()
-    with open(json_result_file,'w') as f:
-        json.dump(list_dic,f,indent=4)
+    with open(json_result_file, 'w') as filout:
+        json.dump(list_dic, filout, indent=4)
 
-def readJsonDic(path):
-    '''Load the dictionnary that contains genomes name associated with their references'''
+
+def read_json_dic(path):
+    """
+    Load the dictionnary that contains genomes name associated with
+    their references
+    """
     with open(path) as json_data:
-        d = json.load(json_data)
-    return d
+        dict_json = json.load(json_data)
+    return dict_json
 
-def order_for_research(list_in,list_notin,genome,dict_org_code,dist_dic,list_order):
-    '''Determinate the order of research, based on the distance matrix created for all genomes.
-    The best comparisons to do are comparisons between similar genomes for the exclusion and between distant genomes for inclusion
-    '''
 
-    ref1=dict_org_code[genome][0]
+def order_for_research(list_in, list_notin, genome, dict_org_code, dist_dic, list_order):
+    """
+    Determinate the order of research, based on the distance matrix
+    created for all genomes.
+    The best comparisons to do are comparisons between similar genomes
+    for the exclusion and between distant genomes for inclusion
+    """
+    ref1 = dict_org_code[genome][0]
     if list_in and list_notin:
-        in_compare=-1
-        for gi in list_in:
-            ref2=dict_org_code[gi][0]
-            dist=dist_dic[ref1][ref2]
-            if dist > in_compare:
-                in_compare=dist
-                in_compare_genome=gi
-        notin_compare=11
-        for gni in list_notin:
-            ref2=dict_org_code[gni][0]
-            dist=dist_dic[ref1][ref2]
-            if dist < notin_compare:
-                notin_compare=dist
-                notin_compare_genome=gni
+        in_compare_genome, in_compare = compare_dist_btw_genome(dict_org_code, dist_dic, ref1, list_in, -1, operator.gt)
+        notin_compare_genome, notin_compare = compare_dist_btw_genome(dict_org_code, dist_dic, ref1, list_notin, 11, operator.lt)
 
-        if in_compare > notin_compare :
-            new_genome=in_compare_genome
-            list_order.append((new_genome,'in'))
-            list_in.remove(new_genome)
+        if in_compare > notin_compare:
+            list_order, list_in, new_genome = update_list_order(list_order, list_in, in_compare_genome, "in")
         else:
-            new_genome=notin_compare_genome
-            list_order.append((new_genome,'notin'))
-            list_notin.remove(new_genome)
+            list_order, list_notin, new_genome = update_list_order(list_order, list_notin, notin_compare_genome, "notin")
 
     elif list_in:
-        in_compare=-1
-        for gi in list_in:
-            ref2=dict_org_code[gi][0]
-            dist=dist_dic[ref1][ref2]
-            if dist > in_compare:
-                in_compare=dist
-                in_compare_genome=gi
-        new_genome=in_compare_genome
-        list_order.append((new_genome,'in'))
-        list_in.remove(new_genome)
+        in_compare_genome, in_compare = compare_dist_btw_genome(dict_org_code, dist_dic, ref1, list_in, -1, operator.gt)
+        list_order, list_in, new_genome = update_list_order(list_order, list_in, in_compare_genome, "in")
 
     elif list_notin:
-        notin_compare=11
-        for gni in list_notin:
-            ref2=dict_org_code[gni][0]
-            dist=dist_dic[ref1][ref2]
-            if dist < notin_compare:
-                notin_compare=dist
-                notin_compare_genome=gni
-        new_genome=notin_compare_genome
-        list_order.append((new_genome,'notin'))
-        list_notin.remove(new_genome)
+        notin_compare_genome, notin_compare = compare_dist_btw_genome(dict_org_code, dist_dic, ref1, list_notin, 11, operator.lt)
+        list_order, list_notin, new_genome = update_list_order(list_order, list_notin, notin_compare_genome, "notin")
     else:
-        return(list_order)
+        return list_order
 
-    return order_for_research(list_in,list_notin,new_genome,dict_org_code,dist_dic,list_order)
+    return order_for_research(list_in, list_notin, new_genome, dict_org_code, dist_dic, list_order)
+
+
+def compare_dist_btw_genome(dict_org_code, dist_dic, ref1, list_genomes, dist_compare, comp):
+    """
+    Compare distance between a reference genome and the list of genomes in or out
+    to find the farthest or the closest genome. Then return the distance between these 2 genomes
+    and the name of the genome
+    """
+    for genome in list_genomes:
+        ref2 = dict_org_code[genome][0]
+        dist = dist_dic[ref1][ref2]
+        if comp(dist, dist_compare):
+            dist_compare = dist
+            compare_genome = genome
+    return (compare_genome, dist_compare)
+
+
+def update_list_order(list_order, list_in, in_compare_genome, is_in):
+    """
+    Add the genome to the order list and remove it from the original list
+    """
+    new_genome = in_compare_genome
+    list_order.append((new_genome, 'in'))
+    list_in.remove(new_genome)
+    return (list_order, list_in, new_genome)
