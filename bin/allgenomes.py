@@ -70,34 +70,34 @@ def construct_in(fasta_path, organism, organism_code, pam, non_pam_motif_length,
 
     seq_dict = {}
 
-    for genome_seqrecord in SeqIO.parse(fasta_file, 'fasta'):
-        genome_seq = genome_seqrecord.seq
-        ref = genome_seqrecord.id
-        seq_list_forward = cf.find_sgrna_seq(str(genome_seq),
-                                             cf.reverse_complement(sgrna))
-        seq_list_reverse = cf.find_sgrna_seq(str(genome_seq), sgrna)
+    genome_seqrecord = next(SeqIO.parse(fasta_file, 'fasta'))
+    genome_seq = genome_seqrecord.seq
+    ref = genome_seqrecord.id
+    seq_list_forward = cf.find_sgrna_seq(str(genome_seq),
+                                         cf.reverse_complement(sgrna))
+    seq_list_reverse = cf.find_sgrna_seq(str(genome_seq), sgrna)
 
-        for indice in seq_list_forward:
-            end = indice + len(pam) + non_pam_motif_length
-            seq = genome_seq[indice:end].reverse_complement()
-            seq = str(seq)
-            if seq not in seq_dict:
-                seq_dict[seq] = {organism: {}}
-            if ref not in seq_dict[seq][organism]:
-                seq_dict[seq][organism][ref] = []
-            seq_dict[seq][organism][ref].append('+(' + str(indice+1) + ',' +
-                                                str(end) + ')')
+    for indice in seq_list_forward:
+        end = indice + len(pam) + non_pam_motif_length
+        seq = genome_seq[indice:end].reverse_complement()
+        seq = str(seq)
+        if seq not in seq_dict:
+            seq_dict[seq] = {organism: {}}
+        if ref not in seq_dict[seq][organism]:
+            seq_dict[seq][organism][ref] = []
+        seq_dict[seq][organism][ref].append('+(' + str(indice+1) + ',' +
+                                            str(end) + ')')
 
-        for indice in seq_list_reverse:
-            end = indice + len(pam) + non_pam_motif_length
-            seq = genome_seq[indice:end]
-            seq = str(seq)
-            if seq not in seq_dict:
-                seq_dict[seq] = {organism: {}}
-            if ref not in seq_dict[seq][organism]:
-                seq_dict[seq][organism][ref] = []
-            seq_dict[seq][organism][ref].append('-(' + str(indice+1) + ',' +
-                                                str(end) + ')')
+    for indice in seq_list_reverse:
+        end = indice + len(pam) + non_pam_motif_length
+        seq = genome_seq[indice:end]
+        seq = str(seq)
+        if seq not in seq_dict:
+            seq_dict[seq] = {organism: {}}
+        if ref not in seq_dict[seq][organism]:
+            seq_dict[seq][organism][ref] = []
+        seq_dict[seq][organism][ref].append('-(' + str(indice+1) + ',' +
+                                            str(end) + ')')
     pickle.dump(seq_dict, open(pickle_file, "wb"), protocol=3)
     return seq_dict
 
