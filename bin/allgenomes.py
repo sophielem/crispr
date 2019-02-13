@@ -153,7 +153,7 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_
                 end_time = time.time()
                 total_time = end_time - start_time
                 cf.eprint('TIME', total_time)
-                cf.delete_used_files()
+                cf.delete_used_files(workdir)
                 sys.exit(1)
             cf.eprint(str(len(dic_seq)) + " hits remain after exclude genome "
                       + genome)
@@ -169,7 +169,7 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_
                 end_time = time.time()
                 total_time = end_time - start_time
                 cf.eprint('TIME', total_time)
-                cf.delete_used_files()
+                cf.delete_used_files(workdir)
                 sys.exit(1)
             cf.eprint(str(len(dic_seq)) + " hits remain after include genome "
                       + genome)
