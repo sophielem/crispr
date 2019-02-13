@@ -8,8 +8,10 @@ import json
 import sys
 import tarfile
 import shutil
+import pickle
 from Bio import SeqIO
 from ete3 import NCBITaxa
+import common_functions as cf
 
 
 class Lineage:
@@ -104,7 +106,7 @@ def set_dic_taxid(param):
                     "/" + ref + "_genomic.fna")
     # Write the new json file with the new genome
     json.dump(dic_ref, open(param.rfg + "/genome_ref_taxid.json", 'w'), indent=4)
-    return dic_taxid, ref
+    return dic_taxid, ref, name
 
 
 def index_bowtie_blast(ref_new):
@@ -203,6 +205,53 @@ def json_tree(bdd_path):
     os.system('python3 bin/tax2json.py ' + bdd_path)
 
 
+def construct_in(fasta_path, organism, organism_code, param):
+    """
+    Construct the sequences for first organism,
+    with python regular expression research
+    """
+    pam = "NGG"
+    non_pam_motif_length = 20
+    fasta_file = (fasta_path + '/' + organism_code + '/' +
+                  organism_code + '_genomic.fna')
+    sgrna = "N" * non_pam_motif_length + pam
+
+    seq_dict = {}
+
+    for genome_seqrecord in SeqIO.parse(fasta_file,'fasta'):
+        genome_seq = genome_seqrecord.seq
+        ref = genome_seqrecord.id
+        seq_list_forward = cf.find_sgrna_seq(str(genome_seq),
+                                             cf.reverse_complement(sgrna))
+        seq_list_reverse = cf.find_sgrna_seq(str(genome_seq), sgrna)
+        for indice in seq_list_forward:
+            end = indice + len(pam) + non_pam_motif_length
+            seq = genome_seq[indice:end].reverse_complement()
+            seq = str(seq)
+            if seq not in seq_dict:
+                seq_dict[seq] = {organism: {}}
+            if ref not in seq_dict[seq][organism]:
+                seq_dict[seq][organism][ref] = []
+            seq_dict[seq][organism][ref].append('+(' + str(indice+1) + ',' +
+                                                str(end) + ')')
+
+        for indice in seq_list_reverse:
+            end = indice + len(pam) + non_pam_motif_length
+            seq = genome_seq[indice:end]
+            seq = str(seq)
+            if seq not in seq_dict:
+                seq_dict[seq] = {organism: {}}
+            if ref not in seq_dict[seq][organism]:
+                seq_dict[seq][organism][ref] = []
+            seq_dict[seq][organism][ref].append('-(' + str(indice+1) + ',' +
+                                                str(end) + ')')
+
+    pickle_file = (param.rfg + "/pickle/" + organism.replace("/", "_") + "." + organism_code + ".p")
+    print(pickle_file)
+    pickle.dump(seq_dict, open(pickle_file, "wb"), protocol=3)
+
+
+
 def compress(param, ref):
     # Compress the fasta file in the database
     with tarfile.open(param.rfg + "/fasta/" + ref + ".tar.gz", "w:gz") as tar:
@@ -224,13 +273,14 @@ def compress(param, ref):
 if __name__ == '__main__':
     PARAM = args_gestion()
     # Create dictionnary with all taxon ID
-    DIC_TAXID, REF_NEW = set_dic_taxid(PARAM)
+    DIC_TAXID, REF_NEW, NAME = set_dic_taxid(PARAM)
     # Index the new genome
     index_bowtie_blast(REF_NEW)
     # Compress the indexation and the fasta file
     compress(PARAM, REF_NEW)
     # Calcul distances between new and old genomes
     distance_matrix(DIC_TAXID, REF_NEW, PARAM)
+    construct_in("reference_genomes/fasta", NAME + " " + PARAM.gcf, REF_NEW, PARAM)
 
     json_tree(PARAM.rfg)
     # Delete temporary directory
