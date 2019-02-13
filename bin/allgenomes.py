@@ -13,6 +13,7 @@ import os
 import pickle
 from Bio import SeqIO
 import common_functions as cf
+import pre_treatment as pt
 
 # Global variable
 TASK_KEY = str(uuid.uuid1())
@@ -46,6 +47,19 @@ def args_gestion():
     return args
 
 
+def set_globel_env(param):
+    """
+    Set global variable
+    """
+    global TASK_KEY
+    global UNCOMPRESSED_GEN_DIR
+    global ASYNC  # A switch to properly configure sbatch delagation
+    TASK_KEY = str(uuid.uuid1())
+    cf.TASK_KEY = TASK_KEY
+    UNCOMPRESSED_GEN_DIR = param.rfg
+    ASYNC = param.async
+
+
 def setup_application(parameters, dict_organism_code):
     """
     Processes the arguments to be usable for research
@@ -57,47 +71,6 @@ def setup_application(parameters, dict_organism_code):
     non_pam_motif_length = int(parameters.sl)
 
     return organisms_selected, organisms_excluded, parameters.pam, non_pam_motif_length
-
-
-def construct_in(fasta_path, organism, organism_code, pam, non_pam_motif_length, pickle_file):
-    """
-    Construct the sequences for first organism,
-    with python regular expression research
-    """
-    fasta_file = (fasta_path + '/' + organism_code + '/' +
-                  organism_code + '_genomic.fna')
-    sgrna = "N" * non_pam_motif_length + pam
-
-    seq_dict = {}
-    for genome_seqrecord in SeqIO.parse(fasta_file,'fasta'):
-        genome_seq = genome_seqrecord.seq
-        ref = genome_seqrecord.id
-        seq_list_forward = cf.find_sgrna_seq(str(genome_seq),
-                                             cf.reverse_complement(sgrna))
-        seq_list_reverse = cf.find_sgrna_seq(str(genome_seq), sgrna)
-        for indice in seq_list_forward:
-            end = indice + len(pam) + non_pam_motif_length
-            seq = genome_seq[indice:end].reverse_complement()
-            seq = str(seq)
-            if seq not in seq_dict:
-                seq_dict[seq] = {organism: {}}
-            if ref not in seq_dict[seq][organism]:
-                seq_dict[seq][organism][ref] = []
-            seq_dict[seq][organism][ref].append('+(' + str(indice+1) + ',' +
-                                                str(end) + ')')
-
-        for indice in seq_list_reverse:
-            end = indice + len(pam) + non_pam_motif_length
-            seq = genome_seq[indice:end]
-            seq = str(seq)
-            if seq not in seq_dict:
-                seq_dict[seq] = {organism: {}}
-            if ref not in seq_dict[seq][organism]:
-                seq_dict[seq][organism][ref] = []
-            seq_dict[seq][organism][ref].append('-(' + str(indice+1) + ',' +
-                                                str(end) + ')')
-    pickle.dump(seq_dict, open(pickle_file, "wb"), protocol=3)
-    return seq_dict
 
 
 def sort_hits(hitlist):
@@ -144,7 +117,6 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_
         sorted_genomes_notin = []
 
     cf.eprint('-- RESEARCH --')
-
     # Research in first genome
     name_file = sorted_genomes[0].replace("/", "_")
     pickle_file = (UNCOMPRESSED_GEN_DIR + "/pickle/" + name_file +
@@ -153,9 +125,10 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_
     if os.path.isfile(pickle_file):
         dic_seq = pickle.load(open(pickle_file, "rb"))
     else:
-        dic_seq = construct_in(fasta_path, sorted_genomes[0],
-                               dict_org_code[sorted_genomes[0]][0], pam,
-                               non_pam_motif_length, pickle_file)
+        dic_seq = pt.construct_in(fasta_path, sorted_genomes[0],
+                                  dict_org_code[sorted_genomes[0]][0],
+                                  UNCOMPRESSED_GEN_DIR)
+
     cf.eprint(str(len(dic_seq)) + ' hits in first included genome ' +
               sorted_genomes[0])
     list_fasta = cf.write_to_fasta_parallel(dic_seq, num_file, workdir)
@@ -167,7 +140,6 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_
     list_order = cf.order_for_research(sorted_genomes[1:],
                                        sorted_genomes_notin, sorted_genomes[0],
                                        dict_org_code, dist_dic, [])
-
     # Execute the rest of the search
     for i in list_order:
         genome = i[0]
@@ -214,19 +186,6 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_
 
     # Output formatting for printing to interface
     cf.output_interface(hit_list[:100], workdir)
-
-
-def set_globel_env(param):
-    """
-    Set global variable
-    """
-    global TASK_KEY
-    global UNCOMPRESSED_GEN_DIR
-    global ASYNC  # A switch to properly configure sbatch delagation
-    TASK_KEY = str(uuid.uuid1())
-    cf.TASK_KEY = TASK_KEY
-    UNCOMPRESSED_GEN_DIR = param.rfg
-    ASYNC = param.async
 
 
 def main():

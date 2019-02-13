@@ -205,13 +205,11 @@ def json_tree(bdd_path):
     os.system('python3 bin/tax2json.py ' + bdd_path)
 
 
-def construct_in(fasta_path, organism, organism_code, param):
+def construct_in(fasta_path, organism, organism_code, path_db, pam = "NGG", non_pam_motif_length = 20):
     """
     Construct the sequences for first organism,
     with python regular expression research
     """
-    pam = "NGG"
-    non_pam_motif_length = 20
     fasta_file = (fasta_path + '/' + organism_code + '/' +
                   organism_code + '_genomic.fna')
     sgrna = "N" * non_pam_motif_length + pam
@@ -246,9 +244,9 @@ def construct_in(fasta_path, organism, organism_code, param):
             seq_dict[seq][organism][ref].append('-(' + str(indice+1) + ',' +
                                                 str(end) + ')')
 
-    pickle_file = (param.rfg + "/pickle/" + organism.replace("/", "_") + "." + organism_code + ".p")
-    print(pickle_file)
+    pickle_file = (path_db + "/pickle/" + organism.replace("/", "_") + "." + organism_code + ".p")
     pickle.dump(seq_dict, open(pickle_file, "wb"), protocol=3)
+    return seq_dict
 
 
 
@@ -280,7 +278,7 @@ if __name__ == '__main__':
     compress(PARAM, REF_NEW)
     # Calcul distances between new and old genomes
     distance_matrix(DIC_TAXID, REF_NEW, PARAM)
-    construct_in("reference_genomes/fasta", NAME + " " + PARAM.gcf, REF_NEW, PARAM)
+    construct_in("reference_genomes/fasta", NAME + " " + PARAM.gcf, REF_NEW, PARAM.rfg)
 
     json_tree(PARAM.rfg)
     # Delete temporary directory
