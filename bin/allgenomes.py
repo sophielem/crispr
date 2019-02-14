@@ -147,33 +147,19 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_
             dic_seq = cf.bowtie_multithr(num_thread, list_fasta,
                                          dict_org_code[genome][0], dic_seq,
                                          genome, len(pam) + non_pam_motif_length, workdir, False)
-            if not dic_seq:
-                print("Program terminated&No hits remain after exclude genome "
-                      + genome)
-                end_time = time.time()
-                total_time = end_time - start_time
-                cf.eprint('TIME', total_time)
-                cf.delete_used_files(workdir)
-                sys.exit(1)
-            cf.eprint(str(len(dic_seq)) + " hits remain after exclude genome "
-                      + genome)
-            list_fasta = cf.write_to_fasta_parallel(dic_seq, num_file, workdir)
-
         elif i[1] == 'in':
             dic_seq = cf.bowtie_multithr(num_thread, list_fasta,
                                          dict_org_code[genome][0], dic_seq,
                                          genome, len(pam) + non_pam_motif_length, workdir, True)
-            if not dic_seq:
-                print("Program terminated&No hits remain after include genome "
-                      + genome)
-                end_time = time.time()
-                total_time = end_time - start_time
-                cf.eprint('TIME', total_time)
-                cf.delete_used_files(workdir)
-                sys.exit(1)
-            cf.eprint(str(len(dic_seq)) + " hits remain after include genome "
-                      + genome)
-            list_fasta = cf.write_to_fasta_parallel(dic_seq, num_file, workdir)
+
+        in_exc = "include" if i[1] == "in" else "exclude"
+        # No hits remain after exclude or include genome
+        if not dic_seq:
+            display_no_hits(genome, start_time, workdir, in_exc)
+
+        cf.eprint(str(len(dic_seq)) + " hits remain after " + in_exc +
+                  " genome " + genome)
+        list_fasta = cf.write_to_fasta_parallel(dic_seq, num_file, workdir)
 
     cf.delete_used_files(workdir)
 
@@ -186,6 +172,19 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_
 
     # Output formatting for printing to interface
     cf.output_interface(hit_list[:100], workdir)
+
+
+def display_no_hits(genome, start_time, workdir, in_exc):
+    """
+    Print the name of the genome after which there are no more hits and
+    exit the program
+    """
+    print("Program terminated&No hits remain after {} genome {}".format(in_exc, genome))
+    end_time = time.time()
+    total_time = end_time - start_time
+    cf.eprint('TIME', total_time)
+    cf.delete_used_files(workdir)
+    sys.exit(1)
 
 
 def main():
