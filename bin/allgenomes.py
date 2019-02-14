@@ -47,7 +47,7 @@ def args_gestion():
     return args
 
 
-def set_globel_env(param):
+def set_global_env(param):
     """
     Set global variable
     """
@@ -58,6 +58,11 @@ def set_globel_env(param):
     cf.TASK_KEY = TASK_KEY
     UNCOMPRESSED_GEN_DIR = param.rfg
     ASYNC = param.async
+    if ASYNC:
+        workdir = os.getcwd()
+    else:
+        workdir = cf.setup_work_space(param)
+    return workdir
 
 
 def setup_application(parameters, dict_organism_code):
@@ -69,8 +74,20 @@ def setup_application(parameters, dict_organism_code):
     organisms_selected = [i for i in organisms_selected if i in dict_organism_code]
     organisms_excluded = [i for i in organisms_excluded if i in dict_organism_code]
     non_pam_motif_length = int(parameters.sl)
+    return organisms_selected, organisms_excluded, non_pam_motif_length
 
-    return organisms_selected, organisms_excluded, parameters.pam, non_pam_motif_length
+
+def display_no_hits(genome, start_time, workdir, in_exc):
+    """
+    Print the name of the genome after which there are no more hits and
+    exit the program
+    """
+    print("Program terminated&No hits remain after {} genome {}".format(in_exc, genome))
+    end_time = time.time()
+    total_time = end_time - start_time
+    cf.eprint('TIME', total_time)
+    cf.delete_used_files(workdir)
+    sys.exit(1)
 
 
 def sort_hits(hitlist):
@@ -174,42 +191,22 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_
     cf.output_interface(hit_list[:100], workdir)
 
 
-def display_no_hits(genome, start_time, workdir, in_exc):
-    """
-    Print the name of the genome after which there are no more hits and
-    exit the program
-    """
-    print("Program terminated&No hits remain after {} genome {}".format(in_exc, genome))
-    end_time = time.time()
-    total_time = end_time - start_time
-    cf.eprint('TIME', total_time)
-    cf.delete_used_files(workdir)
-    sys.exit(1)
-
-
 def main():
     """
     Main function. Create the organism - code dictionnary and launch
     comparisons between selected genomes
     """
-
     start_time = time.time()
 
     parameters = args_gestion()
 
-    set_globel_env(parameters)
-
-    if ASYNC:
-        WORKDIR = os.getcwd()
-    else:
-        WORKDIR = cf.setup_work_space(parameters)
+    WORKDIR = set_global_env(parameters)
 
     fasta_path = WORKDIR + '/reference_genomes/fasta'
     # Keys: organism, values: genomic reference (ncbi)
     dict_organism_code = cf.read_json_dic(UNCOMPRESSED_GEN_DIR +
                                           '/genome_ref_taxid.json')
-    # organisms_selected,organisms_excluded,pam,non_pam_motif_length=args_gestion(dict_organism_code)
-    organisms_selected, organisms_excluded, pam, non_pam_motif_length = setup_application(parameters, dict_organism_code)
+    organisms_selected, organisms_excluded, non_pam_motif_length = setup_application(parameters, dict_organism_code)
     print(','.join(organisms_excluded))
     cf.eprint('SELECTED', organisms_selected)
     cf.eprint('EXCLUDED', organisms_excluded)
@@ -217,7 +214,7 @@ def main():
 
     cf.eprint('---- CSTB complete genomes ----')
     cf.eprint('Parallelisation with distance matrix')
-    construction(fasta_path, pam, non_pam_motif_length, organisms_selected,
+    construction(fasta_path, parameters.pam, non_pam_motif_length, organisms_selected,
                  organisms_excluded, dict_organism_code, WORKDIR)
     end_time = time.time()
     total_time = end_time - start_time
