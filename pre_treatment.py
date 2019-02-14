@@ -33,8 +33,12 @@ def valid_file(parser, filename):
     """
     if not os.path.isfile(filename):
         parser.error("The file {} does not exist !".format(filename))
-    else:
+    fasta = SeqIO.parse(filename, "fasta")
+    # Return false when fasta is empty
+    if any(fasta):
         return filename
+    else:
+        parser.error("The file {} is not a fasta file !".format(filename))
 
 
 def args_gestion():
