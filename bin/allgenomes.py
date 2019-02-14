@@ -10,6 +10,7 @@ import time
 import argparse
 import sys
 import os
+import shutil
 import pickle
 from Bio import SeqIO
 import common_functions as cf
@@ -43,7 +44,19 @@ def args_gestion():
                         help="The path to the reference genome folder")
     parser.add_argument("-cah", metavar="<str>",
                         help="The path to cache folder for the webservice")
+    parser.add_argument("-add", action="store_true",
+                        help="Add a temporary genome")
+    parser.add_argument("-file", metavar="FILE", type=lambda x: pt.valid_file(parser, x),
+                        help="The path to the fasta file")
+    parser.add_argument("-gcf", metavar="<str>",
+                        help="The GCF assembly ID ")
+    parser.add_argument("-asm", metavar="<str>",
+                        help="The ASM assembly ID")
+    parser.add_argument("-taxid", metavar="<str>",
+                        help="The taxon ID")
     args = parser.parse_args()
+    if args.add and (not args.file or not args.gcf or not args.asm or not args.taxid):
+        parser.error("-add requires -file, -gcf, -asm and -taxid arguments")
     return args
 
 
@@ -107,6 +120,38 @@ def sort_hits(hitlist):
     return sorted_hitlist
 
 
+def add_tmp_genome(param):
+    """
+    Enter a temporary genome in the database
+    """
+    shutil.copyfile(UNCOMPRESSED_GEN_DIR + "/genome_ref_taxid.json", UNCOMPRESSED_GEN_DIR + "/genome_ref_taxid_tmp.json")
+    shutil.copyfile(UNCOMPRESSED_GEN_DIR + "/distance_dic.json", UNCOMPRESSED_GEN_DIR + "/distance_dic_tmp.json")
+    dic_taxid, ref_new, name = pt.set_dic_taxid(param.file, param.gcf, param.asm, param.taxid, UNCOMPRESSED_GEN_DIR)
+    pt.index_bowtie_blast(ref_new)
+    # the fasta file was copied in the tmp directory ./reference_genomes
+    pt.construct_in("reference_genomes/fasta", name + " " + param.gcf, ref_new, UNCOMPRESSED_GEN_DIR)
+    pt.compress(UNCOMPRESSED_GEN_DIR, ref_new)
+    # Delete temporary directory
+    shutil.rmtree("reference_genomes")
+    return name, ref_new
+
+
+def remove_tmp_genome(param, name, ref_new):
+    """
+    Remove the temporary genome
+    """
+    # Enlever le dict taxid contenant le genome tmp et le remplacer par le fichier d'origine
+    os.remove(UNCOMPRESSED_GEN_DIR + "/genome_ref_taxid.json")
+    os.system("mv {}/genome_ref_taxid_tmp.json {}/genome_ref_taxid.json".format(UNCOMPRESSED_GEN_DIR, UNCOMPRESSED_GEN_DIR))
+    os.remove(UNCOMPRESSED_GEN_DIR + "/distance_dic.json")
+    os.system("mv {}/distance_dic_tmp.json {}/distance_dic.json".format(UNCOMPRESSED_GEN_DIR, UNCOMPRESSED_GEN_DIR))
+    # Enlever les fichiers compressés de la BDD
+    os.remove(UNCOMPRESSED_GEN_DIR + "/fasta/" + ref_new + ".tar.gz")
+    os.remove(UNCOMPRESSED_GEN_DIR + "/index2/" + ref_new + ".tar.gz")
+    organism = name + " " + param.gcf
+    os.remove(UNCOMPRESSED_GEN_DIR + "/pickle/" + organism.replace("/", "_") + "." + ref_new + ".p")
+
+    
 def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_in, dict_org_code, workdir):
     """
     Principal algorithm to launch to find sgRNA common
@@ -201,8 +246,11 @@ def main():
     parameters = args_gestion()
 
     WORKDIR = set_global_env(parameters)
-
     fasta_path = WORKDIR + '/reference_genomes/fasta'
+    # Add a temporary genome in the database
+    if parameters.add:
+        name, ref_new = add_tmp_genome(parameters)
+
     # Keys: organism, values: genomic reference (ncbi)
     dict_organism_code = cf.read_json_dic(UNCOMPRESSED_GEN_DIR +
                                           '/genome_ref_taxid.json')
@@ -216,6 +264,11 @@ def main():
     cf.eprint('Parallelisation with distance matrix')
     construction(fasta_path, parameters.pam, non_pam_motif_length, organisms_selected,
                  organisms_excluded, dict_organism_code, WORKDIR)
+
+    # Remove the temporary genome from the database
+    if parameters.add:
+        remove_tmp_genome(parameters, name, ref_new)
+
     end_time = time.time()
     total_time = end_time - start_time
     cf.eprint('TIME', total_time)

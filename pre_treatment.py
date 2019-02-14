@@ -76,40 +76,40 @@ def setup(ref):
     os.mkdir("reference_genomes/index2/" + ref)
 
 
-def set_dic_taxid(param):
+def set_dic_taxid(filename, gcf, asm, taxid, rfg):
     """
     Create dictionnary for json file and gzip the fasta file
     """
     # Retrieve the name of the genome
-    seq_record = SeqIO.parse(param.file, "fasta")
+    seq_record = SeqIO.parse(filename, "fasta")
     name = next(seq_record).description
     name = name.split(",")[0]
-    ref = param.gcf + "_" + param.asm
+    ref = gcf + "_" + asm
 
-    with open(param.rfg + "/genome_ref_taxid.json", "r") as json_data:
+    with open(rfg + "/genome_ref_taxid.json", "r") as json_data:
         dic_ref = json.load(json_data)
 
     # Check if the reference is not in the dic_ref, so in the database
     for organism in dic_ref:
         if dic_ref[organism][0] == ref:
             sys.exit("ERROR : This genome is already in the database")
-        elif dic_ref[organism][1] == param.taxid:
+        elif dic_ref[organism][1] == taxid:
             sys.exit("ERROR : This taxon ID is already in the database")
 
     dic_taxid = {}
-    dic_taxid[ref] = param.taxid
+    dic_taxid[ref] = taxid
     # Retrieve all taxon id present in the database
     for name_gcf in dic_ref:
         ref_tmp = dic_ref[name_gcf][0]
         dic_taxid[ref_tmp] = dic_ref[name_gcf][1]
 
-    dic_ref[name + ' ' + param.gcf] = [ref, param.taxid]
+    dic_ref[name + ' ' + gcf] = [ref, taxid]
 
     setup(ref)
-    shutil.copyfile(param.file, "reference_genomes/fasta/" + ref +
+    shutil.copyfile(filename, "reference_genomes/fasta/" + ref +
                     "/" + ref + "_genomic.fna")
     # Write the new json file with the new genome
-    json.dump(dic_ref, open(param.rfg + "/genome_ref_taxid.json", 'w'), indent=4)
+    json.dump(dic_ref, open(rfg + "/genome_ref_taxid.json", 'w'), indent=4)
     return dic_taxid, ref, name
 
 
@@ -254,16 +254,16 @@ def construct_in(fasta_path, organism, organism_code, path_db, pam = "NGG", non_
 
 
 
-def compress(param, ref):
+def compress(rfg, ref):
     # Compress the fasta file in the database
-    with tarfile.open(param.rfg + "/fasta/" + ref + ".tar.gz", "w:gz") as tar:
+    with tarfile.open(rfg + "/fasta/" + ref + ".tar.gz", "w:gz") as tar:
         tar.add("reference_genomes/fasta/" + ref + "/" + ref + "_genomic.fna")
         tar.add("reference_genomes/fasta/" + ref + "/" + ref + "_genomic.fna.nhr")
         tar.add("reference_genomes/fasta/" + ref + "/" + ref + "_genomic.fna.nin")
         tar.add("reference_genomes/fasta/" + ref + "/" + ref + "_genomic.fna.nsq")
 
     # Compress the fasta file in the database
-    with tarfile.open(param.rfg + "/index2/" + ref + ".tar.gz", "w:gz") as tar:
+    with tarfile.open(rfg + "/index2/" + ref + ".tar.gz", "w:gz") as tar:
         tar.add("reference_genomes/index2/" + ref + "/" + ref + ".1.bt2")
         tar.add("reference_genomes/index2/" + ref + "/" + ref + ".2.bt2")
         tar.add("reference_genomes/index2/" + ref + "/" + ref + ".3.bt2")
@@ -275,13 +275,14 @@ def compress(param, ref):
 if __name__ == '__main__':
     PARAM = args_gestion()
     # Create dictionnary with all taxon ID
-    DIC_TAXID, REF_NEW, NAME = set_dic_taxid(PARAM)
+    DIC_TAXID, REF_NEW, NAME = set_dic_taxid(PARAM.file, PARAM.gcf, PARAM.asm, PARAM.taxid, PARAM.rfg)
     # Index the new genome
     index_bowtie_blast(REF_NEW)
     # Compress the indexation and the fasta file
-    compress(PARAM, REF_NEW)
+    compress(PARAM.rfg, REF_NEW)
     # Calcul distances between new and old genomes
     distance_matrix(DIC_TAXID, REF_NEW, PARAM)
+    # the fasta file was copied in the tmp directory ./reference_genomes
     construct_in("reference_genomes/fasta", NAME + " " + PARAM.gcf, REF_NEW, PARAM.rfg)
 
     json_tree(PARAM.rfg)
