@@ -95,20 +95,17 @@ def set_dic_taxid(filename, gcf, asm, taxid, rfg):
         dic_ref = json.load(json_data)
 
     # Check if the reference is not in the dic_ref, so in the database
-    for organism in dic_ref:
-        if dic_ref[organism][0] == ref:
-            sys.exit("ERROR : This genome is already in the database")
-        elif dic_ref[organism][1] == taxid:
-            sys.exit("ERROR : This taxon ID is already in the database")
+    references = [ref[0] for ref in dic_ref.values()]
+    tax_ids = [id[1] for id in dic_ref.values()]
+    if ref in references:
+        sys.exit("ERROR : This genome is already in the database")
+    if taxid in tax_ids:
+        sys.exit("ERROR : This taxon ID is already in the database")
 
     dic_taxid = {}
-    dic_taxid[ref] = taxid
-    # Retrieve all taxon id present in the database
-    for name_gcf in dic_ref:
-        ref_tmp = dic_ref[name_gcf][0]
-        dic_taxid[ref_tmp] = dic_ref[name_gcf][1]
-
     dic_ref[name + ' ' + gcf] = [ref, taxid]
+    # Retrieve all taxon id present in the database
+    dic_taxid = {dic_ref[name_gcf][0]: dic_ref[name_gcf][1] for name_gcf in dic_ref}
 
     setup(ref)
     shutil.copyfile(filename, "reference_genomes/fasta/" + ref +
