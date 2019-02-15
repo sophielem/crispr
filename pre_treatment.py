@@ -29,16 +29,21 @@ class Lineage:
 
 def valid_file(parser, filename):
     """
-    Check if the file exists
+    Check if the file exists and if it is a standard fasta file
     """
+    # Check if the file exists
     if not os.path.isfile(filename):
         parser.error("The file {} does not exist !".format(filename))
-    fasta = SeqIO.parse(filename, "fasta")
-    # Return false when fasta is empty
-    if any(fasta):
-        return filename
-    else:
+    # Try to open it and check if it is a fasta file
+    try:
+        fasta = next(SeqIO.parse(filename, "fasta"))
+        # Check if the sequence only contains ACTG letters
+        if any(letter not in "ACTG" for letter in fasta.seq):
+            parser.error("Be careful, the sequence is not a nucleotide sequence !")
+    except Exception as e:
         parser.error("The file {} is not a fasta file !".format(filename))
+    # If all is good, return the filename
+    return filename
 
 
 def args_gestion():
