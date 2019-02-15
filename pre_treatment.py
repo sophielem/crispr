@@ -46,6 +46,19 @@ def valid_file(parser, filename):
     return filename
 
 
+def valid_taxid(parser, taxid):
+    """
+    Check if the taxon id given by the user is in the NCBI taxonomy
+    database
+    """
+    ncbi = NCBITaxa()
+    try:
+        ncbi.get_lineage(taxid)
+        return taxid
+    except Exception as err:
+        parser.error("The taxon id given ({}) is not in the NCBI taxonomy database !".format(taxid))
+
+
 def args_gestion():
     """
     Take and treat arguments that user gives in command line
@@ -63,10 +76,11 @@ def args_gestion():
     parser.add_argument("-asm", metavar="<str>",
                         help="The ASM assembly ID",
                         required=True)
-    parser.add_argument("-taxid", metavar="<str>",
+    parser.add_argument("-taxid", type=lambda x: valid_taxid(parser, x),
                         help="The taxon ID",
                         required=True)
     args = parser.parse_args()
+    valid_taxid(args.taxid)
     return args
 
 
@@ -159,7 +173,7 @@ def create_lineage_objects(dic_tax):
             dic_lineage[ref] = (lineage_object, count)
             count += 1
         except Exception as err:
-            with open("problem_taxon.log", "a") as filout:
+            with open(".problem_taxon.log", "a") as filout:
                 filout.write(tax_ref + "\n")
 
     return dic_lineage
