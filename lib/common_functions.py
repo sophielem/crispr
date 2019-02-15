@@ -483,6 +483,6 @@ def update_list_order(list_order, list_in, in_compare_genome, is_in):
     Add the genome to the order list and remove it from the original list
     """
     new_genome = in_compare_genome
-    list_order.append((new_genome, 'in'))
+    list_order.append((new_genome, is_in))
     list_in.remove(new_genome)
     return (list_order, list_in, new_genome)
