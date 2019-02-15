@@ -29,7 +29,35 @@ def setup_application(param):
     """
     Split list of leaves and nodes
     """
-    return param.leaves.split("&"), param.nodes.split("&")
+    leaves = param.leaves.split("&")
+    nodes = param.nodes.split("&")
+    if leaves == [""]: leaves = []
+    if nodes == [""]: nodes = []
+    return leaves, nodes
+
+
+def fusion_dic(dic_leaves, dic_nodes):
+    """
+    Fusion of sequences sgrna found in nodes and in leaves. Then return the
+    results
+    """
+    if dic_nodes and dic_leaves:
+        # Only keep common keys between these 2 dictionnaries
+        keys_leaves = set(dic_leaves.keys())
+        keys_nodes = set(dic_nodes.keys())
+        common_keys = list(keys_leaves & keys_nodes)
+        dic_fusion = {}
+        # Fusion of dict for common sequences
+        for sgrna in common_keys:
+            dic_fusion[sgrna] = {}
+            dic_fusion[sgrna] = {dic_leaves[sgrna], dic_nodes[sgrna]}
+        return dic_fusion
+    # No leaves to add to the intersection
+    elif dic_nodes:
+        return dic_nodes
+    # No nodes to add to the intersection
+    else:
+        return dic_leaves
 
 
 if __name__ == '__main__':
@@ -37,36 +65,28 @@ if __name__ == '__main__':
     LIST_LEAVES, LIST_NODES = setup_application(PARAM)
     if DEBUG: print(LIST_LEAVES); print(LIST_NODES)
 
-    workdir = os.getcwd()
-    fasta_path = workdir + "/reference_genomes/fasta"
-    dict_organism_code = cf.read_json_dic(PARAM.rfg +
+    WORKDIR = os.getcwd()
+    FASTA_PATH = WORKDIR + "/reference_genomes/fasta"
+    DICT_ORGANISM_CODE = cf.read_json_dic(PARAM.rfg +
                                           '/genome_ref_taxid.json')
-    if LIST_LEAVES != [""]:
-            dic_leaves = ag.construction(fasta_path, "NGG", 20, LIST_LEAVES, [],
-                                         dict_organism_code, workdir, PARAM.rfg)
+    dic_leaves = {}
+    dic_nodes = {}
 
+    if LIST_LEAVES:
+            dic_leaves = ag.construction(FASTA_PATH, "NGG", 20, LIST_LEAVES, [],
+                                         DICT_ORGANISM_CODE, WORKDIR, PARAM.rfg)
     if LIST_NODES:
-        dic_nodes = {}
+        pass
 
-    # Fusion des dictionnaires
-    if dic_nodes and dic_leaves:
-        keys_leaves = set(dic_leaves.keys())
-        keys_nodes = set(dic_nodes.keys())
-        common_keys = list(keys_leaves & keys_nodes)
-        dic_fusion = {}
-        for sgrna in common_keys:
-            dic_fusion[sgrna] = {}
-            dic_fusion[sgrna] = {dic_leaves[sgrna], dic_nodes[sgrna]}
-    elif dic_nodes:
-        dic_fusion = dic_nodes
-    else:
-        dic_fusion = dic_leaves
+    dic_fusion = fusion_dic(dic_leaves, dic_nodes)
 
     if DEBUG: cf.eprint(str(len(dic_fusion)) + " hits remain after ")
 
     # Grand dictionnaire contenant le dic_fusion et une clef pour les metadata
-
-    #
-    # if not os.path.isdir(PARAM.rfg + "/node"):
-    #     os.mkdir(PARAM.rfg + "/node")
-    # pickle.dump(dic_inter, open(PARAM.rfg + "/node/trois.p", "wb"), protocol=3)
+    dic_inter = {}
+    dic_inter["metadata"] = LIST_LEAVES + LIST_NODES
+    dic_inter["data"] = dic_fusion
+    name_node = "trois"
+    if not os.path.isdir(PARAM.rfg + "/node"):
+        os.mkdir(PARAM.rfg + "/node")
+    pickle.dump(dic_inter, open(PARAM.rfg + "/node/" + name_node + ".p", "wb"), protocol=3)
