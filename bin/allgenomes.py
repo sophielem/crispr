@@ -151,7 +151,7 @@ def remove_tmp_genome(param, name, ref_new):
     organism = name + " " + param.gcf
     os.remove(UNCOMPRESSED_GEN_DIR + "/pickle/" + organism.replace("/", "_") + "." + ref_new + ".p")
 
-    
+
 def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_in, dict_org_code, workdir):
     """
     Principal algorithm to launch to find sgRNA common
@@ -249,6 +249,7 @@ def main():
     fasta_path = WORKDIR + '/reference_genomes/fasta'
     # Add a temporary genome in the database
     if parameters.add:
+        cf.eprint('---- Add the temporary new genome ----')
         name, ref_new = add_tmp_genome(parameters)
 
     # Keys: organism, values: genomic reference (ncbi)
@@ -267,6 +268,7 @@ def main():
 
     # Remove the temporary genome from the database
     if parameters.add:
+        cf.eprint('---- Remove the temporary new genome ----')
         remove_tmp_genome(parameters, name, ref_new)
 
     end_time = time.time()
