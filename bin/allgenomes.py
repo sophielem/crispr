@@ -51,7 +51,7 @@ def args_gestion():
                         help="The GCF assembly ID ")
     parser.add_argument("-asm", metavar="<str>",
                         help="The ASM assembly ID")
-    parser.add_argument("-taxid", metavar="<str>",
+    parser.add_argument("-taxid", type=lambda x: pt.valid_taxid(parser, x),
                         help="The taxon ID")
     args = parser.parse_args()
     if args.add and (not args.file or not args.gcf or not args.asm or not args.taxid):
