@@ -181,18 +181,25 @@ def distance_dic(dic_lineage, ref_new, rfg):
             dic[ref_new][ref1] = 0
         elif dic_lineage[ref_new][0].species == dic_lineage[ref1][0].species:
             dic[ref_new][ref1] = 1
+            dic[ref1][ref_new] = 1
         elif dic_lineage[ref_new][0].genus == dic_lineage[ref1][0].genus:
             dic[ref_new][ref1] = 2
+            dic[ref1][ref_new] = 2
         elif dic_lineage[ref_new][0].family == dic_lineage[ref1][0].family:
             dic[ref_new][ref1] = 3
+            dic[ref1][ref_new] = 3
         elif dic_lineage[ref_new][0].order == dic_lineage[ref1][0].order:
             dic[ref_new][ref1] = 4
+            dic[ref1][ref_new] = 4
         elif dic_lineage[ref_new][0].classe == dic_lineage[ref1][0].classe:
             dic[ref_new][ref1] = 5
+            dic[ref1][ref_new] = 5
         elif dic_lineage[ref_new][0].phylum == dic_lineage[ref1][0].phylum:
             dic[ref_new][ref1] = 6
+            dic[ref1][ref_new] = 6
         else:
             dic[ref_new][ref1] = 7
+            dic[ref1][ref_new] = 7
     return dic
 
 
