@@ -40,7 +40,7 @@ def valid_file(parser, filename):
         # Check if the sequence only contains ACTG letters
         if any(letter not in "ACTG" for letter in fasta.seq):
             parser.error("Be careful, the sequence is not a nucleotide sequence !")
-    except Exception as e:
+    except Exception as err:
         parser.error("The file {} is not a fasta file !".format(filename))
     # If all is good, return the filename
     return filename
@@ -161,19 +161,19 @@ def create_lineage_objects(dic_tax):
                     lineage_object.phylum = names[i]
             dic_lineage[ref] = (lineage_object, count)
             count += 1
-        except Exception as e:
+        except Exception as err:
             with open("problem_taxon.log", "a") as filout:
                 filout.write(tax_ref + "\n")
 
     return dic_lineage
 
 
-def distance_dic(dic_lineage, ref_new, param):
+def distance_dic(dic_lineage, ref_new, rfg):
     """
     Calcul the distance between genomes according to their species, genus,
     family, order, classe or phylum.
     """
-    with open(param.rfg + "/distance_dic.json", "r") as json_data:
+    with open(rfg + "/distance_dic.json", "r") as json_data:
         dic = json.load(json_data)
     dic[ref_new] = {}
     for ref1 in dic_lineage:
@@ -196,14 +196,14 @@ def distance_dic(dic_lineage, ref_new, param):
     return dic
 
 
-def distance_matrix(dic_taxid, ref_new, param):
+def distance_matrix(dic_taxid, ref_new, rfg):
     """
     Create the distance matrix to know if genomes are close or not
     """
     print('DISTANCE MATRIX')
     dic_lineage = create_lineage_objects(dic_taxid)
-    dist_dic = distance_dic(dic_lineage, ref_new, param)
-    json.dump(dist_dic, open(param.rfg + "/distance_dic.json", "w"), indent=4)
+    dist_dic = distance_dic(dic_lineage, ref_new, rfg)
+    json.dump(dist_dic, open(rfg + "/distance_dic.json", "w"), indent=4)
 
 
 def json_tree(bdd_path):
@@ -214,7 +214,8 @@ def json_tree(bdd_path):
     os.system('python3 bin/tax2json.py ' + bdd_path)
 
 
-def construct_in(fasta_path, organism, organism_code, path_db, pam = "NGG", non_pam_motif_length = 20):
+def construct_in(fasta_path, organism, organism_code, path_db, pam="NGG",
+                 non_pam_motif_length=20):
     """
     Construct the sequences for first organism,
     with python regular expression research
@@ -225,7 +226,7 @@ def construct_in(fasta_path, organism, organism_code, path_db, pam = "NGG", non_
 
     seq_dict = {}
 
-    for genome_seqrecord in SeqIO.parse(fasta_file,'fasta'):
+    for genome_seqrecord in SeqIO.parse(fasta_file, "fasta"):
         genome_seq = genome_seqrecord.seq
         ref = genome_seqrecord.id
         seq_list_forward = cf.find_sgrna_seq(str(genome_seq),
@@ -258,8 +259,10 @@ def construct_in(fasta_path, organism, organism_code, path_db, pam = "NGG", non_
     return seq_dict
 
 
-
 def compress(rfg, ref):
+    """
+    Compress fasta and index files into gzip archive
+    """
     # Compress the fasta file in the database
     with tarfile.open(rfg + "/fasta/" + ref + ".tar.gz", "w:gz") as tar:
         tar.add("reference_genomes/fasta/" + ref + "/" + ref + "_genomic.fna")
@@ -280,13 +283,14 @@ def compress(rfg, ref):
 if __name__ == '__main__':
     PARAM = args_gestion()
     # Create dictionnary with all taxon ID
-    DIC_TAXID, REF_NEW, NAME = set_dic_taxid(PARAM.file, PARAM.gcf, PARAM.asm, PARAM.taxid, PARAM.rfg)
+    DIC_TAXID, REF_NEW, NAME = set_dic_taxid(PARAM.file, PARAM.gcf, PARAM.asm,
+                                             PARAM.taxid, PARAM.rfg)
     # Index the new genome
     index_bowtie_blast(REF_NEW)
     # Compress the indexation and the fasta file
     compress(PARAM.rfg, REF_NEW)
     # Calcul distances between new and old genomes
-    distance_matrix(DIC_TAXID, REF_NEW, PARAM)
+    distance_matrix(DIC_TAXID, REF_NEW, PARAM.rfg)
     # the fasta file was copied in the tmp directory ./reference_genomes
     construct_in("reference_genomes/fasta", NAME + " " + PARAM.gcf, REF_NEW, PARAM.rfg)
 

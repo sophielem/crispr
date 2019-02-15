@@ -12,7 +12,6 @@ import sys
 import os
 import shutil
 import pickle
-from Bio import SeqIO
 import common_functions as cf
 import pre_treatment as pt
 
@@ -95,7 +94,8 @@ def display_no_hits(genome, start_time, workdir, in_exc):
     Print the name of the genome after which there are no more hits and
     exit the program
     """
-    print("Program terminated&No hits remain after {} genome {}".format(in_exc, genome))
+    print("Program terminated&No hits remain after {} genome {}"
+          .format(in_exc, genome))
     end_time = time.time()
     total_time = end_time - start_time
     cf.eprint('TIME', total_time)
@@ -124,13 +124,19 @@ def add_tmp_genome(param):
     """
     Enter a temporary genome in the database
     """
-    shutil.copyfile(UNCOMPRESSED_GEN_DIR + "/genome_ref_taxid.json", UNCOMPRESSED_GEN_DIR + "/genome_ref_taxid_tmp.json")
-    shutil.copyfile(UNCOMPRESSED_GEN_DIR + "/distance_dic.json", UNCOMPRESSED_GEN_DIR + "/distance_dic_tmp.json")
-    dic_taxid, ref_new, name = pt.set_dic_taxid(param.file, param.gcf, param.asm, param.taxid, UNCOMPRESSED_GEN_DIR)
+    shutil.copyfile(UNCOMPRESSED_GEN_DIR + "/genome_ref_taxid.json",
+                    UNCOMPRESSED_GEN_DIR + "/genome_ref_taxid_tmp.json")
+    shutil.copyfile(UNCOMPRESSED_GEN_DIR + "/distance_dic.json",
+                    UNCOMPRESSED_GEN_DIR + "/distance_dic_tmp.json")
+    dic_taxid, ref_new, name = pt.set_dic_taxid(param.file, param.gcf,
+                                                param.asm, param.taxid,
+                                                UNCOMPRESSED_GEN_DIR)
     pt.index_bowtie_blast(ref_new)
     # the fasta file was copied in the tmp directory ./reference_genomes
-    pt.construct_in("reference_genomes/fasta", name + " " + param.gcf, ref_new, UNCOMPRESSED_GEN_DIR)
+    pt.construct_in("reference_genomes/fasta", name + " " + param.gcf,
+                    ref_new, UNCOMPRESSED_GEN_DIR)
     pt.compress(UNCOMPRESSED_GEN_DIR, ref_new)
+    pt.distance_matrix(dic_taxid, ref_new, UNCOMPRESSED_GEN_DIR)
     # Delete temporary directory
     shutil.rmtree("reference_genomes")
     return name, ref_new
@@ -138,21 +144,26 @@ def add_tmp_genome(param):
 
 def remove_tmp_genome(param, name, ref_new):
     """
-    Remove the temporary genome
+    Remove the temporary genome from json files and from the BDD
     """
-    # Enlever le dict taxid contenant le genome tmp et le remplacer par le fichier d'origine
+    # Remvoe the dict taxid containing the tmp genome and replace it by
+    # the original file. Same thing fot the distance file
     os.remove(UNCOMPRESSED_GEN_DIR + "/genome_ref_taxid.json")
-    os.system("mv {}/genome_ref_taxid_tmp.json {}/genome_ref_taxid.json".format(UNCOMPRESSED_GEN_DIR, UNCOMPRESSED_GEN_DIR))
+    os.system("mv {}/genome_ref_taxid_tmp.json {}/genome_ref_taxid.json"
+              .format(UNCOMPRESSED_GEN_DIR, UNCOMPRESSED_GEN_DIR))
     os.remove(UNCOMPRESSED_GEN_DIR + "/distance_dic.json")
-    os.system("mv {}/distance_dic_tmp.json {}/distance_dic.json".format(UNCOMPRESSED_GEN_DIR, UNCOMPRESSED_GEN_DIR))
-    # Enlever les fichiers compressés de la BDD
+    os.system("mv {}/distance_dic_tmp.json {}/distance_dic.json"
+              .format(UNCOMPRESSED_GEN_DIR, UNCOMPRESSED_GEN_DIR))
+    # Remove compressed files from the BDD
     os.remove(UNCOMPRESSED_GEN_DIR + "/fasta/" + ref_new + ".tar.gz")
     os.remove(UNCOMPRESSED_GEN_DIR + "/index2/" + ref_new + ".tar.gz")
     organism = name + " " + param.gcf
-    os.remove(UNCOMPRESSED_GEN_DIR + "/pickle/" + organism.replace("/", "_") + "." + ref_new + ".p")
+    os.remove(UNCOMPRESSED_GEN_DIR + "/pickle/" + organism.replace("/", "_") +
+              "." + ref_new + ".p")
 
 
-def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_in, dict_org_code, workdir):
+def construction(fasta_path, pam, non_pam_motif_length, genomes_in,
+                 genomes_not_in, dict_org_code, workdir):
     """
     Principal algorithm to launch to find sgRNA common
     """
@@ -183,7 +194,8 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in, genomes_not_
     name_file = sorted_genomes[0].replace("/", "_")
     pickle_file = (UNCOMPRESSED_GEN_DIR + "/pickle/" + name_file +
                    "." + dict_org_code[sorted_genomes[0]][0] + ".p")
-    if not os.path.isdir(UNCOMPRESSED_GEN_DIR + "/pickle"): os.mkdir(UNCOMPRESSED_GEN_DIR + "/pickle")
+    if not os.path.isdir(UNCOMPRESSED_GEN_DIR + "/pickle"):
+        os.mkdir(UNCOMPRESSED_GEN_DIR + "/pickle")
     if os.path.isfile(pickle_file):
         dic_seq = pickle.load(open(pickle_file, "rb"))
     else:
@@ -245,8 +257,8 @@ def main():
 
     parameters = args_gestion()
 
-    WORKDIR = set_global_env(parameters)
-    fasta_path = WORKDIR + '/reference_genomes/fasta'
+    workdir = set_global_env(parameters)
+    fasta_path = workdir + '/reference_genomes/fasta'
     # Add a temporary genome in the database
     if parameters.add:
         cf.eprint('---- Add the temporary new genome ----')
@@ -264,7 +276,7 @@ def main():
     cf.eprint('---- CSTB complete genomes ----')
     cf.eprint('Parallelisation with distance matrix')
     construction(fasta_path, parameters.pam, non_pam_motif_length, organisms_selected,
-                 organisms_excluded, dict_organism_code, WORKDIR)
+                 organisms_excluded, dict_organism_code, workdir)
 
     # Remove the temporary genome from the database
     if parameters.add:
