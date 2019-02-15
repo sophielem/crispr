@@ -17,7 +17,6 @@ import pre_treatment as pt
 
 # Global variable
 TASK_KEY = str(uuid.uuid1())
-UNCOMPRESSED_GEN_DIR = None
 ASYNC = False
 
 
@@ -64,11 +63,9 @@ def set_global_env(param):
     Set global variable
     """
     global TASK_KEY
-    global UNCOMPRESSED_GEN_DIR
     global ASYNC  # A switch to properly configure sbatch delagation
     TASK_KEY = str(uuid.uuid1())
     cf.TASK_KEY = TASK_KEY
-    UNCOMPRESSED_GEN_DIR = param.rfg
     ASYNC = param.async
     if ASYNC:
         workdir = os.getcwd()
@@ -124,19 +121,19 @@ def add_tmp_genome(param):
     """
     Enter a temporary genome in the database
     """
-    shutil.copyfile(UNCOMPRESSED_GEN_DIR + "/genome_ref_taxid.json",
-                    UNCOMPRESSED_GEN_DIR + "/genome_ref_taxid_tmp.json")
-    shutil.copyfile(UNCOMPRESSED_GEN_DIR + "/distance_dic.json",
-                    UNCOMPRESSED_GEN_DIR + "/distance_dic_tmp.json")
+    shutil.copyfile(param.rfg + "/genome_ref_taxid.json",
+                    param.rfg + "/genome_ref_taxid_tmp.json")
+    shutil.copyfile(param.rfg + "/distance_dic.json",
+                    param.rfg + "/distance_dic_tmp.json")
     dic_taxid, ref_new, name = pt.set_dic_taxid(param.file, param.gcf,
                                                 param.asm, param.taxid,
-                                                UNCOMPRESSED_GEN_DIR)
+                                                param.rfg)
     pt.index_bowtie_blast(ref_new)
     # the fasta file was copied in the tmp directory ./reference_genomes
     pt.construct_in("reference_genomes/fasta", name + " " + param.gcf,
-                    ref_new, UNCOMPRESSED_GEN_DIR)
-    pt.compress(UNCOMPRESSED_GEN_DIR, ref_new)
-    pt.distance_matrix(dic_taxid, ref_new, UNCOMPRESSED_GEN_DIR)
+                    ref_new, param.rfg)
+    pt.compress(param.rfg, ref_new)
+    pt.distance_matrix(dic_taxid, ref_new, param.rfg)
     # Delete temporary directory
     shutil.rmtree("reference_genomes")
     return name, ref_new
@@ -148,22 +145,22 @@ def remove_tmp_genome(param, name, ref_new):
     """
     # Remvoe the dict taxid containing the tmp genome and replace it by
     # the original file. Same thing fot the distance file
-    os.remove(UNCOMPRESSED_GEN_DIR + "/genome_ref_taxid.json")
+    os.remove(param.rfg + "/genome_ref_taxid.json")
     os.system("mv {}/genome_ref_taxid_tmp.json {}/genome_ref_taxid.json"
-              .format(UNCOMPRESSED_GEN_DIR, UNCOMPRESSED_GEN_DIR))
-    os.remove(UNCOMPRESSED_GEN_DIR + "/distance_dic.json")
+              .format(param.rfg, param.rfg))
+    os.remove(param.rfg + "/distance_dic.json")
     os.system("mv {}/distance_dic_tmp.json {}/distance_dic.json"
-              .format(UNCOMPRESSED_GEN_DIR, UNCOMPRESSED_GEN_DIR))
+              .format(param.rfg, param.rfg))
     # Remove compressed files from the BDD
-    os.remove(UNCOMPRESSED_GEN_DIR + "/fasta/" + ref_new + ".tar.gz")
-    os.remove(UNCOMPRESSED_GEN_DIR + "/index2/" + ref_new + ".tar.gz")
+    os.remove(param.rfg + "/fasta/" + ref_new + ".tar.gz")
+    os.remove(param.rfg + "/index2/" + ref_new + ".tar.gz")
     organism = name + " " + param.gcf
-    os.remove(UNCOMPRESSED_GEN_DIR + "/pickle/" + organism.replace("/", "_") +
+    os.remove(param.rfg + "/pickle/" + organism.replace("/", "_") +
               "." + ref_new + ".p")
 
 
 def construction(fasta_path, pam, non_pam_motif_length, genomes_in,
-                 genomes_not_in, dict_org_code, workdir):
+                 genomes_not_in, dict_org_code, workdir, UNCOMPRESSED_GEN_DIR):
     """
     Principal algorithm to launch to find sgRNA common
     """
@@ -173,7 +170,6 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in,
     cf.eprint('## Search for', len(genomes_in), "included genomes and",
               len(genomes_not_in), 'excluded genomes with', num_thread,
               'thread(s) ##')
-
     cf.unzip_files(UNCOMPRESSED_GEN_DIR, genomes_in + genomes_not_in,
                    dict_org_code, workdir)
 
@@ -262,7 +258,7 @@ def main():
     start_time = time.time()
 
     parameters = args_gestion()
-
+    UNCOMPRESSED_GEN_DIR = parameters.rfg
     workdir = set_global_env(parameters)
     fasta_path = workdir + '/reference_genomes/fasta'
     # Add a temporary genome in the database
@@ -282,8 +278,9 @@ def main():
     cf.eprint('---- CSTB complete genomes ----')
     cf.eprint('Parallelisation with distance matrix')
     dic_seq = construction(fasta_path, parameters.pam, non_pam_motif_length, organisms_selected,
-                           organisms_excluded, dict_organism_code, workdir)
-    display_hits(dic_seq, organisms_selected, organisms_excluded, parameters.pam, non_pam_motif_length, workdir)
+                           organisms_excluded, dict_organism_code, workdir, UNCOMPRESSED_GEN_DIR)
+    display_hits(dic_seq, organisms_selected, organisms_excluded,
+                 parameters.pam, non_pam_motif_length, workdir)
 
     # Remove the temporary genome from the database
     if parameters.add:
