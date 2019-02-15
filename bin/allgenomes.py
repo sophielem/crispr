@@ -236,7 +236,13 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in,
         list_fasta = cf.write_to_fasta_parallel(dic_seq, num_file, workdir)
 
     cf.delete_used_files(workdir)
+    return dic_seq
 
+
+def display_hits(dic_seq, genomes_in, genomes_not_in, pam, non_pam_motif_length, workdir):
+    """
+    Sort hits and write output for interface
+    """
     hit_list = cf.construct_hitlist(dic_seq)
     hit_list = sort_hits(hit_list)
 
@@ -275,8 +281,9 @@ def main():
 
     cf.eprint('---- CSTB complete genomes ----')
     cf.eprint('Parallelisation with distance matrix')
-    construction(fasta_path, parameters.pam, non_pam_motif_length, organisms_selected,
-                 organisms_excluded, dict_organism_code, workdir)
+    dic_seq = construction(fasta_path, parameters.pam, non_pam_motif_length, organisms_selected,
+                           organisms_excluded, dict_organism_code, workdir)
+    display_hits(dic_seq, organisms_selected, organisms_excluded, parameters.pam, non_pam_motif_length, workdir)
 
     # Remove the temporary genome from the database
     if parameters.add:
