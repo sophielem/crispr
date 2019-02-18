@@ -43,13 +43,14 @@ def setup_application(param):
 
 def fusion_nodes(dic_ref, list_nodes):
     """
-    Definition
+    Retrieve common keys of each dictionnary and keep them.
+    A fusion dictionnary is created, using common keys.
     """
     # The list of path is empty
     if not list_nodes: return dic_ref
 
     node_path = list_nodes[0]
-    dic_node = pickle.load(open(node_path, "rb"))
+    dic_node = pickle.load(open(node_path, "rb"))["data"]
     # Retrieve keys for the new node and old nodes
     keys_node = set(dic_node.keys())
     keys_ref = set(dic_ref.keys())
@@ -66,14 +67,17 @@ def fusion_nodes(dic_ref, list_nodes):
 def fusion_node_leaf(list_leaves, dic_node, fasta_path, dict_org_code, workdir,
                      uncompressed_file_path):
     """
-    Definition
+    Uncompressed fasta files in a temporary directory, then sort genomes of
+    leaves by size. Then, with all these included genomes, the principal
+    search is launched
     """
     nb_file = 4
     cf.unzip_files(uncompressed_file_path, list_leaves, dict_org_code, workdir)
     sorted_genomes = cf.sort_genomes(list_leaves, fasta_path, dict_org_code,
                                      False)
+    # All genomes are include for the intersection
     sorted_genomes = [(genome, "in") for genome in sorted_genomes]
-    print(sorted_genomes)
+    # Write sgRNA sequences common to all nodes in several files for bowtie
     list_fasta = cf.write_to_fasta_parallel(dic_node, nb_file, workdir)
     dic_seq = ag.principal_search(sorted_genomes, list_fasta, dict_org_code,
                                   dic_node, "NGG", 20, workdir, time.time())
@@ -113,11 +117,11 @@ if __name__ == '__main__':
                                      DICT_ORGANISM_CODE, WORKDIR, PARAM.rfg)
     else:
         cf.eprint("Intersection of nodes")
-        DIC_NODE = fusion_nodes(pickle.load(open(LIST_NODES[0], "rb")),
+        DIC_NODE = fusion_nodes(pickle.load(open(LIST_NODES[0], "rb"))["data"],
                                 LIST_NODES[1: ])
         if LIST_LEAVES:
             cf.eprint("Intersection of nodes and leaves")
-            dic_fusion = fusion_node_leaf(LIST_LEAVES, DIC_NODE["data"], FASTA_PATH,
+            dic_fusion = fusion_node_leaf(LIST_LEAVES, DIC_NODE, FASTA_PATH,
                                           DICT_ORGANISM_CODE, WORKDIR, PARAM.rfg)
         else:
             dic_fusion = DIC_NODE
