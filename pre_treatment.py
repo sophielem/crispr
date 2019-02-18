@@ -109,7 +109,7 @@ def set_dic_taxid(filename, gcf, asm, taxid, rfg):
         dic_ref = json.load(json_data)
 
     # Check if the reference is not in the dic_ref, so in the database
-    references = [ref[0] for ref in dic_ref.values()]
+    references = [ref_ref[0] for ref_ref in dic_ref.values()]
     tax_ids = [id[1] for id in dic_ref.values()]
     if ref in references:
         sys.exit("ERROR : This genome is already in the database")
