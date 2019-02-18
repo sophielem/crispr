@@ -60,8 +60,7 @@ def fusion_nodes(dic_ref, list_nodes):
     dic_inter_nodes = {}
     # Fusion of dict for common sequences
     for sgrna in common_keys:
-        dic_inter_nodes[sgrna] = {}
-        dic_inter_nodes[sgrna] = {dic_ref[sgrna], dic_node[sgrna]}
+        dic_inter_nodes[sgrna] = dict(dic_ref[sgrna], **dic_node[sgrna])
     return fusion_nodes(dic_inter_nodes, list_nodes[1: ])
 
 
@@ -95,7 +94,7 @@ def write_node_file(list_leaves, list_nodes, dic_fusion, path_to_write):
     dic_inter = {}
     dic_inter["metadata"] = list_leaves + list_nodes
     dic_inter["data"] = dic_fusion
-    name_node = "three"
+    name_node = "test"
     if not os.path.isdir(path_to_write):
         os.mkdir(path_to_write)
     pickle.dump(dic_inter, open(path_to_write + name_node + ".p", "wb"),
@@ -129,4 +128,4 @@ if __name__ == '__main__':
 
     if DEBUG: cf.eprint(str(len(dic_fusion)) + " hits remain after ")
 
-    write_node_file(LIST_LEAVES, LIST_NODES, dic_fusion, PARAM.rfg + "/node/")
+    write_node_file(LIST_LEAVES, LIST_NODES, dic_fusion, PARAM.rfg + "/node/inter/")
