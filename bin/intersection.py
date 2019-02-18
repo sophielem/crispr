@@ -37,9 +37,7 @@ def setup_application(param):
     if nodes == [""]:
         nodes = []
         nodes_path = []
-    else:
-        nodes_path = [param.rfg + "/node/" + node + ".p" for node in nodes]
-    return leaves, nodes, nodes_path
+    return leaves, nodes
 
 
 def fusion_nodes(dic_ref, list_nodes):
@@ -94,29 +92,59 @@ def write_node_file(list_leaves, list_nodes, dic_fusion, path_to_write):
     dic_inter = {}
     dic_inter["metadata"] = list_leaves + list_nodes
     dic_inter["data"] = dic_fusion
-    name_node = "test"
+    name_node = "one"
     if not os.path.isdir(path_to_write):
         os.mkdir(path_to_write)
     pickle.dump(dic_inter, open(path_to_write + name_node + ".p", "wb"),
                                 protocol=3)
 
 
+def union_dic(list_elmt, dic_union, dict_org_code, is_leaf, param):
+    """
+    Definition
+    """
+    for elmt in list_elmt:
+        # Define where search the pickle file
+        if is_leaf:
+            ref = dict_org_code[elmt][0]
+            elmt = elmt.replace("/", "_")
+            path_to_file = param.rfg + "/pickle/" + elmt + "." + ref + ".p"
+            dic_elmt = pickle.load(open(path_to_file, "rb"))
+        else:
+            path_to_file = elmt
+            dic_elmt = pickle.load(open(path_to_file, "rb"))["data"]
+
+        # Retrieve all keys, so all sgRNA sequences
+        keys_elmt = set(dic_elmt.keys())
+        keys_ref = set(dic_union.keys())
+        # Keep all distinct sgRNA sequences
+        unique_keys = keys_ref.union(keys_elmt)
+        for sgrna in unique_keys:
+            # If sgRNA sequences is in both dict, merge
+            if sgrna in keys_ref and sgrna in keys_elmt:
+                dic_union[sgrna] = dict(dic_union[sgrna], **dic_elmt[sgrna])
+            # If it is a new sequence, add it
+            elif sgrna in keys_elmt:
+                dic_union[sgrna] = dic_elmt[sgrna]
+
+    return dic_union
+
+
 if __name__ == '__main__':
     PARAM = args_gestion()
-    LIST_LEAVES, LIST_NODES, NODES_PATH = setup_application(PARAM)
+    LIST_LEAVES, LIST_NODES = setup_application(PARAM)
     if DEBUG: print(LIST_LEAVES); print(LIST_NODES)
 
     WORKDIR = os.getcwd()
     FASTA_PATH = WORKDIR + "/reference_genomes/fasta"
     DICT_ORGANISM_CODE = cf.read_json_dic(PARAM.rfg +
                                           '/genome_ref_taxid.json')
+    NODES_PATH = [PARAM.rfg + "/node/inter/" + node + ".p" for node in LIST_NODES]
 
     if LIST_LEAVES and not LIST_NODES:
         cf.eprint("Intersection of leaves")
         dic_fusion = ag.construction(FASTA_PATH, "NGG", 20, LIST_LEAVES, [],
                                      DICT_ORGANISM_CODE, WORKDIR, PARAM.rfg)
-        os.remove("sg*")
-        os.remove("results*")
     else:
         cf.eprint("Intersection of nodes")
         DIC_NODE = fusion_nodes(pickle.load(open(NODES_PATH[0], "rb"))["data"],
@@ -131,3 +159,15 @@ if __name__ == '__main__':
     if DEBUG: cf.eprint(str(len(dic_fusion)) + " hits remain after ")
 
     write_node_file(LIST_LEAVES, LIST_NODES, dic_fusion, PARAM.rfg + "/node/inter/")
+
+    NODES_PATH = [PARAM.rfg + "/node/union/" + node + ".p" for node in LIST_NODES]
+    dic_union = {}
+
+    if LIST_LEAVES:
+        dic_union = union_dic(LIST_LEAVES, dic_union, DICT_ORGANISM_CODE, True, PARAM)
+    if LIST_NODES:
+        dic_union = union_dic(NODES_PATH, dic_union, DICT_ORGANISM_CODE, False, PARAM)
+
+
+    if DEBUG: cf.eprint(str(len(dic_union)) + " hits remain after ")
+    write_node_file(LIST_LEAVES, LIST_NODES, dic_union, PARAM.rfg + "/node/union/")
