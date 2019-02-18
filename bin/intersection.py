@@ -36,9 +36,10 @@ def setup_application(param):
     if leaves == [""]: leaves = []
     if nodes == [""]:
         nodes = []
+        nodes_path = []
     else:
-        nodes = [param.rfg + "/node/" + node + ".p" for node in nodes]
-    return leaves, nodes
+        nodes_path = [param.rfg + "/node/" + node + ".p" for node in nodes]
+    return leaves, nodes, nodes_path
 
 
 def fusion_nodes(dic_ref, list_nodes):
@@ -94,7 +95,7 @@ def write_node_file(list_leaves, list_nodes, dic_fusion, path_to_write):
     dic_inter = {}
     dic_inter["metadata"] = list_leaves + list_nodes
     dic_inter["data"] = dic_fusion
-    name_node = "quatre"
+    name_node = "three"
     if not os.path.isdir(path_to_write):
         os.mkdir(path_to_write)
     pickle.dump(dic_inter, open(path_to_write + name_node + ".p", "wb"),
@@ -103,7 +104,7 @@ def write_node_file(list_leaves, list_nodes, dic_fusion, path_to_write):
 
 if __name__ == '__main__':
     PARAM = args_gestion()
-    LIST_LEAVES, LIST_NODES = setup_application(PARAM)
+    LIST_LEAVES, LIST_NODES, NODES_PATH = setup_application(PARAM)
     if DEBUG: print(LIST_LEAVES); print(LIST_NODES)
 
     WORKDIR = os.getcwd()
@@ -117,8 +118,8 @@ if __name__ == '__main__':
                                      DICT_ORGANISM_CODE, WORKDIR, PARAM.rfg)
     else:
         cf.eprint("Intersection of nodes")
-        DIC_NODE = fusion_nodes(pickle.load(open(LIST_NODES[0], "rb"))["data"],
-                                LIST_NODES[1: ])
+        DIC_NODE = fusion_nodes(pickle.load(open(NODES_PATH[0], "rb"))["data"],
+                                NODES_PATH[1: ])
         if LIST_LEAVES:
             cf.eprint("Intersection of nodes and leaves")
             dic_fusion = fusion_node_leaf(LIST_LEAVES, DIC_NODE, FASTA_PATH,
