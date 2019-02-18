@@ -115,6 +115,8 @@ if __name__ == '__main__':
         cf.eprint("Intersection of leaves")
         dic_fusion = ag.construction(FASTA_PATH, "NGG", 20, LIST_LEAVES, [],
                                      DICT_ORGANISM_CODE, WORKDIR, PARAM.rfg)
+        os.remove("sg*")
+        os.remove("results*")
     else:
         cf.eprint("Intersection of nodes")
         DIC_NODE = fusion_nodes(pickle.load(open(NODES_PATH[0], "rb"))["data"],
