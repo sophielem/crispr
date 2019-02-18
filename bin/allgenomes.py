@@ -96,8 +96,6 @@ def display_no_hits(genome, start_time, workdir, in_exc):
     end_time = time.time()
     total_time = end_time - start_time
     cf.eprint('TIME', total_time)
-    cf.delete_used_files(workdir)
-    sys.exit(1)
 
 
 def sort_hits(hitlist):
@@ -178,6 +176,7 @@ def principal_search(list_order, list_fasta, dict_org_code, dic_seq, pam, non_pa
         # No hits remain after exclude or include genome
         if not dic_seq:
             display_no_hits(genome, start_time, workdir, in_exc)
+            break
 
         cf.eprint(str(len(dic_seq)) + " hits remain after " + in_exc +
                   " genome " + genome)
@@ -287,8 +286,11 @@ def main():
     cf.eprint('Parallelisation with distance matrix')
     dic_seq = construction(fasta_path, parameters.pam, non_pam_motif_length, organisms_selected,
                            organisms_excluded, dict_organism_code, workdir, UNCOMPRESSED_GEN_DIR)
-    display_hits(dic_seq, organisms_selected, organisms_excluded,
-                 parameters.pam, non_pam_motif_length, workdir)
+    if not dic_seq:
+        sys.exit(1)
+    else:
+        display_hits(dic_seq, organisms_selected, organisms_excluded,
+                     parameters.pam, non_pam_motif_length, workdir)
 
     # Remove the temporary genome from the database
     if parameters.add:
