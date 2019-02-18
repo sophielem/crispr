@@ -159,6 +159,32 @@ def remove_tmp_genome(param, name, ref_new):
               "." + ref_new + ".p")
 
 
+def principal_search(list_order, list_fasta, dict_org_code, dic_seq, pam, non_pam_motif_length, workdir, start_time, num_thread=4, num_file=4):
+    """
+    The rest of the Search
+    """
+    for i in list_order:
+        genome = i[0]
+        if i[1] == 'notin':
+            dic_seq = cf.bowtie_multithr(num_thread, list_fasta,
+                                         dict_org_code[genome][0], dic_seq,
+                                         genome, len(pam) + non_pam_motif_length, workdir, False)
+        elif i[1] == 'in':
+            dic_seq = cf.bowtie_multithr(num_thread, list_fasta,
+                                         dict_org_code[genome][0], dic_seq,
+                                         genome, len(pam) + non_pam_motif_length, workdir, True)
+
+        in_exc = "include" if i[1] == "in" else "exclude"
+        # No hits remain after exclude or include genome
+        if not dic_seq:
+            display_no_hits(genome, start_time, workdir, in_exc)
+
+        cf.eprint(str(len(dic_seq)) + " hits remain after " + in_exc +
+                  " genome " + genome)
+        list_fasta = cf.write_to_fasta_parallel(dic_seq, num_file, workdir)
+    return dic_seq
+
+
 def construction(fasta_path, pam, non_pam_motif_length, genomes_in,
                  genomes_not_in, dict_org_code, workdir, UNCOMPRESSED_GEN_DIR):
     """
@@ -210,27 +236,9 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in,
     list_order = cf.order_for_research(sorted_genomes[1:],
                                        sorted_genomes_notin, sorted_genomes[0],
                                        dict_org_code, dist_dic, [])
-    # Execute the rest of the search
-    for i in list_order:
-        genome = i[0]
-        if i[1] == 'notin':
-            dic_seq = cf.bowtie_multithr(num_thread, list_fasta,
-                                         dict_org_code[genome][0], dic_seq,
-                                         genome, len(pam) + non_pam_motif_length, workdir, False)
-        elif i[1] == 'in':
-            dic_seq = cf.bowtie_multithr(num_thread, list_fasta,
-                                         dict_org_code[genome][0], dic_seq,
-                                         genome, len(pam) + non_pam_motif_length, workdir, True)
 
-        in_exc = "include" if i[1] == "in" else "exclude"
-        # No hits remain after exclude or include genome
-        if not dic_seq:
-            display_no_hits(genome, start_time, workdir, in_exc)
-
-        cf.eprint(str(len(dic_seq)) + " hits remain after " + in_exc +
-                  " genome " + genome)
-        list_fasta = cf.write_to_fasta_parallel(dic_seq, num_file, workdir)
-
+    dic_seq = principal_search(list_order, list_fasta, dict_org_code, dic_seq,
+                               pam, non_pam_motif_length, workdir, start_time)
     cf.delete_used_files(workdir)
     return dic_seq
 
