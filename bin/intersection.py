@@ -130,15 +130,45 @@ def union_dic(list_elmt, dic_union, dict_org_code, is_leaf, param):
     return dic_union
 
 
+def intersection(uncompressed_file_path, workdir, list_leaves, list_nodes, dict_org_code):
+    """
+    Definition
+    """
+    fasta_path = workdir + "/reference_genomes/fasta"
+    nodes_path = [uncompressed_file_path + "/node/inter/" + node + ".p" for node in list_nodes]
+
+    if list_leaves and not list_nodes:
+        cf.eprint("Intersection of leaves")
+         return ag.construction(fasta_path, "NGG", 20, list_leaves, [],
+                                     dict_org_code, workdir, uncompressed_file_path)
+    else:
+        cf.eprint("Intersection of nodes")
+        dic_node = fusion_nodes(pickle.load(open(nodes_path[0], "rb"))["data"],
+                                nodes_path[1: ])
+        if list_leaves:
+            cf.eprint("Intersection of nodes and leaves")
+            return fusion_node_leaf(list_leaves, DIC_NODE, fasta_path,
+                                          dict_org_code, workdir, uncompressed_file_path)
+        else:
+             return dic_node
+
+
+def union(arg):
+    """
+    Definition
+    """
+    pass
+
+
 if __name__ == '__main__':
     PARAM = args_gestion()
     LIST_LEAVES, LIST_NODES = setup_application(PARAM)
-    if DEBUG: print(LIST_LEAVES); print(LIST_NODES)
-
     WORKDIR = os.getcwd()
-    FASTA_PATH = WORKDIR + "/reference_genomes/fasta"
     DICT_ORGANISM_CODE = cf.read_json_dic(PARAM.rfg +
                                           '/genome_ref_taxid.json')
+
+    # DIC_FUSION = (PARAM.rfg, WORKDIR, LIST_LEAVES, LIST_NODES, DICT_ORGANISM_CODE)
+    FASTA_PATH = WORKDIR + "/reference_genomes/fasta"
     NODES_PATH = [PARAM.rfg + "/node/inter/" + node + ".p" for node in LIST_NODES]
 
     if LIST_LEAVES and not LIST_NODES:
