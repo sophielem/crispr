@@ -40,10 +40,10 @@ def setup_application(param):
     return leaves, nodes
 
 
-def fusion_nodes(dic_ref, list_nodes):
+def inter_nodes(dic_ref, list_nodes):
     """
     Retrieve common keys of each dictionnary and keep them.
-    A fusion dictionnary is created, using common keys.
+    An intersection dictionnary is created, using common keys.
     """
     # The list of path is empty
     if not list_nodes: return dic_ref
@@ -56,13 +56,13 @@ def fusion_nodes(dic_ref, list_nodes):
     # Common keys between new and old nodes
     common_keys = list(keys_ref & keys_node)
     dic_inter_nodes = {}
-    # Fusion of dict for common sequences
+    # intersection of dict for common sequences
     for sgrna in common_keys:
         dic_inter_nodes[sgrna] = dict(dic_ref[sgrna], **dic_node[sgrna])
-    return fusion_nodes(dic_inter_nodes, list_nodes[1: ])
+    return inter_nodes(dic_inter_nodes, list_nodes[1: ])
 
 
-def fusion_node_leaf(list_leaves, dic_node, fasta_path, dict_org_code, workdir,
+def inter_node_leaf(list_leaves, dic_node, fasta_path, dict_org_code, workdir,
                      uncompressed_file_path):
     """
     Uncompressed fasta files in a temporary directory, then sort genomes of
@@ -83,7 +83,7 @@ def fusion_node_leaf(list_leaves, dic_node, fasta_path, dict_org_code, workdir,
     return dic_seq
 
 
-def write_node_file(list_leaves, list_nodes, dic_fusion, path_to_write):
+def write_node_file(list_leaves, list_nodes, dic_inter, path_to_write):
     """
     Intersection dictionnary, containing the list of nodes and leaves necessary
     to construct this node and the dictionnary containing sgRNA sequences and
@@ -91,7 +91,7 @@ def write_node_file(list_leaves, list_nodes, dic_fusion, path_to_write):
     """
     dic_inter = {}
     dic_inter["metadata"] = list_leaves + list_nodes
-    dic_inter["data"] = dic_fusion
+    dic_inter["data"] = dic_inter
     name_node = "one"
     if not os.path.isdir(path_to_write):
         os.mkdir(path_to_write)
@@ -99,7 +99,7 @@ def write_node_file(list_leaves, list_nodes, dic_fusion, path_to_write):
                                 protocol=3)
 
 
-def union_dic(list_elmt, dic_union, dict_org_code, is_leaf, param):
+def union_dic(list_elmt, dic_union, dict_org_code, is_leaf, db_path):
     """
     Definition
     """
@@ -108,7 +108,7 @@ def union_dic(list_elmt, dic_union, dict_org_code, is_leaf, param):
         if is_leaf:
             ref = dict_org_code[elmt][0]
             elmt = elmt.replace("/", "_")
-            path_to_file = param.rfg + "/pickle/" + elmt + "." + ref + ".p"
+            path_to_file = db_path + "/pickle/" + elmt + "." + ref + ".p"
             dic_elmt = pickle.load(open(path_to_file, "rb"))
         else:
             path_to_file = elmt
@@ -143,21 +143,28 @@ def intersection(uncompressed_file_path, workdir, list_leaves, list_nodes, dict_
                                      dict_org_code, workdir, uncompressed_file_path)
     else:
         cf.eprint("Intersection of nodes")
-        dic_node = fusion_nodes(pickle.load(open(nodes_path[0], "rb"))["data"],
+        dic_node = inter_nodes(pickle.load(open(nodes_path[0], "rb"))["data"],
                                 nodes_path[1: ])
         if list_leaves:
             cf.eprint("Intersection of nodes and leaves")
-            return fusion_node_leaf(list_leaves, DIC_NODE, fasta_path,
+            return inter_node_leaf(list_leaves, DIC_NODE, fasta_path,
                                           dict_org_code, workdir, uncompressed_file_path)
         else:
              return dic_node
 
 
-def union(arg):
+def union(uncompressed_file_path, list_leaves, list_nodes, dict_org_code):
     """
     Definition
     """
-    pass
+    nodes_path = [uncompressed_file_path + "/node/union/" + node + ".p" for node in list_nodes]
+    dic_union = {}
+
+    if list_leaves:
+        dic_union = union_dic(list_leaves, dic_union, dict_org_code, True, uncompressed_file_path)
+    if list_nodes:
+        dic_union = union_dic(nodes_path, dic_union, dict_org_code, False, uncompressed_file_path)
+    return dic_union
 
 
 if __name__ == '__main__':
@@ -167,37 +174,13 @@ if __name__ == '__main__':
     DICT_ORGANISM_CODE = cf.read_json_dic(PARAM.rfg +
                                           '/genome_ref_taxid.json')
 
-    # DIC_FUSION = (PARAM.rfg, WORKDIR, LIST_LEAVES, LIST_NODES, DICT_ORGANISM_CODE)
-    FASTA_PATH = WORKDIR + "/reference_genomes/fasta"
-    NODES_PATH = [PARAM.rfg + "/node/inter/" + node + ".p" for node in LIST_NODES]
+    DIC_INTER = intersection(PARAM.rfg, WORKDIR, LIST_LEAVES, LIST_NODES, DICT_ORGANISM_CODE)
 
-    if LIST_LEAVES and not LIST_NODES:
-        cf.eprint("Intersection of leaves")
-        dic_fusion = ag.construction(FASTA_PATH, "NGG", 20, LIST_LEAVES, [],
-                                     DICT_ORGANISM_CODE, WORKDIR, PARAM.rfg)
-    else:
-        cf.eprint("Intersection of nodes")
-        DIC_NODE = fusion_nodes(pickle.load(open(NODES_PATH[0], "rb"))["data"],
-                                NODES_PATH[1: ])
-        if LIST_LEAVES:
-            cf.eprint("Intersection of nodes and leaves")
-            dic_fusion = fusion_node_leaf(LIST_LEAVES, DIC_NODE, FASTA_PATH,
-                                          DICT_ORGANISM_CODE, WORKDIR, PARAM.rfg)
-        else:
-            dic_fusion = DIC_NODE
+    if DEBUG: cf.eprint(str(len(DIC_INTER)) + " hits remain after intersection")
 
-    if DEBUG: cf.eprint(str(len(dic_fusion)) + " hits remain after ")
+    write_node_file(LIST_LEAVES, LIST_NODES, DIC_INTER, PARAM.rfg + "/node/inter/")
 
-    write_node_file(LIST_LEAVES, LIST_NODES, dic_fusion, PARAM.rfg + "/node/inter/")
+    DIC_UNION = union(PARAM.rfg, LIST_LEAVES, LIST_NODES, DICT_ORGANISM_CODE)
 
-    NODES_PATH = [PARAM.rfg + "/node/union/" + node + ".p" for node in LIST_NODES]
-    dic_union = {}
-
-    if LIST_LEAVES:
-        dic_union = union_dic(LIST_LEAVES, dic_union, DICT_ORGANISM_CODE, True, PARAM)
-    if LIST_NODES:
-        dic_union = union_dic(NODES_PATH, dic_union, DICT_ORGANISM_CODE, False, PARAM)
-
-
-    if DEBUG: cf.eprint(str(len(dic_union)) + " hits remain after ")
-    write_node_file(LIST_LEAVES, LIST_NODES, dic_union, PARAM.rfg + "/node/union/")
+    if DEBUG: cf.eprint(str(len(DIC_UNION)) + " hits remain after union")
+    write_node_file(LIST_LEAVES, LIST_NODES, DIC_UNION, PARAM.rfg + "/node/union/")
