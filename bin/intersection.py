@@ -2,13 +2,15 @@
 """
     Create files for node
 """
-DEBUG = True
+
 import os
 import argparse
 import pickle
 import time
 import common_functions as cf
 import allgenomes as ag
+
+DEBUG = True
 
 
 def args_gestion():
@@ -33,10 +35,10 @@ def setup_application(param):
     """
     leaves = param.leaves.split("&")
     nodes = param.nodes.split("&")
-    if leaves == [""]: leaves = []
+    if leaves == [""]:
+        leaves = []
     if nodes == [""]:
         nodes = []
-        nodes_path = []
     return leaves, nodes
 
 
@@ -46,8 +48,8 @@ def inter_nodes(dic_ref, list_nodes):
     An intersection dictionnary is created, using common keys.
     """
     # The list of path is empty
-    if not list_nodes: return dic_ref
-
+    if not list_nodes:
+        return dic_ref
     node_path = list_nodes[0]
     dic_node = pickle.load(open(node_path, "rb"))["data"]
     # Retrieve keys for the new node and old nodes
@@ -59,11 +61,11 @@ def inter_nodes(dic_ref, list_nodes):
     # intersection of dict for common sequences
     for sgrna in common_keys:
         dic_inter_nodes[sgrna] = dict(dic_ref[sgrna], **dic_node[sgrna])
-    return inter_nodes(dic_inter_nodes, list_nodes[1: ])
+    return inter_nodes(dic_inter_nodes, list_nodes[1:])
 
 
 def inter_node_leaf(list_leaves, dic_node, fasta_path, dict_org_code, workdir,
-                     uncompressed_file_path):
+                    uncompressed_file_path):
     """
     Uncompressed fasta files in a temporary directory, then sort genomes of
     leaves by size. Then, with all these included genomes, the principal
@@ -92,11 +94,11 @@ def write_node_file(list_leaves, list_nodes, dic_inter, path_to_write):
     dic_inter = {}
     dic_inter["metadata"] = list_leaves + list_nodes
     dic_inter["data"] = dic_inter
-    name_node = "one"
+    name_node = "four"
     if not os.path.isdir(path_to_write):
         os.mkdir(path_to_write)
     pickle.dump(dic_inter, open(path_to_write + name_node + ".p", "wb"),
-                                protocol=3)
+                protocol=3)
 
 
 def union_dic(list_elmt, dic_union, dict_org_code, is_leaf, db_path):
@@ -146,17 +148,17 @@ def intersection(uncompressed_file_path, workdir, list_leaves, list_nodes, dict_
     if list_leaves and not list_nodes:
         cf.eprint("Intersection of leaves")
         return ag.construction(fasta_path, "NGG", 20, list_leaves, [],
-                                     dict_org_code, workdir, uncompressed_file_path)
+                               dict_org_code, workdir, uncompressed_file_path)
     else:
         cf.eprint("Intersection of nodes")
         dic_node = inter_nodes(pickle.load(open(nodes_path[0], "rb"))["data"],
-                                nodes_path[1: ])
+                               nodes_path[1:])
         if list_leaves:
             cf.eprint("Intersection of nodes and leaves")
-            return inter_node_leaf(list_leaves, DIC_NODE, fasta_path,
-                                          dict_org_code, workdir, uncompressed_file_path)
+            return inter_node_leaf(list_leaves, dic_node, fasta_path,
+                                   dict_org_code, workdir, uncompressed_file_path)
         else:
-             return dic_node
+            return dic_node
 
 
 def union(uncompressed_file_path, list_leaves, list_nodes, dict_org_code):
