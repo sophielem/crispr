@@ -101,7 +101,9 @@ def write_node_file(list_leaves, list_nodes, dic_inter, path_to_write):
 
 def union_dic(list_elmt, dic_union, dict_org_code, is_leaf, db_path):
     """
-    Definition
+    Load pickle file for leaf or for node, so we have the dictionary pre-calculate
+    Then, only unique keys between this new dict and the union_dic created are
+    kept
     """
     for elmt in list_elmt:
         # Define where search the pickle file
@@ -126,20 +128,24 @@ def union_dic(list_elmt, dic_union, dict_org_code, is_leaf, db_path):
             # If it is a new sequence, add it
             elif sgrna in keys_elmt:
                 dic_union[sgrna] = dic_elmt[sgrna]
+            # If it already is in the dic_union, no need to change it
 
     return dic_union
 
 
 def intersection(uncompressed_file_path, workdir, list_leaves, list_nodes, dict_org_code):
     """
-    Definition
+    If there are only leaves, do the intersection like usual using allgenomes
+    script. Else, load nodes files and only keep common sequences and then
+    use this dictionary like reference, like the first genome, and do the
+    bowtie2 on leaves
     """
     fasta_path = workdir + "/reference_genomes/fasta"
     nodes_path = [uncompressed_file_path + "/node/inter/" + node + ".p" for node in list_nodes]
 
     if list_leaves and not list_nodes:
         cf.eprint("Intersection of leaves")
-         return ag.construction(fasta_path, "NGG", 20, list_leaves, [],
+        return ag.construction(fasta_path, "NGG", 20, list_leaves, [],
                                      dict_org_code, workdir, uncompressed_file_path)
     else:
         cf.eprint("Intersection of nodes")
@@ -155,7 +161,9 @@ def intersection(uncompressed_file_path, workdir, list_leaves, list_nodes, dict_
 
 def union(uncompressed_file_path, list_leaves, list_nodes, dict_org_code):
     """
-    Definition
+    Return a dictionary containing the union between all nodes and leaves given
+    The first thing is to do the union between leaves, then this dictionary is
+    used to do the union between nodes
     """
     nodes_path = [uncompressed_file_path + "/node/union/" + node + ".p" for node in list_nodes]
     dic_union = {}
