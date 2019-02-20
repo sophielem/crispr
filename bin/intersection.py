@@ -33,12 +33,8 @@ def setup_application(param):
     """
     Split list of leaves and nodes
     """
-    leaves = param.leaves.split("&")
-    nodes = param.nodes.split("&")
-    if leaves == [""]:
-        leaves = []
-    if nodes == [""]:
-        nodes = []
+    leaves = [] if param.leaves == "" else param.leaves.split("&")
+    nodes = [] if param.nodes == "" else param.nodes.split("&")
     return leaves, nodes
 
 
@@ -85,20 +81,30 @@ def inter_node_leaf(list_leaves, dic_node, fasta_path, dict_org_code, workdir,
     return dic_seq
 
 
-def write_node_file(list_leaves, list_nodes, dic_inter, path_to_write):
+def intersection(uncompressed_file_path, workdir, list_leaves, list_nodes, dict_org_code):
     """
-    Intersection dictionnary, containing the list of nodes and leaves necessary
-    to construct this node and the dictionnary containing sgRNA sequences and
-    coordinates of each organism being part of the node
+    If there are only leaves, do the intersection like usual using allgenomes
+    script. Else, load nodes files and only keep common sequences and then
+    use this dictionary like reference, like the first genome, and do the
+    bowtie2 on leaves
     """
-    dic_inter = {}
-    dic_inter["metadata"] = list_leaves + list_nodes
-    dic_inter["data"] = dic_inter
-    name_node = "four"
-    if not os.path.isdir(path_to_write):
-        os.mkdir(path_to_write)
-    pickle.dump(dic_inter, open(path_to_write + name_node + ".p", "wb"),
-                protocol=3)
+    fasta_path = workdir + "/reference_genomes/fasta"
+    nodes_path = [uncompressed_file_path + "/node/inter/" + node + ".p" for node in list_nodes]
+
+    if list_leaves and not list_nodes:
+        cf.eprint("Intersection of leaves")
+        return ag.construction(fasta_path, "NGG", 20, list_leaves, [],
+                               dict_org_code, workdir, uncompressed_file_path)
+    else:
+        cf.eprint("Intersection of nodes")
+        dic_node = inter_nodes(pickle.load(open(nodes_path[0], "rb"))["data"],
+                               nodes_path[1:])
+        if list_leaves:
+            cf.eprint("Intersection of nodes and leaves")
+            return inter_node_leaf(list_leaves, dic_node, fasta_path,
+                                   dict_org_code, workdir, uncompressed_file_path)
+        else:
+            return dic_node
 
 
 def union_dic(list_elmt, dic_union, dict_org_code, is_leaf, db_path):
@@ -135,32 +141,6 @@ def union_dic(list_elmt, dic_union, dict_org_code, is_leaf, db_path):
     return dic_union
 
 
-def intersection(uncompressed_file_path, workdir, list_leaves, list_nodes, dict_org_code):
-    """
-    If there are only leaves, do the intersection like usual using allgenomes
-    script. Else, load nodes files and only keep common sequences and then
-    use this dictionary like reference, like the first genome, and do the
-    bowtie2 on leaves
-    """
-    fasta_path = workdir + "/reference_genomes/fasta"
-    nodes_path = [uncompressed_file_path + "/node/inter/" + node + ".p" for node in list_nodes]
-
-    if list_leaves and not list_nodes:
-        cf.eprint("Intersection of leaves")
-        return ag.construction(fasta_path, "NGG", 20, list_leaves, [],
-                               dict_org_code, workdir, uncompressed_file_path)
-    else:
-        cf.eprint("Intersection of nodes")
-        dic_node = inter_nodes(pickle.load(open(nodes_path[0], "rb"))["data"],
-                               nodes_path[1:])
-        if list_leaves:
-            cf.eprint("Intersection of nodes and leaves")
-            return inter_node_leaf(list_leaves, dic_node, fasta_path,
-                                   dict_org_code, workdir, uncompressed_file_path)
-        else:
-            return dic_node
-
-
 def union(uncompressed_file_path, list_leaves, list_nodes, dict_org_code):
     """
     Return a dictionary containing the union between all nodes and leaves given
@@ -175,6 +155,22 @@ def union(uncompressed_file_path, list_leaves, list_nodes, dict_org_code):
     if list_nodes:
         dic_union = union_dic(nodes_path, dic_union, dict_org_code, False, uncompressed_file_path)
     return dic_union
+
+
+def write_node_file(list_leaves, list_nodes, dic_inter, path_to_write):
+    """
+    Intersection dictionnary, containing the list of nodes and leaves necessary
+    to construct this node and the dictionnary containing sgRNA sequences and
+    coordinates of each organism being part of the node
+    """
+    dic_inter = {}
+    dic_inter["metadata"] = list_leaves + list_nodes
+    dic_inter["data"] = dic_inter
+    name_node = "four"
+    if not os.path.isdir(path_to_write):
+        os.mkdir(path_to_write)
+    pickle.dump(dic_inter, open(path_to_write + name_node + ".p", "wb"),
+                protocol=3)
 
 
 if __name__ == '__main__':
