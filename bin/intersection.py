@@ -163,13 +163,13 @@ def write_node_file(list_leaves, list_nodes, dic_inter, path_to_write):
     to construct this node and the dictionnary containing sgRNA sequences and
     coordinates of each organism being part of the node
     """
-    dic_inter = {}
-    dic_inter["metadata"] = list_leaves + list_nodes
-    dic_inter["data"] = dic_inter
-    name_node = "four"
+    dic_resume = {}
+    dic_resume["metadata"] = list_leaves + list_nodes
+    dic_resume["data"] = dic_inter
+    name_node = "one"
     if not os.path.isdir(path_to_write):
         os.mkdir(path_to_write)
-    pickle.dump(dic_inter, open(path_to_write + name_node + ".p", "wb"),
+    pickle.dump(dic_resume, open(path_to_write + name_node + ".p", "wb"),
                 protocol=3)
 
 
