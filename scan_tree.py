@@ -37,9 +37,9 @@ def setup_application(parameters, dict_organism_code):
     org_selected = [i for i in org_selected if i in dict_organism_code]
     org_excluded = [i for i in org_excluded if i in dict_organism_code]
     # List of taxon ID of included genome
-    list_taxid_in = [DICT_ORG[sp][1] for sp in org_selected]
+    list_taxid_in = [dict_organism_code[sp][1] for sp in org_selected]
     # List of taxon ID of excluded genome
-    list_taxid_notin = [DICT_ORG[sp][1] for sp in org_excluded]
+    list_taxid_notin = [dict_organism_code[sp][1] for sp in org_excluded]
     return list_taxid_in, list_taxid_notin
 
 
@@ -67,7 +67,7 @@ def traversing_tree(subtree, list_taxid):
 
 def create_topo_tree(dict_org, param):
     """
-    Create a topology tree with the organism dictionary given in parameter 
+    Create a topology tree with the organism dictionary given in parameter
     """
     # List of taxon ID of all genomes
     all_spc = [DICT_ORG[sp][1] for sp in param.gi.split('&')] if DEBUG else [DICT_ORG[sp][1] for sp in DICT_ORG]
