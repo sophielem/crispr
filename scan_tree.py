@@ -114,10 +114,8 @@ def inter_node_complete(list_taxid, tree_topo, rfg):
             nodes_checked = issubnode(tree_topo.get_leaves_by_name(leaf_id)[0].up, nodes_checked)
     path_nodes_checked = [rfg + "/node/inter/" + node + ".p" for node in nodes_checked]
     # Return the intersection of checked nodes
-    if len(path_nodes_checked) > 1:
+    if len(path_nodes_checked) > 0:
         return inter.inter_nodes(pickle.load(open(path_nodes_checked[0], "rb"))["data"], path_nodes_checked[1:])
-    elif len(path_nodes_checked) == 1:
-        return pickle.load(open(path_nodes_checked[0], "rb"))["data"]
     else:
         return {}
 
@@ -130,7 +128,7 @@ def find_node_complete(dict_org, list_taxid_in, list_taxid_notin, rfg):
 
     dic_node_in = inter_node_complete(list_taxid_in, tree_topo, rfg)
     dic_node_notin = inter_node_complete(list_taxid_notin, tree_topo, rfg)
-    print(len(dic_node_in))
+    if DEBUG: print(len(dic_node_in))
     return dic_node_in, dic_node_notin
 
 

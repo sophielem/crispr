@@ -166,7 +166,7 @@ def write_node_file(list_leaves, list_nodes, dic_inter, path_to_write):
     dic_resume = {}
     dic_resume["metadata"] = list_leaves + list_nodes
     dic_resume["data"] = dic_inter
-    name_node = "one"
+    name_node = "2"
     if not os.path.isdir(path_to_write):
         os.mkdir(path_to_write)
     pickle.dump(dic_resume, open(path_to_write + name_node + ".p", "wb"),
