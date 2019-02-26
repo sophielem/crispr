@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 """
-Definition
+Traverse a phylogeny tree and find common nodes for selected organism and excluded organism
+Return a list of path node and the list of included and excluded organism
+not under nodes
 """
 
 
-import sys
 import json
 import argparse
 import pickle
-import time
 from ete3 import NCBITaxa
 import intersection as inter
 
 DEBUG = True
+
 
 def args_gestion():
     """
@@ -40,10 +41,10 @@ def setup_application(parameters, dict_organism_code):
     org_selected = [i for i in org_selected if i in dict_organism_code]
     org_excluded = [i for i in org_excluded if i in dict_organism_code]
     # List of taxon ID of included genome
-    list_taxid_in = [dict_organism_code[sp][1] for sp in org_selected]
+    taxid_in = [dict_organism_code[sp][1] for sp in org_selected]
     # List of taxon ID of excluded genome
-    list_taxid_notin = [dict_organism_code[sp][1] for sp in org_excluded]
-    return list_taxid_in, list_taxid_notin
+    taxid_notin = [dict_organism_code[sp][1] for sp in org_excluded]
+    return taxid_in, taxid_notin
 
 
 def create_topo_tree(dict_org):
@@ -67,7 +68,8 @@ def traversing_tree(subtree, list_taxid):
     # Retrieve name of all sisters leaves
     names_sister = [pop.name for pop in subtree.children if pop.is_leaf()]
     # Check all names leaves have been entered by user else return false, this node cannot be used
-    if not set(names_sister).issubset(list_taxid): return False
+    if not set(names_sister).issubset(list_taxid):
+        return False
 
     # Retrieve all sub-nodes
     names_subnodes = [pop for pop in subtree.children if not pop.is_leaf()]
@@ -106,7 +108,9 @@ def issubnode(node_ref, nodes_name):
 
 def inter_node_complete(list_taxid, tree_topo, rfg):
     """
-    Definition
+    For each leaf, check if a common node exists with other leaves given by
+    user. Then, remove leaves under node and do the intersection between
+    nodes. Return this dictionary and the list of leaves remaining
     """
     nodes_checked = []
     for leaf_id in list_taxid:
@@ -124,8 +128,9 @@ def inter_node_complete(list_taxid, tree_topo, rfg):
 
     path_nodes_checked = [rfg + "/node/inter/" + node + ".p" for node in nodes_checked]
     # Return the intersection of checked nodes
-    if len(path_nodes_checked) > 0:
-        dic_inter_nodes = inter.inter_nodes(pickle.load(open(path_nodes_checked[0], "rb"))["data"], path_nodes_checked[1:])
+    if path_nodes_checked:
+        dic_inter_nodes = inter.inter_nodes(pickle.load(open(path_nodes_checked[0], "rb"))["data"],
+                                            path_nodes_checked[1:])
         return dic_inter_nodes, list_taxid
     else:
         return {}, list_taxid
@@ -133,25 +138,25 @@ def inter_node_complete(list_taxid, tree_topo, rfg):
 
 def find_node_complete(dict_org, list_taxid_in, list_taxid_notin, rfg):
     """
-    Definition
+    Create the topology tree and find common node for included and excluded
+    organism
     """
-    time_start = time.time()
     tree_topo = create_topo_tree(dict_org)
-    print(" Création arbre "+ str(time.time() - time_start))
 
-    time_start = time.time()
     dic_node_in, list_taxid_in = inter_node_complete(list_taxid_in, tree_topo, rfg)
-    print(" Dic_node_in "+ str(time.time() - time_start))
-
     dic_node_notin, list_taxid_notin = inter_node_complete(list_taxid_notin, tree_topo, rfg)
+
     return dic_node_in, dic_node_notin, list_taxid_in, list_taxid_notin
 
 
 if __name__ == '__main__':
     PARAM = args_gestion()
-    DICT_ORG = json.load(open(PARAM.rfg + '/genome_ref_taxid.json','r'))
-    list_taxid_in, list_taxid_notin = setup_application(PARAM, DICT_ORG)
-    dic_node_in, dic_node_notin, list_taxid_in, list_taxid_notin = find_node_complete(DICT_ORG, list_taxid_in, list_taxid_notin, PARAM.rfg)
+    DICT_ORG = json.load(open(PARAM.rfg + '/genome_ref_taxid.json', 'r'))
+    LIST_TAXID_IN, LIST_TAXID_NOTIN = setup_application(PARAM, DICT_ORG)
+    DIC_NODE_IN, DIC_NODE_NOTIN, LIST_TAXID_IN, LIST_TAXID_NOTIN = find_node_complete(DICT_ORG,
+                                                                                      LIST_TAXID_IN,
+                                                                                      LIST_TAXID_NOTIN,
+                                                                                      PARAM.rfg)
 
 # Exemple commande
 # ./scan_tree.py -rfg ../reference_genomes_pickle -gi "Streptosporangium roseum DSM 43021 GCF_000024865.1&Catenulispora acidiphila DSM 44928 GCF_000024025.1&Streptomyces violaceusniger Tu 4113 GCF_000147815.2&Streptomyces bingchenggensis BCW-1 GCF_000092385.1&Archangium gephyra GCF_001027285.1" -gni ""
