@@ -7,7 +7,9 @@ Definition
 import sys
 import json
 import argparse
+import pickle
 from ete3 import NCBITaxa
+# import intersection as inter
 
 DEBUG = True
 
@@ -43,6 +45,17 @@ def setup_application(parameters, dict_organism_code):
     return list_taxid_in, list_taxid_notin
 
 
+def create_topo_tree(dict_org, param):
+    """
+    Create a topology tree with the organism dictionary given in parameter
+    """
+    # List of taxon ID of all genomes
+    all_spc = [DICT_ORG[sp][1] for sp in param.gi.split('&')] if DEBUG else [DICT_ORG[sp][1] for sp in DICT_ORG]
+    # Create the entire topology tree
+    ncbi = NCBITaxa()
+    return ncbi.get_topology(all_spc)
+
+
 def traversing_tree(subtree, list_taxid):
     """
     Check if children of a given node are all entered by user. If the child is
@@ -65,15 +78,21 @@ def traversing_tree(subtree, list_taxid):
     return True
 
 
-def create_topo_tree(dict_org, param):
+def issubnode(node_ref, nodes_name):
     """
-    Create a topology tree with the organism dictionary given in parameter
+    Definition
     """
-    # List of taxon ID of all genomes
-    all_spc = [DICT_ORG[sp][1] for sp in param.gi.split('&')] if DEBUG else [DICT_ORG[sp][1] for sp in DICT_ORG]
-    # Create the entire topology tree
-    ncbi = NCBITaxa()
-    return ncbi.get_topology(all_spc)
+    # Pas le nom, il faut l'objet noeud !!!!!!!
+    children_name = [child.name for child in node_ref.children if not child.is_leaf()]
+    # Enlever le noeud enfant de la liste et ajouter ce noeud
+    to_remove = [child for child in children_name if child in nodes_name]
+    nodes_name = [name for name in nodes_name if name not in to_remove]
+
+    if not hasattr(node_ref.up, "name"):
+        nodes_name.append(node_ref.name)
+    elif node_ref.up.name not in nodes_name and node_ref.name not in nodes_name: # Ne pas ajouter le noeud dans la liste
+        nodes_name.append(node_ref.name)
+    return nodes_name
 
 
 if __name__ == '__main__':
@@ -82,13 +101,18 @@ if __name__ == '__main__':
     list_taxid_in, list_taxid_notin = setup_application(PARAM, DICT_ORG)
     tree_topo = create_topo_tree(DICT_ORG, PARAM)
 
+    nodes_in = []
+    nodes_notin = []
     for leaf_id in list_taxid_in:
         if traversing_tree(tree_topo.get_leaves_by_name(leaf_id)[0].up, list_taxid_in):
-            print(tree_topo.get_leaves_by_name(leaf_id)[0].up.name)
-
+            if DEBUG: print(tree_topo.get_leaves_by_name(leaf_id)[0].up.name)
+            nodes_in = issubnode(tree_topo.get_leaves_by_name(leaf_id)[0].up, nodes_in)
+            
+            # dic_node_in = inter.inter_ndoes(pickle.load(open(nodes_in_name[0], "rb"))["data"], nodes_in_name[1:])
     for leaf_id in list_taxid_notin:
         if traversing_tree(tree_topo.get_leaves_by_name(leaf_id)[0].up, list_taxid_notin):
-            print(tree_topo.get_leaves_by_name(leaf_id)[0].up.name)
-
+            if DEBUG: print(tree_topo.get_leaves_by_name(leaf_id)[0].up.name)
+            nodes_notin.append(tree_topo.get_leaves_by_name(leaf_id)[0].up.name)
+            dic_node_notin = inter.inter_ndoes(pickle.load(open(nodes_notin[0], "rb"))["data"], nodes_notin[1:])
 # Exemple commande
 # ./scan_tree.py -rfg ../reference_genomes_pickle -gi "Streptosporangium roseum DSM 43021 GCF_000024865.1&Catenulispora acidiphila DSM 44928 GCF_000024025.1&Streptomyces violaceusniger Tu 4113 GCF_000147815.2&Streptomyces bingchenggensis BCW-1 GCF_000092385.1&Archangium gephyra GCF_001027285.1" -gni ""
