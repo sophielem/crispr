@@ -86,18 +86,6 @@ def setup_application(parameters, dict_organism_code):
     return organisms_selected, organisms_excluded, non_pam_motif_length
 
 
-def display_no_hits(genome, start_time, workdir, in_exc):
-    """
-    Print the name of the genome after which there are no more hits and
-    exit the program
-    """
-    print("Program terminated&No hits remain after {} genome {}"
-          .format(in_exc, genome))
-    end_time = time.time()
-    total_time = end_time - start_time
-    cf.eprint('TIME', total_time)
-
-
 def sort_hits(hitlist):
     """
     Scoring of the hits found, where positive scores mean stronger
@@ -113,6 +101,33 @@ def sort_hits(hitlist):
         hit.score = score
     sorted_hitlist = sorted(hitlist, key=lambda hit: hit.score, reverse=True)
     return sorted_hitlist
+
+
+def display_no_hits(genome, start_time, workdir, in_exc):
+    """
+    Print the name of the genome after which there are no more hits and
+    exit the program
+    """
+    print("Program terminated&No hits remain after {} genome {}"
+          .format(in_exc, genome))
+    end_time = time.time()
+    total_time = end_time - start_time
+    cf.eprint('TIME', total_time)
+
+
+def display_hits(dic_seq, genomes_in, genomes_not_in, pam, non_pam_motif_length, workdir):
+    """
+    Sort hits and write output for interface
+    """
+    hit_list = cf.construct_hitlist(dic_seq)
+    hit_list = sort_hits(hit_list)
+
+    # Put results in local file for access via the interface.
+    cf.write_to_file(genomes_in, genomes_not_in, hit_list[:10000], pam,
+                     non_pam_motif_length, workdir)
+
+    # Output formatting for printing to interface
+    cf.output_interface(hit_list[:100], workdir)
 
 
 def add_tmp_genome(param):
@@ -240,21 +255,6 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in,
                                pam, non_pam_motif_length, workdir, start_time)
     cf.delete_used_files(workdir)
     return dic_seq
-
-
-def display_hits(dic_seq, genomes_in, genomes_not_in, pam, non_pam_motif_length, workdir):
-    """
-    Sort hits and write output for interface
-    """
-    hit_list = cf.construct_hitlist(dic_seq)
-    hit_list = sort_hits(hit_list)
-
-    # Put results in local file for access via the interface.
-    cf.write_to_file(genomes_in, genomes_not_in, hit_list[:10000], pam,
-                     non_pam_motif_length, workdir)
-
-    # Output formatting for printing to interface
-    cf.output_interface(hit_list[:100], workdir)
 
 
 def main():
