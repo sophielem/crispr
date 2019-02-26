@@ -8,6 +8,7 @@ import sys
 import json
 import argparse
 import pickle
+import time
 from ete3 import NCBITaxa
 import intersection as inter
 
@@ -112,31 +113,45 @@ def inter_node_complete(list_taxid, tree_topo, rfg):
         if traversing_tree(tree_topo.get_leaves_by_name(leaf_id)[0].up, list_taxid):
             # Check this node is not a subnode of a node in the list
             nodes_checked = issubnode(tree_topo.get_leaves_by_name(leaf_id)[0].up, nodes_checked)
+
+    leaves_to_rm = []
+    # Keep name of leaves under checked nodes
+    for name_node in nodes_checked:
+        current_node = tree_topo.search_nodes(name=name_node)[0]
+        leaves_to_rm += [leaf for leaf in current_node.iter_leaf_names()]
+    # Only keep leaves that are not under checked nodes
+    list_taxid = [taxid for taxid in list_taxid if taxid not in leaves_to_rm]
+
     path_nodes_checked = [rfg + "/node/inter/" + node + ".p" for node in nodes_checked]
     # Return the intersection of checked nodes
     if len(path_nodes_checked) > 0:
-        return inter.inter_nodes(pickle.load(open(path_nodes_checked[0], "rb"))["data"], path_nodes_checked[1:])
+        dic_inter_nodes = inter.inter_nodes(pickle.load(open(path_nodes_checked[0], "rb"))["data"], path_nodes_checked[1:])
+        return dic_inter_nodes, list_taxid
     else:
-        return {}
+        return {}, list_taxid
 
 
 def find_node_complete(dict_org, list_taxid_in, list_taxid_notin, rfg):
     """
     Definition
     """
+    time_start = time.time()
     tree_topo = create_topo_tree(dict_org)
+    print(" Création arbre "+ str(time.time() - time_start))
 
-    dic_node_in = inter_node_complete(list_taxid_in, tree_topo, rfg)
-    dic_node_notin = inter_node_complete(list_taxid_notin, tree_topo, rfg)
-    if DEBUG: print(len(dic_node_in))
-    return dic_node_in, dic_node_notin
+    time_start = time.time()
+    dic_node_in, list_taxid_in = inter_node_complete(list_taxid_in, tree_topo, rfg)
+    print(" Dic_node_in "+ str(time.time() - time_start))
+
+    dic_node_notin, list_taxid_notin = inter_node_complete(list_taxid_notin, tree_topo, rfg)
+    return dic_node_in, dic_node_notin, list_taxid_in, list_taxid_notin
 
 
 if __name__ == '__main__':
     PARAM = args_gestion()
     DICT_ORG = json.load(open(PARAM.rfg + '/genome_ref_taxid.json','r'))
     list_taxid_in, list_taxid_notin = setup_application(PARAM, DICT_ORG)
-    find_node_complete(DICT_ORG, list_taxid_in, list_taxid_notin, PARAM.rfg)
+    dic_node_in, dic_node_notin, list_taxid_in, list_taxid_notin = find_node_complete(DICT_ORG, list_taxid_in, list_taxid_notin, PARAM.rfg)
 
 # Exemple commande
 # ./scan_tree.py -rfg ../reference_genomes_pickle -gi "Streptosporangium roseum DSM 43021 GCF_000024865.1&Catenulispora acidiphila DSM 44928 GCF_000024025.1&Streptomyces violaceusniger Tu 4113 GCF_000147815.2&Streptomyces bingchenggensis BCW-1 GCF_000092385.1&Archangium gephyra GCF_001027285.1" -gni ""
