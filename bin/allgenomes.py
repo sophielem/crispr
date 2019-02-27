@@ -14,6 +14,7 @@ import shutil
 import pickle
 import common_functions as cf
 import pre_treatment as pt
+import scan_tree as st
 
 # Global variable
 TASK_KEY = str(uuid.uuid1())
@@ -199,6 +200,31 @@ def principal_search(list_order, list_fasta, dict_org_code, dic_seq, pam, non_pa
     return dic_seq
 
 
+def ACHERCHER(genomes_in, genomes_notin, dic_org_code, uncompressed_gen_dir):
+    """
+    Definition
+    """
+    # Dic to assocaite taxid with its organism name
+    dic_taxid_org = {}
+    list_taxid_in = []
+    list_taxid_notin = []
+    for sp in genomes_in:
+        taxid = dic_org_code[sp][1]
+        dic_taxid_org[taxid] = sp
+        list_taxid_in.append(taxid)
+    for sp in genomes_notin:
+        taxid = dic_org_code[sp][1]
+        dic_taxid_org[taxid] = sp
+        list_taxid_notin.append(taxid)
+    dic_node_in, dic_node_notin, list_taxid_in, list_taxid_notin = st.find_node_complete(dic_org_code, list_taxid_in, list_taxid_notin, uncompressed_gen_dir)
+    dic_seq = st.soustract_node(dic_node_in, dic_node_notin)
+    # Keep organism name not under node
+    genomes_in = [dic_taxid_org[taxid] for taxid in list_taxid_in]
+    genomes_notin = [dic_taxid_org[taxid] for taxid in list_taxid_notin]
+    cf.eprint("***** Number of hits : {}  *****".format(len(dic_seq)))
+    return dic_seq, genomes_in, genomes_notin
+
+
 def construction(fasta_path, pam, non_pam_motif_length, genomes_in,
                  genomes_not_in, dict_org_code, workdir, UNCOMPRESSED_GEN_DIR):
     """
@@ -207,9 +233,10 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in,
     start_time = time.time()
     num_thread = 4
     num_file = 4
-    cf.eprint('## Search for', len(genomes_in), "included genomes and",
+    cf.eprint('\n\n## Search for', len(genomes_in), "included genomes and",
               len(genomes_not_in), 'excluded genomes with', num_thread,
               'thread(s) ##')
+    dic_seq, genomes_in, genomes_not_in = ACHERCHER(genomes_in, genomes_not_in, dict_org_code, UNCOMPRESSED_GEN_DIR)
     cf.unzip_files(UNCOMPRESSED_GEN_DIR, genomes_in + genomes_not_in,
                    dict_org_code, workdir)
 
@@ -224,35 +251,39 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in,
                                                dict_org_code, True)
     else:
         sorted_genomes_notin = []
+    # dic_seq = {}
+    if sorted_genomes:
+        # Order for research
+        dist_file = UNCOMPRESSED_GEN_DIR + "/distance_dic.json"
+        dist_dic = cf.read_json_dic(dist_file)
+        cf.eprint('\n\n-- Determinate order for research -- ')
+        list_order = cf.order_for_research(sorted_genomes[1:],
+                                           sorted_genomes_notin, sorted_genomes[0],
+                                           dict_org_code, dist_dic, [])
 
-    cf.eprint('-- RESEARCH --')
-    # Research in first genome
-    name_file = sorted_genomes[0].replace("/", "_")
-    pickle_file = (UNCOMPRESSED_GEN_DIR + "/pickle/" + name_file +
-                   "." + dict_org_code[sorted_genomes[0]][0] + ".p")
-    if not os.path.isdir(UNCOMPRESSED_GEN_DIR + "/pickle"):
-        os.mkdir(UNCOMPRESSED_GEN_DIR + "/pickle")
-    if os.path.isfile(pickle_file):
-        dic_seq = pickle.load(open(pickle_file, "rb"))
-    else:
-        dic_seq = pt.construct_in(fasta_path, sorted_genomes[0],
-                                  dict_org_code[sorted_genomes[0]][0],
-                                  UNCOMPRESSED_GEN_DIR)
+        if dic_seq:
+            list_order.insert(0, (sorted_genomes[0], "in"))
+    cf.eprint('\n\n-- RESEARCH --')
+    if not dic_seq:
+        # Research in first genome
+        name_file = sorted_genomes[0].replace("/", "_")
+        pickle_file = (UNCOMPRESSED_GEN_DIR + "/pickle/" + name_file +
+                       "." + dict_org_code[sorted_genomes[0]][0] + ".p")
+        if not os.path.isdir(UNCOMPRESSED_GEN_DIR + "/pickle"):
+            os.mkdir(UNCOMPRESSED_GEN_DIR + "/pickle")
+        if os.path.isfile(pickle_file):
+            dic_seq = pickle.load(open(pickle_file, "rb"))
+        else:
+            dic_seq = pt.construct_in(fasta_path, sorted_genomes[0],
+                                      dict_org_code[sorted_genomes[0]][0],
+                                      UNCOMPRESSED_GEN_DIR)
 
-    cf.eprint(str(len(dic_seq)) + ' hits in first included genome ' +
-              sorted_genomes[0])
-    list_fasta = cf.write_to_fasta_parallel(dic_seq, num_file, workdir)
-
-    # Order for research
-    dist_file = UNCOMPRESSED_GEN_DIR + "/distance_dic.json"
-    dist_dic = cf.read_json_dic(dist_file)
-    cf.eprint('-- Determinate order for research -- ')
-    list_order = cf.order_for_research(sorted_genomes[1:],
-                                       sorted_genomes_notin, sorted_genomes[0],
-                                       dict_org_code, dist_dic, [])
-
-    dic_seq = principal_search(list_order, list_fasta, dict_org_code, dic_seq,
-                               pam, non_pam_motif_length, workdir, start_time)
+        cf.eprint(str(len(dic_seq)) + ' hits in first included genome ' +
+                  sorted_genomes[0])
+    if sorted_genomes:
+        list_fasta = cf.write_to_fasta_parallel(dic_seq, num_file, workdir)
+        dic_seq = principal_search(list_order, list_fasta, dict_org_code, dic_seq,
+                                   pam, non_pam_motif_length, workdir, start_time)
     cf.delete_used_files(workdir)
     return dic_seq
 
@@ -282,7 +313,7 @@ def main():
     cf.eprint('EXCLUDED', organisms_excluded)
     print(TASK_KEY)
 
-    cf.eprint('---- CSTB complete genomes ----')
+    cf.eprint('\n\n---- CSTB complete genomes ----')
     cf.eprint('Parallelisation with distance matrix')
     dic_seq = construction(fasta_path, parameters.pam, non_pam_motif_length, organisms_selected,
                            organisms_excluded, dict_organism_code, workdir, UNCOMPRESSED_GEN_DIR)
@@ -294,12 +325,12 @@ def main():
 
     # Remove the temporary genome from the database
     if parameters.add:
-        cf.eprint('---- Remove the temporary new genome ----')
+        cf.eprint('\n\n---- Remove the temporary new genome ----')
         remove_tmp_genome(parameters, name, ref_new)
 
     end_time = time.time()
     total_time = end_time - start_time
-    cf.eprint('TIME', total_time)
+    cf.eprint('\n\n{}{}\n{}* TIME : {} *\n{}{}'.format(" "*10, "*"*29, " "*10, total_time, " "*10, "*"*29))
 
 
 if __name__ == '__main__':
