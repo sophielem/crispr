@@ -12,7 +12,7 @@ import pickle
 from ete3 import NCBITaxa
 import intersection as inter
 
-DEBUG = True
+DEBUG = False
 
 
 def args_gestion():
@@ -54,6 +54,7 @@ def create_topo_tree(dict_org):
     # List of taxon ID of all genomes
     all_spc = [dict_org[sp][1] for sp in dict_org]
     if DEBUG: all_spc = [dict_org[sp][1] for sp in PARAM.gi.split('&')]
+    all_spc = ['479432', '479433', '653045', '749414', '48']
     # Create the entire topology tree
     ncbi = NCBITaxa()
     return ncbi.get_topology(all_spc)
@@ -125,15 +126,33 @@ def inter_node_complete(list_taxid, tree_topo, rfg):
         leaves_to_rm += [leaf for leaf in current_node.iter_leaf_names()]
     # Only keep leaves that are not under checked nodes
     list_taxid = [taxid for taxid in list_taxid if taxid not in leaves_to_rm]
+    return nodes_checked, list_taxid
 
+
+
+def inter_node_in(nodes_checked, rfg):
+    """
+    Definition
+    """
     path_nodes_checked = [rfg + "/node/inter/" + node + ".p" for node in nodes_checked]
     # Return the intersection of checked nodes
     if path_nodes_checked:
         dic_inter_nodes = inter.inter_nodes(pickle.load(open(path_nodes_checked[0], "rb"))["data"],
                                             path_nodes_checked[1:])
-        return dic_inter_nodes, list_taxid
-    else:
-        return {}, list_taxid
+        return dic_inter_nodes
+    return {}
+
+
+def union_node_notin(nodes_checked, dict_org, rfg):
+    """
+    Definition
+    """
+    path_nodes_checked = [rfg + "/node/union/" + node + ".p" for node in nodes_checked]
+    # Return the union of checked nodes
+    if path_nodes_checked:
+        dic_union_nodes = inter.union_dic(path_nodes_checked, {}, dict_org, False, rfg)
+        return dic_union_nodes
+    return {}
 
 
 def find_node_complete(dict_org, list_taxid_in, list_taxid_notin, rfg):
@@ -143,10 +162,25 @@ def find_node_complete(dict_org, list_taxid_in, list_taxid_notin, rfg):
     """
     tree_topo = create_topo_tree(dict_org)
 
-    dic_node_in, list_taxid_in = inter_node_complete(list_taxid_in, tree_topo, rfg)
-    dic_node_notin, list_taxid_notin = inter_node_complete(list_taxid_notin, tree_topo, rfg)
+    list_node_in, list_taxid_in = inter_node_complete(list_taxid_in, tree_topo, rfg)
+    dic_node_in = inter_node_in(list_node_in, rfg)
+    list_node_notin, list_taxid_notin = inter_node_complete(list_taxid_notin, tree_topo, rfg)
+    dic_node_notin = union_node_notin(list_node_notin, dict_org, rfg)
 
     return dic_node_in, dic_node_notin, list_taxid_in, list_taxid_notin
+
+
+def soustract_node(dic_node_in, dic_node_notin):
+    """
+    Definition
+    """
+    if dic_node_in and dic_node_notin:
+        keys_in = set(dic_node_in.keys())
+        keys_notin = set(dic_node_notin.keys())
+        common_keys = list(keys_in & keys_notin)
+        for sgrna in common_keys:
+            del dic_node_in[sgrna]
+    return dic_node_in
 
 
 if __name__ == '__main__':
@@ -157,6 +191,7 @@ if __name__ == '__main__':
                                                                                       LIST_TAXID_IN,
                                                                                       LIST_TAXID_NOTIN,
                                                                                       PARAM.rfg)
-
+    DIC_JENESAISPASQUOI = soustract_node(DIC_NODE_IN, DIC_NODE_NOTIN)
+    print(len(DIC_JENESAISPASQUOI))
 # Exemple commande
 # ./scan_tree.py -rfg ../reference_genomes_pickle -gi "Streptosporangium roseum DSM 43021 GCF_000024865.1&Catenulispora acidiphila DSM 44928 GCF_000024025.1&Streptomyces violaceusniger Tu 4113 GCF_000147815.2&Streptomyces bingchenggensis BCW-1 GCF_000092385.1&Archangium gephyra GCF_001027285.1" -gni ""
