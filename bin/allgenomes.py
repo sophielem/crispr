@@ -276,6 +276,7 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in,
                                                      fasta_path, dict_org_code,
                                                      uncompressed_gen_dir)
     cf.eprint('\n\n-- RESEARCH --')
+    # dic_seq = {}
     if not dic_seq:
         # Research in first genome
         if not os.path.isdir(uncompressed_gen_dir + "/pickle"):
