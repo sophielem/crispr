@@ -173,6 +173,31 @@ def remove_tmp_genome(param, name, ref_new):
               "." + ref_new + ".p")
 
 
+def traverse_tree(genomes_in, genomes_notin, dic_org_code, uncompressed_gen_dir):
+    """
+    Definition
+    """
+    # Dic to assocaite taxid with its organism name
+    dic_taxid_org = {}
+    list_taxid_in = []
+    list_taxid_notin = []
+    for sp in genomes_in:
+        taxid = dic_org_code[sp][1]
+        dic_taxid_org[taxid] = sp
+        list_taxid_in.append(taxid)
+    for sp in genomes_notin:
+        taxid = dic_org_code[sp][1]
+        dic_taxid_org[taxid] = sp
+        list_taxid_notin.append(taxid)
+    dic_node_in, dic_node_notin, list_taxid_in, list_taxid_notin = st.find_node_complete(dic_org_code, list_taxid_in, list_taxid_notin, uncompressed_gen_dir)
+    dic_seq = st.soustract_node(dic_node_in, dic_node_notin)
+    # Keep organism name not under node
+    genomes_in = [dic_taxid_org[taxid] for taxid in list_taxid_in]
+    genomes_notin = [dic_taxid_org[taxid] for taxid in list_taxid_notin]
+    cf.eprint("***** Number of hits : {}  *****".format(len(dic_seq)))
+    return dic_seq, genomes_in, genomes_notin
+
+
 def principal_search(list_order, list_fasta, dict_org_code, dic_seq, pam, non_pam_motif_length, workdir, start_time, num_thread=4, num_file=4):
     """
     The rest of the Search
@@ -200,46 +225,10 @@ def principal_search(list_order, list_fasta, dict_org_code, dic_seq, pam, non_pa
     return dic_seq
 
 
-def ACHERCHER(genomes_in, genomes_notin, dic_org_code, uncompressed_gen_dir):
+def genome_ordered_research(genomes_in, genomes_not_in, fasta_path, dict_org_code, uncompressed_gen_dir):
     """
-    Definition
+    Sort genome for the research by distance between organism
     """
-    # Dic to assocaite taxid with its organism name
-    dic_taxid_org = {}
-    list_taxid_in = []
-    list_taxid_notin = []
-    for sp in genomes_in:
-        taxid = dic_org_code[sp][1]
-        dic_taxid_org[taxid] = sp
-        list_taxid_in.append(taxid)
-    for sp in genomes_notin:
-        taxid = dic_org_code[sp][1]
-        dic_taxid_org[taxid] = sp
-        list_taxid_notin.append(taxid)
-    dic_node_in, dic_node_notin, list_taxid_in, list_taxid_notin = st.find_node_complete(dic_org_code, list_taxid_in, list_taxid_notin, uncompressed_gen_dir)
-    dic_seq = st.soustract_node(dic_node_in, dic_node_notin)
-    # Keep organism name not under node
-    genomes_in = [dic_taxid_org[taxid] for taxid in list_taxid_in]
-    genomes_notin = [dic_taxid_org[taxid] for taxid in list_taxid_notin]
-    cf.eprint("***** Number of hits : {}  *****".format(len(dic_seq)))
-    return dic_seq, genomes_in, genomes_notin
-
-
-def construction(fasta_path, pam, non_pam_motif_length, genomes_in,
-                 genomes_not_in, dict_org_code, workdir, UNCOMPRESSED_GEN_DIR):
-    """
-    Principal algorithm to launch to find sgRNA common
-    """
-    start_time = time.time()
-    num_thread = 4
-    num_file = 4
-    cf.eprint('\n\n## Search for', len(genomes_in), "included genomes and",
-              len(genomes_not_in), 'excluded genomes with', num_thread,
-              'thread(s) ##')
-    dic_seq, genomes_in, genomes_not_in = ACHERCHER(genomes_in, genomes_not_in, dict_org_code, UNCOMPRESSED_GEN_DIR)
-    cf.unzip_files(UNCOMPRESSED_GEN_DIR, genomes_in + genomes_not_in,
-                   dict_org_code, workdir)
-
     if len(genomes_in) != 1:
         sorted_genomes = cf.sort_genomes(genomes_in, fasta_path, dict_org_code,
                                          False)
@@ -251,36 +240,64 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in,
                                                dict_org_code, True)
     else:
         sorted_genomes_notin = []
-    # dic_seq = {}
+
     if sorted_genomes:
         # Order for research
-        dist_file = UNCOMPRESSED_GEN_DIR + "/distance_dic.json"
+        dist_file = uncompressed_gen_dir + "/distance_dic.json"
         dist_dic = cf.read_json_dic(dist_file)
         cf.eprint('\n\n-- Determinate order for research -- ')
         list_order = cf.order_for_research(sorted_genomes[1:],
                                            sorted_genomes_notin, sorted_genomes[0],
                                            dict_org_code, dist_dic, [])
+        return list_order, sorted_genomes[0]
+    else:
+        return [], None
 
-        if dic_seq:
-            list_order.insert(0, (sorted_genomes[0], "in"))
+
+def construction(fasta_path, pam, non_pam_motif_length, genomes_in,
+                 genomes_not_in, dict_org_code, workdir, uncompressed_gen_dir):
+    """
+    Principal algorithm to launch to find sgRNA common
+    """
+    start_time = time.time()
+    num_thread = 4
+    num_file = 4
+    cf.eprint('\n\n## Search for', len(genomes_in), "included genomes and",
+              len(genomes_not_in), 'excluded genomes with', num_thread,
+              'thread(s) ##')
+    # Retrieve the dic from the pre-processing nodes and list of genomes not
+    # under nodes pre-processed
+    dic_seq, genomes_in, genomes_not_in = traverse_tree(genomes_in, genomes_not_in,
+                                                        dict_org_code, uncompressed_gen_dir)
+
+    cf.unzip_files(uncompressed_gen_dir, genomes_in + genomes_not_in,
+                   dict_org_code, workdir)
+    list_order, genome_ref = genome_ordered_research(genomes_in, genomes_not_in,
+                                                     fasta_path, dict_org_code,
+                                                     uncompressed_gen_dir)
     cf.eprint('\n\n-- RESEARCH --')
     if not dic_seq:
         # Research in first genome
-        name_file = sorted_genomes[0].replace("/", "_")
-        pickle_file = (UNCOMPRESSED_GEN_DIR + "/pickle/" + name_file +
-                       "." + dict_org_code[sorted_genomes[0]][0] + ".p")
-        if not os.path.isdir(UNCOMPRESSED_GEN_DIR + "/pickle"):
-            os.mkdir(UNCOMPRESSED_GEN_DIR + "/pickle")
+        if not os.path.isdir(uncompressed_gen_dir + "/pickle"):
+            os.mkdir(uncompressed_gen_dir + "/pickle")
+        name_file = genome_ref.replace("/", "_")
+        pickle_file = (uncompressed_gen_dir + "/pickle/" + name_file +
+                       "." + dict_org_code[genome_ref][0] + ".p")
+        # Load the pickle file
         if os.path.isfile(pickle_file):
             dic_seq = pickle.load(open(pickle_file, "rb"))
+        # Search after sgRNA sequences in the genome by regex
         else:
-            dic_seq = pt.construct_in(fasta_path, sorted_genomes[0],
-                                      dict_org_code[sorted_genomes[0]][0],
-                                      UNCOMPRESSED_GEN_DIR)
-
+            dic_seq = pt.construct_in(fasta_path, genome_ref,
+                                      dict_org_code[genome_ref][0],
+                                      uncompressed_gen_dir)
         cf.eprint(str(len(dic_seq)) + ' hits in first included genome ' +
-                  sorted_genomes[0])
-    if sorted_genomes:
+                  genome_ref)
+    else:
+            list_order.insert(0, (genome_ref, "in"))
+
+    # If they are genomes not under nodes, bowtie
+    if genome_ref:
         list_fasta = cf.write_to_fasta_parallel(dic_seq, num_file, workdir)
         dic_seq = principal_search(list_order, list_fasta, dict_org_code, dic_seq,
                                    pam, non_pam_motif_length, workdir, start_time)
@@ -308,7 +325,6 @@ def main():
     dict_organism_code = cf.read_json_dic(UNCOMPRESSED_GEN_DIR +
                                           '/genome_ref_taxid.json')
     organisms_selected, organisms_excluded, non_pam_motif_length = setup_application(parameters, dict_organism_code)
-    print(','.join(organisms_excluded))
     cf.eprint('SELECTED', organisms_selected)
     cf.eprint('EXCLUDED', organisms_excluded)
     print(TASK_KEY)
@@ -330,7 +346,8 @@ def main():
 
     end_time = time.time()
     total_time = end_time - start_time
-    cf.eprint('\n\n{}{}\n{}* TIME : {} *\n{}{}'.format(" "*10, "*"*29, " "*10, total_time, " "*10, "*"*29))
+    cf.eprint('\n\n{}{}\n{}* TIME : {} *\n{}{}'.format(" "*10, "*"*29, " "*10,
+                                                       total_time, " "*10, "*"*29))
 
 
 if __name__ == '__main__':
