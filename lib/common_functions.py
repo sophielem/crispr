@@ -316,7 +316,7 @@ def delete_used_files(workdir):
     """
     Delete unzipped files that have been used for research
     """
-    eprint("Deleting stuff")
+    eprint("\n\nDeleting stuff")
     eprint('-- Delete selected genomes --')
     out = open(workdir + '/delete.sh', 'w')
     out.write('rm -r ' + workdir + '/*.sam\nrm -r ' + workdir +
@@ -331,7 +331,7 @@ def construct_hitlist(dict_seq):
     and store all Hits in a list. These function only fill the attributes
     sequence and genomes_dict of the object
     '''
-    eprint('-- Construct final list --')
+    eprint('\n\n-- Construct final list --')
     hits_list = []
     count = 0
     for seq in dict_seq:
@@ -348,7 +348,7 @@ def write_to_file(genomes_in, genomes_not_in, hit_list, pam, non_pam_motif_lengt
     then one column for each included organisms with list of positions
     of the sequence in each.
     """
-    eprint('-- Write results to file --')
+    eprint('\n\n-- Write results to file --')
     rep_rslt_file = workdir + '/results_allgenome.txt'
     output = open(rep_rslt_file, 'w')
     gi = ','.join(genomes_in)
@@ -409,7 +409,7 @@ def output_interface(hit_list, workdir):
     Reformat the results to create a json file.
     It will be parsed in javascript to display it in interface.
     """
-    eprint('-- Construct results for graphical interface --')
+    eprint('\n\n-- Construct results for graphical interface --')
     json_result_file = workdir + '/results.json'
     # print(json_result_file)
     list_dic = []
