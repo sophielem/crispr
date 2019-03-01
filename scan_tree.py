@@ -180,7 +180,12 @@ def soustract_node(dic_node_in, dic_node_notin):
         common_keys = list(keys_in & keys_notin)
         for sgrna in common_keys:
             del dic_node_in[sgrna]
-    return dic_node_in
+        return dic_node_in, True
+    elif dic_node_in:
+        return dic_node_in, True
+    else:
+        return dic_node_notin, False
+
 
 
 if __name__ == '__main__':

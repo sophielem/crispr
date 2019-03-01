@@ -190,12 +190,15 @@ def traverse_tree(genomes_in, genomes_notin, dic_org_code, uncompressed_gen_dir)
         dic_taxid_org[taxid] = sp
         list_taxid_notin.append(taxid)
     dic_node_in, dic_node_notin, list_taxid_in, list_taxid_notin = st.find_node_complete(dic_org_code, list_taxid_in, list_taxid_notin, uncompressed_gen_dir)
-    dic_seq = st.soustract_node(dic_node_in, dic_node_notin)
+    dic_seq, is_include = st.soustract_node(dic_node_in, dic_node_notin)
     # Keep organism name not under node
     genomes_in = [dic_taxid_org[taxid] for taxid in list_taxid_in]
     genomes_notin = [dic_taxid_org[taxid] for taxid in list_taxid_notin]
     cf.eprint("***** Number of hits : {}  *****".format(len(dic_seq)))
-    return dic_seq, genomes_in, genomes_notin
+    if is_include:
+        return dic_seq, genomes_in, genomes_notin, {}
+    else:
+        return {}, genomes_in, genomes_notin, dic_seq
 
 
 def principal_search(list_order, list_fasta, dict_org_code, dic_seq, pam, non_pam_motif_length, workdir, start_time, num_thread=4, num_file=4):
@@ -267,8 +270,8 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in,
               'thread(s) ##')
     # Retrieve the dic from the pre-processing nodes and list of genomes not
     # under nodes pre-processed
-    dic_seq, genomes_in, genomes_not_in = traverse_tree(genomes_in, genomes_not_in,
-                                                        dict_org_code, uncompressed_gen_dir)
+    dic_seq, genomes_in, genomes_not_in, dic_exclude = traverse_tree(genomes_in, genomes_not_in,
+                                                                    dict_org_code, uncompressed_gen_dir)
 
     cf.unzip_files(uncompressed_gen_dir, genomes_in + genomes_not_in,
                    dict_org_code, workdir)
@@ -286,6 +289,7 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in,
                        "." + dict_org_code[genome_ref][0] + ".p")
         # Load the pickle file
         if os.path.isfile(pickle_file):
+            cf.eprint("Load pickle file")
             dic_seq = pickle.load(open(pickle_file, "rb"))
         # Search after sgRNA sequences in the genome by regex
         else:
@@ -295,14 +299,18 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in,
         cf.eprint(str(len(dic_seq)) + ' hits in first included genome ' +
                   genome_ref)
     else:
-            list_order.insert(0, (genome_ref, "in"))
+        list_order.insert(0, (genome_ref, "in"))
 
     # If they are genomes not under nodes, bowtie
-    if genome_ref:
+    if genome_ref and list_order:
+        print("Research")
         list_fasta = cf.write_to_fasta_parallel(dic_seq, num_file, workdir)
         dic_seq = principal_search(list_order, list_fasta, dict_org_code, dic_seq,
                                    pam, non_pam_motif_length, workdir, start_time)
-    cf.delete_used_files(workdir)
+    if dic_exclude:
+        dic_seq, bbb = st.soustract_node(dic_seq, dic_exclude)
+    # cf.delete_used_files(workdir)
+    cf.eprint(str(len(dic_seq)) + ' hits remaining')
     return dic_seq
 
 
