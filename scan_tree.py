@@ -55,6 +55,7 @@ def create_topo_tree(dict_org):
     all_spc = [dict_org[sp][1] for sp in dict_org]
     if DEBUG: all_spc = [dict_org[sp][1] for sp in PARAM.gi.split('&')]
     all_spc = ['479432', '479433', '653045', '749414', '48']
+    all_spc = ['289397', '743966', '227941']
     # Create the entire topology tree
     ncbi = NCBITaxa()
     return ncbi.get_topology(all_spc)
@@ -178,6 +179,7 @@ def soustract_node(dic_node_in, dic_node_notin):
         keys_in = set(dic_node_in.keys())
         keys_notin = set(dic_node_notin.keys())
         common_keys = list(keys_in & keys_notin)
+        print("NOMBRE de clef communes " + str(len(common_keys)))
         for sgrna in common_keys:
             del dic_node_in[sgrna]
         return dic_node_in, True
