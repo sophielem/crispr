@@ -55,7 +55,7 @@ def create_topo_tree(dict_org):
     all_spc = [dict_org[sp][1] for sp in dict_org]
     if DEBUG: all_spc = [dict_org[sp][1] for sp in PARAM.gi.split('&')]
     all_spc = ['479432', '479433', '653045', '749414', '48']
-    all_spc = ['289397', '743966', '227941']
+    all_spc = ["261317", "372461", "1495769"]
     # Create the entire topology tree
     ncbi = NCBITaxa()
     return ncbi.get_topology(all_spc)
@@ -156,7 +156,7 @@ def union_node_notin(nodes_checked, dict_org, rfg):
     return {}
 
 
-def find_node_complete(dict_org, list_taxid_in, list_taxid_notin, rfg):
+def find_node_complete(dict_org, list_taxid_in, rfg):
     """
     Create the topology tree and find common node for included and excluded
     organism
@@ -165,10 +165,10 @@ def find_node_complete(dict_org, list_taxid_in, list_taxid_notin, rfg):
 
     list_node_in, list_taxid_in = inter_node_complete(list_taxid_in, tree_topo, rfg)
     dic_node_in = inter_node_in(list_node_in, rfg)
-    list_node_notin, list_taxid_notin = inter_node_complete(list_taxid_notin, tree_topo, rfg)
-    dic_node_notin = union_node_notin(list_node_notin, dict_org, rfg)
+    # list_node_notin, list_taxid_notin = inter_node_complete(list_taxid_notin, tree_topo, rfg)
+    # dic_node_notin = union_node_notin(list_node_notin, dict_org, rfg)
 
-    return dic_node_in, dic_node_notin, list_taxid_in, list_taxid_notin
+    return dic_node_in, list_taxid_in
 
 
 def soustract_node(dic_node_in, dic_node_notin):
