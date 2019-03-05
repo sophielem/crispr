@@ -15,6 +15,8 @@ import pickle
 import common_functions as cf
 import pre_treatment as pt
 import scan_tree as st
+sys.path.append("/Users/slematre/Documents/pyCouch/src")
+import pycouch.wrapper as couchDB
 
 # Global variable
 TASK_KEY = str(uuid.uuid1())
@@ -173,32 +175,22 @@ def remove_tmp_genome(param, name, ref_new):
               "." + ref_new + ".p")
 
 
-def traverse_tree(genomes_in, genomes_notin, dic_org_code, uncompressed_gen_dir):
+def traverse_tree(genomes_in, dic_org_code, uncompressed_gen_dir):
     """
     Definition
     """
     # Dic to assocaite taxid with its organism name
     dic_taxid_org = {}
     list_taxid_in = []
-    list_taxid_notin = []
     for sp in genomes_in:
         taxid = dic_org_code[sp][1]
         dic_taxid_org[taxid] = sp
         list_taxid_in.append(taxid)
-    for sp in genomes_notin:
-        taxid = dic_org_code[sp][1]
-        dic_taxid_org[taxid] = sp
-        list_taxid_notin.append(taxid)
-    dic_node_in, dic_node_notin, list_taxid_in, list_taxid_notin = st.find_node_complete(dic_org_code, list_taxid_in, list_taxid_notin, uncompressed_gen_dir)
-    dic_seq, is_include = st.soustract_node(dic_node_in, dic_node_notin)
+    dic_node_in, list_taxid_in = st.find_node_complete(dic_org_code, list_taxid_in, uncompressed_gen_dir)
     # Keep organism name not under node
     genomes_in = [dic_taxid_org[taxid] for taxid in list_taxid_in]
-    genomes_notin = [dic_taxid_org[taxid] for taxid in list_taxid_notin]
-    cf.eprint("***** Number of hits : {}  *****".format(len(dic_seq)))
-    if is_include:
-        return dic_seq, genomes_in, genomes_notin, {}
-    else:
-        return {}, genomes_in, genomes_notin, dic_seq
+    # cf.eprint("***** Number of hits : {}  *****".format(len(dic_seq)))
+    return dic_node_in, genomes_in
 
 
 def principal_search(list_order, list_fasta, dict_org_code, dic_seq, pam, non_pam_motif_length, workdir, start_time, num_thread=4, num_file=4):
@@ -228,7 +220,7 @@ def principal_search(list_order, list_fasta, dict_org_code, dic_seq, pam, non_pa
     return dic_seq
 
 
-def genome_ordered_research(genomes_in, genomes_not_in, fasta_path, dict_org_code, uncompressed_gen_dir):
+def genome_ordered_research(genomes_in, fasta_path, dict_org_code, uncompressed_gen_dir):
     """
     Sort genome for the research by distance between organism
     """
@@ -238,19 +230,13 @@ def genome_ordered_research(genomes_in, genomes_not_in, fasta_path, dict_org_cod
     else:
         sorted_genomes = genomes_in
 
-    if len(genomes_not_in) >= 1:
-        sorted_genomes_notin = cf.sort_genomes(genomes_not_in, fasta_path,
-                                               dict_org_code, True)
-    else:
-        sorted_genomes_notin = []
-
     if sorted_genomes:
         # Order for research
         dist_file = uncompressed_gen_dir + "/distance_dic.json"
         dist_dic = cf.read_json_dic(dist_file)
         cf.eprint('\n\n-- Determinate order for research -- ')
         list_order = cf.order_for_research(sorted_genomes[1:],
-                                           sorted_genomes_notin, sorted_genomes[0],
+                                           [], sorted_genomes[0],
                                            dict_org_code, dist_dic, [])
         return list_order, sorted_genomes[0]
     else:
@@ -270,12 +256,11 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in,
               'thread(s) ##')
     # Retrieve the dic from the pre-processing nodes and list of genomes not
     # under nodes pre-processed
-    dic_seq, genomes_in, genomes_not_in, dic_exclude = traverse_tree(genomes_in, genomes_not_in,
-                                                                    dict_org_code, uncompressed_gen_dir)
+    dic_seq, genomes_in = traverse_tree(genomes_in, dict_org_code, uncompressed_gen_dir)
 
-    cf.unzip_files(uncompressed_gen_dir, genomes_in + genomes_not_in,
+    cf.unzip_files(uncompressed_gen_dir, genomes_in,
                    dict_org_code, workdir)
-    list_order, genome_ref = genome_ordered_research(genomes_in, genomes_not_in,
+    list_order, genome_ref = genome_ordered_research(genomes_in,
                                                      fasta_path, dict_org_code,
                                                      uncompressed_gen_dir)
     cf.eprint('\n\n-- RESEARCH --')
@@ -303,15 +288,43 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in,
 
     # If they are genomes not under nodes, bowtie
     if genome_ref and list_order:
-        print("Research")
+        cf.eprint("Research")
         list_fasta = cf.write_to_fasta_parallel(dic_seq, num_file, workdir)
         dic_seq = principal_search(list_order, list_fasta, dict_org_code, dic_seq,
                                    pam, non_pam_motif_length, workdir, start_time)
-    if dic_exclude:
-        dic_seq, bbb = st.soustract_node(dic_seq, dic_exclude)
-    # cf.delete_used_files(workdir)
+    dic_seq = couchdb_search(dic_seq, genomes_not_in)
+    cf.delete_used_files(workdir)
     cf.eprint(str(len(dic_seq)) + ' hits remaining')
     return dic_seq
+
+
+def couchdb_search(dic_seq, genomes_not_in):
+    """
+    Definition
+    """
+    couchDB.setServerUrl('http://localhost:1234')
+    if couchDB.couchPing():
+        sgrna = list(dic_seq.keys())
+        start = time.time()
+        results = couchDB.bulkRequestByKey(sgrna, "crispr_dvl")
+        print("Time for the request : " + str(time.time() - start))
+        # For each request
+        for rslt in results["results"]:
+            list_name = []
+            request = rslt["id"]
+            doc = rslt["docs"][0]
+            # The request if ok
+            if list(doc.keys())[0] == 'ok':
+                # For each key in request result, so in json file
+                for json_dic in doc["ok"]:
+                    if json_dic not in ["_id", "_rev"]:
+                        # name of organism
+                        list_name.append(json_dic)
+                if set(list_name).intersection(set(genomes_not_in)):
+                    del dic_seq[request]
+        return dic_seq
+    else:
+        sys.exit("Error : can't connect to the database")
 
 
 def main():
