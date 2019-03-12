@@ -1,13 +1,13 @@
 
     
 """
-    Translate a dictionary of constant-length CRISPR motifs into an ordered set of integer
+    Translate a dictionary of constant-length CRISPR motifs into an ordered set of integer, using base4 encoding.
     Usage:
-        wordIntegerIndexing.py <pickledDictionary> [--out=<outFile> --length=<wordLength>]
+        wordIntegerIndexing.py <pickledDictionary> [--out=<outFile>]
     
     Options:
         -h --help                               Show this screen
-        -o <outFile>, --out <outFile>           Name of the output file [default : ./inputFile.index]
+        -o <outFile>, --out <outFile>           Name of the output file [default : ./pickledDictionary.index]
       
 """
 
