@@ -11,9 +11,6 @@
       
 """
 
-#  -l <wordLength>, --length <wordLength>  Length of the CRISPR motifs [default : 20]
-
-
 from docopt import docopt
 
 import os, pickle
@@ -29,7 +26,6 @@ def indexPickle(filePath, targetFile):
             fp.write(str(l) + "\n")
     
     return len(data)
-    #print(, 'in', targetDir + "/" + targetFile)
     
 def weightWord(word, alphabet, length=None) :
     rank = 0
@@ -44,11 +40,11 @@ def weightWord(word, alphabet, length=None) :
 
 if __name__ == "__main__":
     arguments = docopt(__doc__, version='wordIntegerIndexing 1.0')
+   
     targetFile = '.'.join(os.path.basename(arguments['<pickledDictionary>']).split('.')[0:-1]) + '.index'
     if arguments['--out']:
         targetFile = arguments['--out']
 
     total = indexPickle(arguments['<pickledDictionary>'], targetFile)
-
     print ("Successfully indexed", total, "words\nfrom:", arguments['<pickledDictionary>'], "\ninto:", targetFile)
     
