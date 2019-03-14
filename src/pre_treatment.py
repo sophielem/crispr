@@ -11,7 +11,6 @@ import shutil
 import pickle
 from Bio import SeqIO
 from ete3 import NCBITaxa
-import common_functions as cf
 
 
 class Lineage:
@@ -27,7 +26,7 @@ class Lineage:
         self.phylum = "No phylum"
 
 
-def valid_file(parser, filename):
+def valid_fasta_file(parser, filename):
     """
     Check if the file exists and if it is a standard fasta file
     """
@@ -68,7 +67,7 @@ def args_gestion():
     parser.add_argument("-async", action='store_true')
     parser.add_argument("-rfg", metavar="<str>",
                         help="The path to the reference genome folder")
-    parser.add_argument("-file", metavar="FILE", type=lambda x: valid_file(parser, x),
+    parser.add_argument("-file", metavar="FILE", type=lambda x: valid_fasta_file(parser, x),
                         help="The path to the fasta file", required=True)
     parser.add_argument("-gcf", metavar="<str>",
                         help="The GCF assembly ID ",
@@ -232,6 +231,36 @@ def json_tree(bdd_path):
     os.system('python3 bin/tax2json.py ' + bdd_path)
 
 
+def find_sgrna_seq(seq, pam):
+    """
+    Uses Regular expression matching of the pam motif to the reference genome
+    to get the start positions (0-based) of each match
+    """
+    reg_exp = build_expression(pam)
+    indices = [m.start() for m in re.finditer('(?=' + reg_exp + ')', seq, re.I)]
+    return indices
+
+
+def reverse_complement2(sequence):
+    """
+    Function for turning a 5'-3' nucleotidic sequence into
+    its 5'-3' reverse complement.
+    """
+    rev_comp = []
+    for idx in range(len(sequence) - 1, -1, -1):
+        if sequence[idx] == 'A':
+            rev_comp = rev_comp + ['T']
+        elif sequence[idx] == 'C':
+            rev_comp = rev_comp + ['G']
+        elif sequence[idx] == 'G':
+            rev_comp = rev_comp + ['C']
+        elif sequence[idx] == 'T':
+            rev_comp = rev_comp + ['A']
+        else:
+            rev_comp = rev_comp + ['N']
+    return "".join(rev_comp)
+
+
 def construct_in(fasta_path, organism, organism_code, path_db, pam="NGG",
                  non_pam_motif_length=20):
     """
@@ -247,9 +276,9 @@ def construct_in(fasta_path, organism, organism_code, path_db, pam="NGG",
     for genome_seqrecord in SeqIO.parse(fasta_file, "fasta"):
         genome_seq = genome_seqrecord.seq
         ref = genome_seqrecord.id
-        seq_list_forward = cf.find_sgrna_seq(str(genome_seq),
-                                             cf.reverse_complement(sgrna))
-        seq_list_reverse = cf.find_sgrna_seq(str(genome_seq), sgrna)
+        seq_list_forward = find_sgrna_seq(str(genome_seq),
+                                             reverse_complement2(sgrna))
+        seq_list_reverse = find_sgrna_seq(str(genome_seq), sgrna)
         for indice in seq_list_forward:
             end = indice + len(pam) + non_pam_motif_length
             seq = genome_seq[indice:end].reverse_complement()
