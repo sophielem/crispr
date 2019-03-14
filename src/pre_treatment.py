@@ -65,6 +65,16 @@ def args_gestion():
     # Argparsing
     parser = argparse.ArgumentParser(description="Pre-treatment to import new genomes")
     parser.add_argument("-async", action='store_true')
+
+    args = parser.parse_args()
+    valid_taxid(args.taxid)
+    return args
+
+
+def args_pickle_file():
+    """
+    Definition
+    """
     parser.add_argument("-rfg", metavar="<str>",
                         help="The path to the reference genome folder")
     parser.add_argument("-file", metavar="FILE", type=lambda x: valid_fasta_file(parser, x),
@@ -78,10 +88,6 @@ def args_gestion():
     parser.add_argument("-taxid", type=lambda x: valid_taxid(parser, x),
                         help="The taxon ID",
                         required=True)
-    args = parser.parse_args()
-    valid_taxid(args.taxid)
-    return args
-
 
 def setup(ref):
     """
