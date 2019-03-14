@@ -256,15 +256,14 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in,
               'thread(s) ##')
     # Retrieve the dic from the pre-processing nodes and list of genomes not
     # under nodes pre-processed
-    dic_seq, genomes_in = traverse_tree(genomes_in, dict_org_code, uncompressed_gen_dir)
-
+    # dic_seq, genomes_in = traverse_tree(genomes_in, dict_org_code, uncompressed_gen_dir)
     cf.unzip_files(uncompressed_gen_dir, genomes_in,
                    dict_org_code, workdir)
     list_order, genome_ref = genome_ordered_research(genomes_in,
                                                      fasta_path, dict_org_code,
                                                      uncompressed_gen_dir)
     cf.eprint('\n\n-- RESEARCH --')
-    # dic_seq = {}
+    dic_seq = {}
     if not dic_seq:
         # Research in first genome
         if not os.path.isdir(uncompressed_gen_dir + "/pickle"):
@@ -292,7 +291,8 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in,
         list_fasta = cf.write_to_fasta_parallel(dic_seq, num_file, workdir)
         dic_seq = principal_search(list_order, list_fasta, dict_org_code, dic_seq,
                                    pam, non_pam_motif_length, workdir, start_time)
-    dic_seq = couchdb_search(dic_seq, genomes_not_in)
+    if genomes_not_in:
+        dic_seq = couchdb_search(dic_seq, genomes_not_in)
     cf.delete_used_files(workdir)
     cf.eprint(str(len(dic_seq)) + ' hits remaining')
     return dic_seq
@@ -306,7 +306,7 @@ def couchdb_search(dic_seq, genomes_not_in):
     if couchDB.couchPing():
         sgrna = list(dic_seq.keys())
         start = time.time()
-        results = couchDB.bulkRequestByKey(sgrna, "crispr_dvl")
+        results = couchDB.bulkRequestByKey(sgrna, "crispr_alpha")
         print("Time for the request : " + str(time.time() - start))
         # For each request
         for rslt in results["results"]:
