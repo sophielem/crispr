@@ -9,12 +9,16 @@
 
 """
 
+import os
+import pickle
+import math
 from docopt import docopt
 
-import os, pickle
-import math
 
 def indexPickle(filePath, targetFile):
+    """
+    Definition
+    """
     pData = pickle.load( open( filePath, "rb" ) )
     wordList = list(pData.keys())
     data = sorted([ weightWord(w, ["A", "T", "C", "G"], len(wordList[0])) for w in wordList ])
@@ -27,7 +31,10 @@ def indexPickle(filePath, targetFile):
     return len(data)
 
 
-def weightWord(word, alphabet, length=None) :
+def weightWord(word, alphabet, length=None):
+    """
+    Definition
+    """
     rank = 0
     if length:
         if length != len(word):
