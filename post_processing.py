@@ -9,7 +9,6 @@ import argparse
 import wordIntegerIndexing as decoding
 import pre_treatment as pt
 import display_result as dspl
-sys.path.append("/Users/slematre/Documents/pyCouch/src")
 import pycouch.wrapper as couchDB
 
 
