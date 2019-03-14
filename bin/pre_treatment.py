@@ -272,7 +272,7 @@ def construct_in(fasta_path, organism, organism_code, path_db, pam="NGG",
             seq_dict[seq][organism][ref].append('-(' + str(indice+1) + ',' +
                                                 str(end) + ')')
 
-    pickle_file = (path_db + "/pickle/" + organism.replace("/", "_") + "." + organism_code + ".p")
+    pickle_file = (path_db + "/pickle/" + organism.replace("/", "_") + ".p")
     pickle.dump(seq_dict, open(pickle_file, "wb"), protocol=3)
     return seq_dict
 

@@ -172,7 +172,7 @@ def remove_tmp_genome(param, name, ref_new):
     os.remove(param.rfg + "/index2/" + ref_new + ".tar.gz")
     organism = name + " " + param.gcf
     os.remove(param.rfg + "/pickle/" + organism.replace("/", "_") +
-              "." + ref_new + ".p")
+              ".p")
 
 
 def traverse_tree(genomes_in, dic_org_code, uncompressed_gen_dir):
@@ -270,7 +270,7 @@ def construction(fasta_path, pam, non_pam_motif_length, genomes_in,
             os.mkdir(uncompressed_gen_dir + "/pickle")
         name_file = genome_ref.replace("/", "_")
         pickle_file = (uncompressed_gen_dir + "/pickle/" + name_file +
-                       "." + dict_org_code[genome_ref][0] + ".p")
+                       ".p")
         # Load the pickle file
         if os.path.isfile(pickle_file):
             cf.eprint("Load pickle file")
