@@ -17,7 +17,7 @@ from docopt import docopt
 
 def indexPickle(filePath, targetFile):
     """
-    Definition
+    Take a pickle file, code it and write it in a file
     """
     pData = pickle.load( open( filePath, "rb" ) )
     wordList = list(pData.keys())
@@ -33,7 +33,7 @@ def indexPickle(filePath, targetFile):
 
 def weightWord(word, alphabet, length=None):
     """
-    Definition
+    Code a word by base len(alphabet) and return this int
     """
     rank = 0
     if length:
@@ -48,7 +48,7 @@ def weightWord(word, alphabet, length=None):
 
 def decode(rank, alphabet, length=20):
     """
-    Definition
+    Decode the rank (int) to a word according to an alphabet given
     """
     word = ""
     base = len(alphabet)
@@ -68,7 +68,3 @@ if __name__ == "__main__":
 
     total = indexPickle(arguments['<pickledDictionary>'], targetFile)
     print ("Successfully indexed", total, "words\nfrom:", arguments['<pickledDictionary>'], "\ninto:", targetFile)
-
-    rank = 45
-    mot = decode(rank, ["A", "T", "C", "G"], 23)
-    print(mot)
