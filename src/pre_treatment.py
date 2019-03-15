@@ -12,6 +12,7 @@ import pickle
 import re
 from Bio import SeqIO
 from ete3 import NCBITaxa
+import wordIntegerIndexing as decoding
 
 
 class Lineage:
@@ -321,6 +322,18 @@ def construct_in(organism, organism_code, rfg, pam="NGG", non_pam_motif_length=2
     return pickle_file
 
 
+def indexation(name_file, rfg, pickle_file):
+    """
+    Code each sgrna sequence to a rank. With this, it is easier to compare
+    sequences of several genomes
+    """
+    name_file = name_file.replace("/", "_")
+    targetFile = rfg + "/index/" + name_file + '.index'
+
+    total = decoding.indexPickle(pickle_file, targetFile)
+    print ("Successfully indexed", total, "words\nfrom:", name_file, "\ninto:", targetFile)
+
+
 # CONSTRUCT THE NEW JSON TOPOLOGY TREE
 def json_tree(bdd_path):
     """
@@ -341,7 +354,7 @@ if __name__ == '__main__':
         distance_matrix(DIC_TAXID, REF_NEW, PARAM.rfg)
         # the fasta file was copied in the tmp directory ./reference_genomes
         PICKLE_FILE = construct_in(NAME + " " + PARAM.gcf, REF_NEW, PARAM.rfg)
-
+        indexation(NAME + " " + PARAM.gcf, PARAM.rfg, PICKLE_FILE)
         json_tree(PARAM.rfg)
 
     if COMMAND == "add" or COMMAND == "all":
