@@ -4,10 +4,10 @@ Definition
 """
 
 import sys
+import os
 import time
 import argparse
 import wordIntegerIndexing as decoding
-import pre_treatment as pt
 import display_result as dspl
 import pycouch.wrapper as couchDB
 
@@ -77,10 +77,14 @@ if __name__ == '__main__':
     GENOMES_NOTIN = PARAM.gi.split("&")
     with open(PARAM.file, "r") as index_file:
         LIST_INDEX = index_file.read().splitlines()
-    # Decoding of each index into sequence
-    LIST_WORDS = [decoding.decode(rank, ["A", "T", "C", "G"], int(PARAM.sl) + int(len(PARAM.pam))) for rank in LIST_INDEX]
-    # Search coordinates for each sgrna in each organism
-    DIC_SEQ = couchdb_search(LIST_WORDS, GENOMES_IN)
-    # Display the result for the navigator
-    dspl.display_hits(DIC_SEQ, GENOMES_IN, GENOMES_NOTIN,
-                 PARAM.pam, int(PARAM.sl), ".")
+    if LIST_INDEX:
+        # Decoding of each index into sequence
+        LIST_WORDS = [decoding.decode(rank, ["A", "T", "C", "G"], int(PARAM.sl) + int(len(PARAM.pam)))
+                      for rank in LIST_INDEX]
+        # Search coordinates for each sgrna in each organism
+        DIC_SEQ = couchdb_search(LIST_WORDS, GENOMES_IN)
+        # Display the result for the navigator
+        dspl.display_hits(DIC_SEQ, GENOMES_IN, GENOMES_NOTIN,
+                          PARAM.pam, int(PARAM.sl), ".")
+    else:
+        print("Program terminated & No hits remain")

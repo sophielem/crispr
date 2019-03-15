@@ -4,6 +4,7 @@ Display results
 """
 
 import sys
+import json
 
 
 class Hit():
@@ -67,12 +68,12 @@ def write_to_file(genomes_in, genomes_not_in, hit_list, pam, non_pam_motif_lengt
     eprint('\n\n-- Write results to file --')
     rep_rslt_file = workdir + '/results_allgenome.txt'
     output = open(rep_rslt_file, 'w')
-    gi = ','.join(genomes_in)
-    gni = ','.join(genomes_not_in)
-    if gni == '':
-        gni = 'None'
-    output.write('#ALL GENOMES\n#Genomes included :' + gi +
-                 ' ; Genomes excluded :' + gni + '\n'+'#Parameters: pam:' +
+    gen_i = ','.join(genomes_in)
+    gen_ni = ','.join(genomes_not_in)
+    if gen_ni == '':
+        gen_ni = 'None'
+    output.write('#ALL GENOMES\n#Genomes included :' + gen_i +
+                 ' ; Genomes excluded :' + gen_ni + '\n'+'#Parameters: pam:' +
                  pam + ' ; sgrna size:' + str(non_pam_motif_length) + '\n')
     output.write('sgrna sequence')
     for genome_i in genomes_in:
@@ -86,6 +87,28 @@ def write_to_file(genomes_in, genomes_not_in, hit_list, pam, non_pam_motif_lengt
         to_write = to_write.strip(';')
         output.write(to_write + '\n')
     output.close()
+
+
+def create_list_ref(dic_ref):
+    """
+    Definition
+    """
+    list_ref = []
+    for ref in dic_ref:
+        dic = {"ref": ref, "coords": dic_ref[ref]}
+        list_ref.append(dic)
+    return list_ref
+
+
+def create_list_occurences(dic_occurences):
+    """
+    Definition
+    """
+    list_occurences = []
+    for genome in dic_occurences:
+        dic_genome = {'org': genome, 'all_ref': create_list_ref(dic_occurences[genome])}
+        list_occurences.append(dic_genome)
+    return list_occurences
 
 
 def output_interface(hit_list, workdir):
@@ -107,18 +130,6 @@ def output_interface(hit_list, workdir):
         json.dump(list_dic, filout, indent=4)
 
 
-def display_no_hits(genome, start_time, workdir, in_exc):
-    """
-    Print the name of the genome after which there are no more hits and
-    exit the program
-    """
-    print("Program terminated&No hits remain after {} genome {}"
-          .format(in_exc, genome))
-    end_time = time.time()
-    total_time = end_time - start_time
-    eprint('TIME', total_time)
-
-
 def display_hits(dic_seq, genomes_in, genomes_not_in, pam, non_pam_motif_length, workdir):
     """
     Sort hits and write output for interface
@@ -128,7 +139,7 @@ def display_hits(dic_seq, genomes_in, genomes_not_in, pam, non_pam_motif_length,
 
     # Put results in local file for access via the interface.
     write_to_file(genomes_in, genomes_not_in, hit_list[:10000], pam,
-                     non_pam_motif_length, workdir)
+                  non_pam_motif_length, workdir)
 
     # Output formatting for printing to interface
     output_interface(hit_list[:100], workdir)

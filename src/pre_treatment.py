@@ -6,7 +6,6 @@ import os
 import argparse
 import json
 import sys
-import tarfile
 import shutil
 import pickle
 import re
@@ -75,7 +74,8 @@ def args_gestion():
     metafile_parser.add_argument("-rfg", metavar="<str>",
                                  help="The path to the reference genome folder",
                                  required=True)
-    metafile_parser.add_argument("-file", metavar="FILE", type=lambda x: valid_fasta_file(metafile_parser, x),
+    metafile_parser.add_argument("-file", metavar="FILE",
+                                 type=lambda x: valid_fasta_file(metafile_parser, x),
                                  help="The path to the fasta file",
                                  required=True)
     metafile_parser.add_argument("-gcf", metavar="<str>",
@@ -87,7 +87,8 @@ def args_gestion():
 
     # Add to the database
     add_bdd_parser = subparsers.add_parser("add", help="Add the pickle file to the database")
-    add_bdd_parser.add_argument("-file", metavar="FILE", type=lambda x: valid_taxid(add_bdd_parser, x),
+    add_bdd_parser.add_argument("-file", metavar="FILE",
+                                type=lambda x: valid_taxid(add_bdd_parser, x),
                                 help="The path to the pickle file to add to the database",
                                 required=True)
 
@@ -293,7 +294,7 @@ def construct_in(organism, organism_code, rfg, pam="NGG", non_pam_motif_length=2
         genome_seq = genome_seqrecord.seq
         ref = genome_seqrecord.id
         seq_list_forward = find_sgrna_seq(str(genome_seq),
-                                             reverse_complement2(sgrna))
+                                          reverse_complement2(sgrna))
         seq_list_reverse = find_sgrna_seq(str(genome_seq), sgrna)
         for indice in seq_list_forward:
             end = indice + len(pam) + non_pam_motif_length
@@ -328,10 +329,10 @@ def indexation(name_file, rfg, pickle_file):
     sequences of several genomes
     """
     name_file = name_file.replace("/", "_")
-    targetFile = rfg + "/index/" + name_file + '.index'
+    target_file = rfg + "/index/" + name_file + '.index'
 
-    total = decoding.indexPickle(pickle_file, targetFile)
-    print ("Successfully indexed", total, "words\nfrom:", name_file, "\ninto:", targetFile)
+    total = decoding.indexPickle(pickle_file, target_file)
+    print("Successfully indexed", total, "words\nfrom:", name_file, "\ninto:", target_file)
 
 
 # CONSTRUCT THE NEW JSON TOPOLOGY TREE
