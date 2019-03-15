@@ -9,6 +9,7 @@ import sys
 import tarfile
 import shutil
 import pickle
+import re
 from Bio import SeqIO
 from ete3 import NCBITaxa
 
@@ -26,6 +27,7 @@ class Lineage:
         self.phylum = "No phylum"
 
 
+# ARGUMENTS GESTION
 def valid_fasta_file(parser, filename):
     """
     Check if the file exists and if it is a standard fasta file
@@ -62,44 +64,55 @@ def args_gestion():
     """
     Take and treat arguments that user gives in command line
     """
+    command = sys.argv[1]
     # Argparsing
     parser = argparse.ArgumentParser(description="Pre-treatment to import new genomes")
-    parser.add_argument("-async", action='store_true')
+    subparsers = parser.add_subparsers(help='commands')
+
+    # Create metafile : pickle and index
+    metafile_parser = subparsers.add_parser("metafile", help="Create the pickle file of the genome")
+    metafile_parser.add_argument("-rfg", metavar="<str>",
+                                 help="The path to the reference genome folder",
+                                 required=True)
+    metafile_parser.add_argument("-file", metavar="FILE", type=lambda x: valid_fasta_file(metafile_parser, x),
+                                 help="The path to the fasta file",
+                                 required=True)
+    metafile_parser.add_argument("-gcf", metavar="<str>",
+                                 help="The GCF assembly ID ", required=True)
+    metafile_parser.add_argument("-asm", metavar="<str>",
+                                 help="The ASM assembly ID", required=True)
+    metafile_parser.add_argument("-taxid", type=lambda x: valid_taxid(metafile_parser, x),
+                                 help="The taxon ID", required=True)
+
+    # Add to the database
+    add_bdd_parser = subparsers.add_parser("add", help="Add the pickle file to the database")
+    add_bdd_parser.add_argument("-file", metavar="FILE", type=lambda x: valid_taxid(add_bdd_parser, x),
+                                help="The path to the pickle file to add to the database",
+                                required=True)
+
+    # Create metafile : pickle and index and add the pickle file to the database
+    all_parser = subparsers.add_parser("all", help="Create the pickle file of the genome")
+    all_parser.add_argument("-rfg", metavar="<str>",
+                            help="The path to the reference genome folder",
+                            required=True)
+    all_parser.add_argument("-file", metavar="FILE", type=lambda x: valid_fasta_file(all_parser, x),
+                            help="The path to the fasta file",
+                            required=True)
+    all_parser.add_argument("-gcf", metavar="<str>",
+                            help="The GCF assembly ID ", required=True)
+    all_parser.add_argument("-asm", metavar="<str>",
+                            help="The ASM assembly ID", required=True)
+    all_parser.add_argument("-taxid", type=lambda x: valid_taxid(all_parser, x),
+                            help="The taxon ID", required=True)
 
     args = parser.parse_args()
-    valid_taxid(args.taxid)
-    return args
+    if hasattr(args, "taxid"):
+        valid_taxid(parser, args.taxid)
+
+    return args, command
 
 
-def args_pickle_file():
-    """
-    Definition
-    """
-    parser.add_argument("-rfg", metavar="<str>",
-                        help="The path to the reference genome folder")
-    parser.add_argument("-file", metavar="FILE", type=lambda x: valid_fasta_file(parser, x),
-                        help="The path to the fasta file", required=True)
-    parser.add_argument("-gcf", metavar="<str>",
-                        help="The GCF assembly ID ",
-                        required=True)
-    parser.add_argument("-asm", metavar="<str>",
-                        help="The ASM assembly ID",
-                        required=True)
-    parser.add_argument("-taxid", type=lambda x: valid_taxid(parser, x),
-                        help="The taxon ID",
-                        required=True)
-
-def setup(ref):
-    """
-    Create directories for the fasta and the indexation of the new genome
-    """
-    os.mkdir("reference_genomes")
-    os.mkdir("reference_genomes/fasta/")
-    os.mkdir("reference_genomes/fasta/" + ref)
-    os.mkdir("reference_genomes/index2/")
-    os.mkdir("reference_genomes/index2/" + ref)
-
-
+# COMPARE NEW GENOME TO OLD TO FIND ITS BRANCH IN THE TOPOLOGY TREE
 def set_dic_taxid(filename, gcf, asm, taxid, rfg):
     """
     Create dictionnary for json file and gzip the fasta file
@@ -126,24 +139,11 @@ def set_dic_taxid(filename, gcf, asm, taxid, rfg):
     # Retrieve all taxon id present in the database
     dic_taxid = {dic_ref[name_gcf][0]: dic_ref[name_gcf][1] for name_gcf in dic_ref}
 
-    setup(ref)
-    shutil.copyfile(filename, "reference_genomes/fasta/" + ref +
-                    "/" + ref + "_genomic.fna")
+    shutil.copyfile(filename, rfg + "/fasta/" +
+                    ref + "_genomic.fna")
     # Write the new json file with the new genome
     json.dump(dic_ref, open(rfg + "/genome_ref_taxid.json", 'w'), indent=4)
     return dic_taxid, ref, name
-
-
-def index_bowtie_blast(ref_new):
-    """
-    Build bowtie indexation
-    """
-    print("INDEX")
-    os.system("bowtie2-build reference_genomes/fasta/" + ref_new + "/" +
-              ref_new + "_genomic.fna reference_genomes/index2/" + ref_new +
-              "/" + ref_new)
-    os.system("makeblastdb -in reference_genomes/fasta/" + ref_new + "/" +
-              ref_new + "_genomic.fna -dbtype nucl")
 
 
 def create_lineage_objects(dic_tax):
@@ -229,12 +229,22 @@ def distance_matrix(dic_taxid, ref_new, rfg):
     json.dump(dist_dic, open(rfg + "/distance_dic.json", "w"), indent=4)
 
 
-def json_tree(bdd_path):
+# FIND ALL SGRNA
+def build_expression(seq):
     """
-    Definition
+    Build the regular expression by replacing the letter by iupac code or
+    the letter itself
     """
-    print('JSON TREE')
-    os.system('python3 bin/tax2json.py ' + bdd_path)
+    result = ''
+    iupac_code = {'R': '[AG]', 'Y': '[CT]', 'S': '[GC]', 'W': '[AT]',
+                  'K': '[GT]', 'M': '[AC]', 'B': '[CGT]', 'D': '[AGT]',
+                  'H': '[ACT]', 'V': '[ACG]', 'N': '[ACGT]'}
+    for letter in seq:
+        if letter in iupac_code:
+            result = result + iupac_code[letter]
+        else:
+            result = result + letter
+    return result
 
 
 def find_sgrna_seq(seq, pam):
@@ -267,14 +277,13 @@ def reverse_complement2(sequence):
     return "".join(rev_comp)
 
 
-def construct_in(fasta_path, organism, organism_code, path_db, pam="NGG",
-                 non_pam_motif_length=20):
+def construct_in(organism, organism_code, rfg, pam="NGG", non_pam_motif_length=20):
     """
     Construct the sequences for first organism,
     with python regular expression research
     """
-    fasta_file = (fasta_path + '/' + organism_code + '/' +
-                  organism_code + '_genomic.fna')
+    print("SEARCH SGRNA")
+    fasta_file = (rfg + '/fasta/' + organism_code + '_genomic.fna')
     sgrna = "N" * non_pam_motif_length + pam
 
     seq_dict = {}
@@ -307,46 +316,33 @@ def construct_in(fasta_path, organism, organism_code, path_db, pam="NGG",
             seq_dict[seq][organism][ref].append('-(' + str(indice+1) + ',' +
                                                 str(end) + ')')
 
-    pickle_file = (path_db + "/pickle/" + organism.replace("/", "_") + ".p")
+    pickle_file = (rfg + "/pickle/" + organism.replace("/", "_") + ".p")
     pickle.dump(seq_dict, open(pickle_file, "wb"), protocol=3)
-    return seq_dict
+    return pickle_file
 
 
-def compress(rfg, ref):
+# CONSTRUCT THE NEW JSON TOPOLOGY TREE
+def json_tree(bdd_path):
     """
-    Compress fasta and index files into gzip archive
+    Take the entire list of genomes and create the topology tree in json format
     """
-    # Compress the fasta file in the database
-    with tarfile.open(rfg + "/fasta/" + ref + ".tar.gz", "w:gz") as tar:
-        tar.add("reference_genomes/fasta/" + ref + "/" + ref + "_genomic.fna")
-        tar.add("reference_genomes/fasta/" + ref + "/" + ref + "_genomic.fna.nhr")
-        tar.add("reference_genomes/fasta/" + ref + "/" + ref + "_genomic.fna.nin")
-        tar.add("reference_genomes/fasta/" + ref + "/" + ref + "_genomic.fna.nsq")
-
-    # Compress the fasta file in the database
-    with tarfile.open(rfg + "/index2/" + ref + ".tar.gz", "w:gz") as tar:
-        tar.add("reference_genomes/index2/" + ref + "/" + ref + ".1.bt2")
-        tar.add("reference_genomes/index2/" + ref + "/" + ref + ".2.bt2")
-        tar.add("reference_genomes/index2/" + ref + "/" + ref + ".3.bt2")
-        tar.add("reference_genomes/index2/" + ref + "/" + ref + ".4.bt2")
-        tar.add("reference_genomes/index2/" + ref + "/" + ref + ".rev.1.bt2")
-        tar.add("reference_genomes/index2/" + ref + "/" + ref + ".rev.2.bt2")
+    print('JSON TREE')
+    os.system('python3 src/tax2json.py ' + bdd_path)
 
 
 if __name__ == '__main__':
-    PARAM = args_gestion()
-    # Create dictionnary with all taxon ID
-    DIC_TAXID, REF_NEW, NAME = set_dic_taxid(PARAM.file, PARAM.gcf, PARAM.asm,
-                                             PARAM.taxid, PARAM.rfg)
-    # Index the new genome
-    index_bowtie_blast(REF_NEW)
-    # Compress the indexation and the fasta file
-    compress(PARAM.rfg, REF_NEW)
-    # Calcul distances between new and old genomes
-    distance_matrix(DIC_TAXID, REF_NEW, PARAM.rfg)
-    # the fasta file was copied in the tmp directory ./reference_genomes
-    construct_in("reference_genomes/fasta", NAME + " " + PARAM.gcf, REF_NEW, PARAM.rfg)
+    PARAM, COMMAND = args_gestion()
+    if COMMAND == "metafile" or COMMAND == "all":
+        # Create dictionnary with all taxon ID
+        DIC_TAXID, REF_NEW, NAME = set_dic_taxid(PARAM.file, PARAM.gcf, PARAM.asm,
+                                                 PARAM.taxid, PARAM.rfg)
 
-    json_tree(PARAM.rfg)
-    # Delete temporary directory
-    shutil.rmtree("reference_genomes")
+        # Calcul distances between new and old genomes
+        distance_matrix(DIC_TAXID, REF_NEW, PARAM.rfg)
+        # the fasta file was copied in the tmp directory ./reference_genomes
+        PICKLE_FILE = construct_in(NAME + " " + PARAM.gcf, REF_NEW, PARAM.rfg)
+
+        json_tree(PARAM.rfg)
+
+    if COMMAND == "add" or COMMAND == "all":
+        pass
