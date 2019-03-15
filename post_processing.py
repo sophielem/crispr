@@ -53,7 +53,8 @@ def couchdb_search(sgrna_list, genomes_in):
     if couchDB.couchPing():
         dic_seq = {}
         start = time.time()
-        results = couchDB.bulkRequestByKey(sgrna_list, "crispr_alpha")
+        request = {"keys" : sgrna_list}
+        results = couchDB.bulkRequestByKey(request, "crispr_alpha")
         dspl.eprint("Time for the request : " + str(time.time() - start))
         # For each request
         for rslt in results["results"]:
