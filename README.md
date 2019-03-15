@@ -1,15 +1,49 @@
-# Pré-calcul des noeuds : intersection et union
+# CRISPR : search common sgrna sequences excluding genomes
+This script is a part of a pipeline which allows to find common sgrna from a set of genomes of bacteria which cannot match with a set of other genomes.
 
-Les pré-calculs sont stockés sous format *pickle* dans un dossier *nodes* contenant les sous-dossiers : *inter* et *union*.
-Le dictionnaire sauvé contient deux clefs principales: **metadata** et **data**.
-Data contient un dictionnaire contenant les séquences sgRNA comme clef, suivi de l'organisme, de la référence du génome afin de stocker une liste de coordonnées.
-Metadata contient une liste de fichiers, qui recensent les fils n+1 du noeud étudié. Ainsi, il est possible de reconstruire le noeud directement à partir des noeuds et feuilles fils de ce noeud. 
+With this, it is possible to select an heterogeneous population of bacteria and to kill a second population. 
 
-## Intersection  
-Si le noeud étudié ne contient que des feuilles, un simple lancement du script *allgenomes.py* est effectué. De ce fait, pour le génome le plus petit, son fichier pickle va être chargé, contenant le dictionnaire contenant toutes les séquences sgRNA, et des *bowtie* vont être effectués afin de trouver les séquences sgRNA communes à tous les autres génomes.
+## Implemented functions
+This python script decode the plain text given in argument with the alphabet ["A", "T", "C", "G"].<br>
+Then, it does a research in the crispr database with the decoded sequences and retrieves all organism containing the sequence for each sequence with their coordinates in each organism. Only genomes selected by user are conserved and results are displayed by a *json* file containing the first 100 hits and a *text* file containing the first 10,000 hits.
 
-Si le noeud contient aussi des noeuds, alors la première chose effectuée est le calcul de l'intersection des différents noeuds. Pour cela, les fichiers *pickle* contenant les séquences sgRNA, stockées sous la forme d'un dictionnaire en tant que clef, qui sont communes aux noeuds sont chargées et seules les séquences sgRNA, donc les clefs, communes aux différents dictionnaires sont gardées.
-Si des feuilles sont ajoutées, alors le dictionnaire de séquence obtenue lors de l'intersection des noeuds sert de référence pour la recherche des séquences à l'aide de *bowtie*.
+##### Format of the *json* file :
+```
+{'sequence' : word, 'occurences' :
+                                    {'org' : genome, 'all_ref' :
+                                                                {'ref' : ref, 'coords' : [coordinates]
+                                                               }
+                                    }
+}
+```
 
-## Union
-Que ce soit pour les noeuds ou les feuilles, le même princpe est appliqué. Le fichier *pickle* contenant le dictionnaire contenant les séquences sgRNA de la feuille ou de l'union s'il s'agit d'un noeud est chargé. De là, une recherche pour avoir une liste de clefs unique, donc de séquences sgRNA unique, est effectuée. Ainsi, la redondance des clefs est évitée.
+##### Format of the *text* file :
+```
+#ALL GENOMES
+#Genomes included : *list of genomes*  ; Genomes excluded : *list of genomes*
+#Parameters: pam: *PAM* ; sgrna size: *size*
+        genome_in_1     genome_in_2     genomes_in_3...
+word    ref : coordinates   ref : coordinates   ref : coordinates...
+.
+.
+.
+```
+
+
+## Dependencies
+To execute this script, you need few dependencies :
+* docopt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;== 0.6.2
+* ete3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;== 3.1.1
+* biopython == 1.66
+
+Then, you need the pycouchDB package which can not be installed by *pip* so the source code is in the *bin* folder.
+
+## Example
+Explain how to use the script
+```
+python post_processing.py -rfg ../reference_genomes -sl 20 -pam "NGG"\
+-gi "genome1&genome2&genome3" -gni "genome4&genome5" -file coding.txt
+```
+
+## Date
+March 15 2019
