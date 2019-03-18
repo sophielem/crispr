@@ -11,7 +11,6 @@ import requests
 import re
 import wordIntegerIndexing as decoding
 import display_result as dspl
-import pycouch.wrapper as couchDB
 
 
 def valid_file(parser, filename):
