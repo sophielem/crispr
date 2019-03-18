@@ -47,18 +47,25 @@ def args_gestion():
     parser.add_argument("-r", metavar="<str>",
                         help="The end point",
                         required=True)
+    parser.add_argument("-c", metavar="<int>",
+                        help="The length of the slice for the request",
+                        required=True)
     return parser.parse_args()
 
 
-def couchdb_search(sgrna_list, genomes_in, end_point):
+def couchdb_search(sgrna_list, genomes_in, end_point, len_slice):
     """
     Definition
     """
-    request = {"keys" : sgrna_list}
     joker = 0
+    results = {"request": {}}
     while True:
         try:
-            results = requests.post(end_point + "/bulk_request", json=request)
+            for i in range(0, len(sgrna_list), len_slice):
+                dspl.eprint(i)
+                request_sliced = {"keys" :sgrna_list[i : i + len_slice]}
+                results["request"].update(requests.post(end_point + "/bulk_request",
+                                                        json=request_sliced).json()["request"])
         except Exception as e:
             dspl.eprint("Something wrong append, retrying time", str(joker))
             dspl.eprint("Error LOG is ", str(e))
@@ -71,11 +78,11 @@ def couchdb_search(sgrna_list, genomes_in, end_point):
         break
 
     dic_seq = {}
-    for sgrna in results.json()["request"]:
+    for sgrna in results["request"]:
         dic_seq[sgrna] ={}
-        for org_name in results.json()["request"][sgrna]:
+        for org_name in results["request"][sgrna]:
             if org_name in genomes_in:
-                dic_seq[sgrna][org_name] = results.json()["request"][sgrna][org_name]
+                dic_seq[sgrna][org_name] = results["request"][sgrna][org_name]
     return dic_seq
 
 
@@ -104,7 +111,7 @@ if __name__ == '__main__':
         LIST_WORDS = [decoding.decode(rank, ["A", "T", "C", "G"], int(PARAM.sl) + int(len(PARAM.pam)))
                       for rank in LIST_INDEX]
         # Search coordinates for each sgrna in each organism
-        DIC_SEQ = couchdb_search(LIST_WORDS, GENOMES_IN, PARAM.r)
+        DIC_SEQ = couchdb_search(LIST_WORDS, GENOMES_IN, PARAM.r, int(PARAM.c))
         # Display the result for the navigator
         dspl.display_hits(DIC_SEQ, GENOMES_IN, GENOMES_NOTIN,
                           PARAM.pam, int(PARAM.sl), ".")
