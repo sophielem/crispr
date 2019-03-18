@@ -89,7 +89,7 @@ def parse_setcompare_out():
     """
     Definition
     """
-    with open("../test/setCompare.log", "r") as filin:
+    with open("setCompare.log", "r") as filin:
         text = filin.readlines()
     nb_hits = re.search("[0-9]+", text[-2]).group()
     index_line = text[-1].split(",")
