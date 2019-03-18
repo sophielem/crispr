@@ -22,8 +22,8 @@ if [ "$URL_CRISPR" = "" ]; then
     error_json
 fi
 
-echo "setCompare -i \"$gi\" -o \"$gni\" -l $rfg/index -e index" > ./cmd.txt
-setCompare -i "$gi" -o "$gni" -l $rfg/index -e index 2>> ./setCompare.err 1> ./setCompare.log
+echo "setCompare -i \"$gi\" -o \"$gni\" -l $rfg/index/ -e index" > ./cmd.txt
+setCompare -i "$gi" -o "$gni" -l $rfg/index/ -e index 2>> ./setCompare.err 1> ./setCompare.log
 echo "post_processing.py -sl 20 -pam \"NGG\" -gi \"$gi\" -gni \"$gni\" -r \"$URL_CRISPR\"  -c 2000" >> ./cmd.txt
 python $CRISPR_TOOL_SCRIPT_PATH/post_processing.py -sl 20 -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR" -c 2000 2>> ./post_processing.err 1> ./post_processing.log
 
