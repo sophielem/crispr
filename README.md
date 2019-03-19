@@ -47,3 +47,22 @@ python post_processing.py -rfg ../reference_genomes -sl 20 -pam "NGG"\
 
 ## Date
 March 15 2019
+# Indexing ATCG words
+
+### Usage
+
+###### Specifying any output
+
+```sh
+python wordIntegerIndexing.py data/example.pickle --out /any/folder/toto.index
+```
+
+will produce `/any/folder/toto.index` 
+
+###### Otherwise output file name is guessed from input and wrote locally
+
+```sh
+python wordIntegerIndexing.py data/example.pickle
+```
+
+will produce `./example.index`
