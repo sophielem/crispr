@@ -14,19 +14,6 @@ from ete3 import NCBITaxa
 import wordIntegerIndexing as decoding
 
 
-class Lineage:
-    """
-    Object which resume the full lineage
-    """
-    def __init__(self):
-        self.species = "No specie"
-        self.genus = "No genus"
-        self.family = "No family"
-        self.order = "No order"
-        self.classe = "No class"
-        self.phylum = "No phylum"
-
-
 # ARGUMENTS GESTION
 def valid_fasta_file(parser, filename):
     """
@@ -34,15 +21,12 @@ def valid_fasta_file(parser, filename):
     """
     # Check if the file exists
     if not os.path.isfile(filename):
-        parser.error("The file {} does not exist !".format(filename))
+        parser.error("Program terminated&The file {} does not exist !".format(filename))
     # Try to open it and check if it is a fasta file
     try:
         fasta = next(SeqIO.parse(filename, "fasta"))
-        # Check if the sequence only contains ACTG letters
-        if any(letter not in "ACTG" for letter in fasta.seq):
-            parser.error("Be careful, the sequence is not a nucleotide sequence !")
     except Exception as err:
-        parser.error("The file {} is not a fasta file !".format(filename))
+        parser.error("Program terminated&The file {} is not a fasta file !".format(filename))
     # If all is good, return the filename
     return filename
 
@@ -57,7 +41,7 @@ def valid_taxid(parser, taxid):
         ncbi.get_lineage(taxid)
         return taxid
     except Exception as err:
-        parser.error("The taxon id given ({}) is not in the NCBI taxonomy database !".format(taxid))
+        parser.error("Program terminated&The taxon id given ({}) is not in the NCBI taxonomy database !".format(taxid))
 
 
 def args_gestion():
@@ -219,8 +203,10 @@ def construct_in(organism, organism_code, rfg, pam="NGG", non_pam_motif_length=2
                                           complement_seq(sgrna))
         seq_list_reverse = find_indices_sgrna(str(genome_seq), sgrna)
 
-        seq_dict = find_sgrna_seq(seq_list_forward, len(pam) + non_pam_motif_length, False, "+(", seq_dict, genome_seq, organism, ref)
-        seq_dict = find_sgrna_seq(seq_list_reverse, len(pam) + non_pam_motif_length, True, "-(", seq_dict, genome_seq, organism, ref)
+        seq_dict = find_sgrna_seq(seq_list_forward, len(pam) + non_pam_motif_length,
+                                  False, "+(", seq_dict, genome_seq, organism, ref)
+        seq_dict = find_sgrna_seq(seq_list_reverse, len(pam) + non_pam_motif_length,
+                                  True, "-(", seq_dict, genome_seq, organism, ref)
 
     pickle_file = (rfg + "/pickle/" + organism + ".p")
     pickle.dump(seq_dict, open(pickle_file, "wb"), protocol=3)
