@@ -41,7 +41,8 @@ def valid_taxid(parser, taxid):
         ncbi.get_lineage(taxid)
         return taxid
     except Exception as err:
-        parser.error("Program terminated&The taxon id given ({}) is not in the NCBI taxonomy database !".format(taxid))
+        parser.error("Program terminated&The taxon id given ({})\
+                      is not in the NCBI taxonomy database !".format(taxid))
 
 
 def args_gestion():
@@ -98,7 +99,7 @@ def args_gestion():
     return args, command
 
 
-# COMPARE NEW GENOME TO OLD TO FIND ITS BRANCH IN THE TOPOLOGY TREE
+# CHECK IF THE TAXON ID IS ALREADY PRESENT AND COPY THE FASTA FILE
 def set_dic_taxid(filename, gcf, asm, taxid, rfg):
     """
     Create dictionnary for json file and gzip the fasta file
@@ -170,7 +171,8 @@ def find_indices_sgrna(seq, pam):
 
 def find_sgrna_seq(seq_list, len_seq, reverse, str_reverse, seq_dict, genome_seq, organism, ref):
     """
-    Definition
+    Uses start index and the length of the sequence to get the sequence and
+    fill the dictionary containing all sgRNA sequences with coordinates
     """
     for indice in seq_list:
         end = indice + len_seq
@@ -200,7 +202,7 @@ def construct_in(organism, organism_code, rfg, pam="NGG", non_pam_motif_length=2
         genome_seq = genome_seqrecord.seq
         ref = genome_seqrecord.id
         seq_list_forward = find_indices_sgrna(str(genome_seq),
-                                          complement_seq(sgrna))
+                                              complement_seq(sgrna))
         seq_list_reverse = find_indices_sgrna(str(genome_seq), sgrna)
 
         seq_dict = find_sgrna_seq(seq_list_forward, len(pam) + non_pam_motif_length,
@@ -238,7 +240,7 @@ if __name__ == '__main__':
     if COMMAND == "metafile" or COMMAND == "all":
         # Create dictionnary with all taxon ID
         REF_NEW, NAME = set_dic_taxid(PARAM.file, PARAM.gcf, PARAM.asm,
-                                                 PARAM.taxid, PARAM.rfg)
+                                      PARAM.taxid, PARAM.rfg)
         PICKLE_FILE = construct_in(NAME + " " + PARAM.gcf, REF_NEW, PARAM.rfg)
         indexation(NAME + " " + PARAM.gcf, PARAM.rfg, PICKLE_FILE)
         json_tree(PARAM.rfg)
