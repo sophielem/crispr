@@ -244,6 +244,8 @@ if __name__ == '__main__':
         PICKLE_FILE = construct_in(NAME + " " + PARAM.gcf, REF_NEW, PARAM.rfg)
         indexation(NAME + " " + PARAM.gcf, PARAM.rfg, PICKLE_FILE)
         json_tree(PARAM.rfg)
+        print("Created metafile for {}".format(NAME))
 
     if COMMAND == "add" or COMMAND == "all":
         pass
+        print("Add {} to the database. Ready for request".format(NAME))
