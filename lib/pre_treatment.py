@@ -123,6 +123,7 @@ def set_dic_taxid(filename, gcf, asm, taxid, rfg):
     seq_record = SeqIO.parse(filename, "fasta")
     name = next(seq_record).description
     name = name.split(",")[0]
+    name = name.replace("/", "_")
     ref = gcf + "_" + asm
 
     with open(rfg + "/genome_ref_taxid.json", "r") as json_data:
@@ -132,106 +133,30 @@ def set_dic_taxid(filename, gcf, asm, taxid, rfg):
     references = [ref_ref[0] for ref_ref in dic_ref.values()]
     tax_ids = [id[1] for id in dic_ref.values()]
     if ref in references:
-        sys.exit("ERROR : This genome is already in the database")
+        sys.exit("Program terminated&ERROR : This genome is already in the database")
     if taxid in tax_ids:
-        sys.exit("ERROR : This taxon ID is already in the database")
+        sys.exit("Program terminated&ERROR : This taxon ID is already in the database")
 
-    dic_taxid = {}
     dic_ref[name + ' ' + gcf] = [ref, taxid]
-    # Retrieve all taxon id present in the database
-    dic_taxid = {dic_ref[name_gcf][0]: dic_ref[name_gcf][1] for name_gcf in dic_ref}
-
-    shutil.copyfile(filename, rfg + "/fasta/" +
-                    ref + "_genomic.fna")
     # Write the new json file with the new genome
     json.dump(dic_ref, open(rfg + "/genome_ref_taxid.json", 'w'), indent=4)
-    return dic_taxid, ref, name
+    shutil.copyfile(filename, rfg + "/fasta/" + ref + "_genomic.fna")
 
-
-def create_lineage_objects(dic_tax):
-    """
-    Retrieve species, genus, family, order, classe and phylum for each genome :
-    new or old.
-    Then, return a dictionnary of lineage object containing these informations
-    """
-    ncbi = NCBITaxa()
-    dic_lineage = {}
-    count = 0
-    for ref in dic_tax:
-        lineage_object = Lineage()
-        tax_ref = dic_tax[ref]
-        try:
-            lineage = ncbi.get_lineage(tax_ref)
-            names = ncbi.get_taxid_translator(lineage)
-            ranks = ncbi.get_rank(lineage)
-            for i in ranks:
-                if ranks[i] == 'species':
-                    lineage_object.species = names[i]
-                elif ranks[i] == 'genus':
-                    lineage_object.genus = names[i]
-                elif ranks[i] == 'family':
-                    lineage_object.family = names[i]
-                elif ranks[i] == 'order':
-                    lineage_object.order = names[i]
-                elif ranks[i] == 'class':
-                    lineage_object.classe = names[i]
-                elif ranks[i] == 'phylum':
-                    lineage_object.phylum = names[i]
-            dic_lineage[ref] = (lineage_object, count)
-            count += 1
-        except Exception as err:
-            with open(".problem_taxon.log", "a") as filout:
-                filout.write(tax_ref + "\n")
-
-    return dic_lineage
-
-
-def distance_dic(dic_lineage, ref_new, rfg):
-    """
-    Calcul the distance between genomes according to their species, genus,
-    family, order, classe or phylum.
-    """
-    with open(rfg + "/distance_dic.json", "r") as json_data:
-        dic = json.load(json_data)
-    dic[ref_new] = {}
-    for ref1 in dic_lineage:
-        if ref_new == ref1:
-            dic[ref_new][ref1] = 0
-        elif dic_lineage[ref_new][0].species == dic_lineage[ref1][0].species:
-            dic[ref_new][ref1] = 1
-            dic[ref1][ref_new] = 1
-        elif dic_lineage[ref_new][0].genus == dic_lineage[ref1][0].genus:
-            dic[ref_new][ref1] = 2
-            dic[ref1][ref_new] = 2
-        elif dic_lineage[ref_new][0].family == dic_lineage[ref1][0].family:
-            dic[ref_new][ref1] = 3
-            dic[ref1][ref_new] = 3
-        elif dic_lineage[ref_new][0].order == dic_lineage[ref1][0].order:
-            dic[ref_new][ref1] = 4
-            dic[ref1][ref_new] = 4
-        elif dic_lineage[ref_new][0].classe == dic_lineage[ref1][0].classe:
-            dic[ref_new][ref1] = 5
-            dic[ref1][ref_new] = 5
-        elif dic_lineage[ref_new][0].phylum == dic_lineage[ref1][0].phylum:
-            dic[ref_new][ref1] = 6
-            dic[ref1][ref_new] = 6
-        else:
-            dic[ref_new][ref1] = 7
-            dic[ref1][ref_new] = 7
-    return dic
-
-
-def distance_matrix(dic_taxid, ref_new, rfg):
-    """
-    Create the distance matrix to know if genomes are close or not
-    """
-    print('DISTANCE MATRIX')
-    dic_lineage = create_lineage_objects(dic_taxid)
-    dist_dic = distance_dic(dic_lineage, ref_new, rfg)
-    json.dump(dist_dic, open(rfg + "/distance_dic.json", "w"), indent=4)
+    return ref, name
 
 
 # FIND ALL SGRNA
+def complement_seq(sequence):
+    """
+    Function for turning a 5'-3' nucleotidic sequence into
+    its 5'-3' reverse complement.
+    """
+    rev_comp = []
+    complement = {"A" : "T", "C" : "G", "T" : "A", "G" : "C"}
+    rev_comp = [complement[sequence[idx]] if sequence[idx] in complement.keys() else "N" for idx in range(len(sequence) - 1, -1, -1)]
+    return "".join(rev_comp)
+
+
 def build_expression(seq):
     """
     Build the regular expression by replacing the letter by iupac code or
@@ -249,7 +174,7 @@ def build_expression(seq):
     return result
 
 
-def find_sgrna_seq(seq, pam):
+def find_indices_sgrna(seq, pam):
     """
     Uses Regular expression matching of the pam motif to the reference genome
     to get the start positions (0-based) of each match
@@ -259,24 +184,21 @@ def find_sgrna_seq(seq, pam):
     return indices
 
 
-def reverse_complement2(sequence):
+def find_sgrna_seq(seq_list, len_seq, reverse, str_reverse, seq_dict, genome_seq, organism, ref):
     """
-    Function for turning a 5'-3' nucleotidic sequence into
-    its 5'-3' reverse complement.
+    Definition
     """
-    rev_comp = []
-    for idx in range(len(sequence) - 1, -1, -1):
-        if sequence[idx] == 'A':
-            rev_comp = rev_comp + ['T']
-        elif sequence[idx] == 'C':
-            rev_comp = rev_comp + ['G']
-        elif sequence[idx] == 'G':
-            rev_comp = rev_comp + ['C']
-        elif sequence[idx] == 'T':
-            rev_comp = rev_comp + ['A']
-        else:
-            rev_comp = rev_comp + ['N']
-    return "".join(rev_comp)
+    for indice in seq_list:
+        end = indice + len_seq
+        seq = genome_seq[indice:end] if reverse else genome_seq[indice:end].reverse_complement()
+        seq = str(seq)
+        if seq not in seq_dict:
+            seq_dict[seq] = {organism: {}}
+        if ref not in seq_dict[seq][organism]:
+            seq_dict[seq][organism][ref] = []
+        seq_dict[seq][organism][ref].append(str_reverse + str(indice+1) + ',' +
+                                            str(end) + ')')
+    return seq_dict
 
 
 def construct_in(organism, organism_code, rfg, pam="NGG", non_pam_motif_length=20):
@@ -293,32 +215,14 @@ def construct_in(organism, organism_code, rfg, pam="NGG", non_pam_motif_length=2
     for genome_seqrecord in SeqIO.parse(fasta_file, "fasta"):
         genome_seq = genome_seqrecord.seq
         ref = genome_seqrecord.id
-        seq_list_forward = find_sgrna_seq(str(genome_seq),
-                                          reverse_complement2(sgrna))
-        seq_list_reverse = find_sgrna_seq(str(genome_seq), sgrna)
-        for indice in seq_list_forward:
-            end = indice + len(pam) + non_pam_motif_length
-            seq = genome_seq[indice:end].reverse_complement()
-            seq = str(seq)
-            if seq not in seq_dict:
-                seq_dict[seq] = {organism: {}}
-            if ref not in seq_dict[seq][organism]:
-                seq_dict[seq][organism][ref] = []
-            seq_dict[seq][organism][ref].append('+(' + str(indice+1) + ',' +
-                                                str(end) + ')')
+        seq_list_forward = find_indices_sgrna(str(genome_seq),
+                                          complement_seq(sgrna))
+        seq_list_reverse = find_indices_sgrna(str(genome_seq), sgrna)
 
-        for indice in seq_list_reverse:
-            end = indice + len(pam) + non_pam_motif_length
-            seq = genome_seq[indice:end]
-            seq = str(seq)
-            if seq not in seq_dict:
-                seq_dict[seq] = {organism: {}}
-            if ref not in seq_dict[seq][organism]:
-                seq_dict[seq][organism][ref] = []
-            seq_dict[seq][organism][ref].append('-(' + str(indice+1) + ',' +
-                                                str(end) + ')')
+        seq_dict = find_sgrna_seq(seq_list_forward, len(pam) + non_pam_motif_length, False, "+(", seq_dict, genome_seq, organism, ref)
+        seq_dict = find_sgrna_seq(seq_list_reverse, len(pam) + non_pam_motif_length, True, "-(", seq_dict, genome_seq, organism, ref)
 
-    pickle_file = (rfg + "/pickle/" + organism.replace("/", "_") + ".p")
+    pickle_file = (rfg + "/pickle/" + organism + ".p")
     pickle.dump(seq_dict, open(pickle_file, "wb"), protocol=3)
     return pickle_file
 
@@ -328,7 +232,6 @@ def indexation(name_file, rfg, pickle_file):
     Code each sgrna sequence to a rank. With this, it is easier to compare
     sequences of several genomes
     """
-    name_file = name_file.replace("/", "_")
     target_file = rfg + "/index/" + name_file + '.index'
 
     total = decoding.indexPickle(pickle_file, target_file)
@@ -348,12 +251,8 @@ if __name__ == '__main__':
     PARAM, COMMAND = args_gestion()
     if COMMAND == "metafile" or COMMAND == "all":
         # Create dictionnary with all taxon ID
-        DIC_TAXID, REF_NEW, NAME = set_dic_taxid(PARAM.file, PARAM.gcf, PARAM.asm,
+        REF_NEW, NAME = set_dic_taxid(PARAM.file, PARAM.gcf, PARAM.asm,
                                                  PARAM.taxid, PARAM.rfg)
-
-        # Calcul distances between new and old genomes
-        distance_matrix(DIC_TAXID, REF_NEW, PARAM.rfg)
-        # the fasta file was copied in the tmp directory ./reference_genomes
         PICKLE_FILE = construct_in(NAME + " " + PARAM.gcf, REF_NEW, PARAM.rfg)
         indexation(NAME + " " + PARAM.gcf, PARAM.rfg, PICKLE_FILE)
         json_tree(PARAM.rfg)
