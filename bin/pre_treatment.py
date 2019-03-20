@@ -230,7 +230,7 @@ def json_tree(bdd_path):
     Take the entire list of genomes and create the topology tree in json format
     """
     print('JSON TREE')
-    os.system('python3 src/tax2json.py ' + bdd_path)
+    os.system('python3 lib/tax2json.py ' + bdd_path)
 
 
 if __name__ == '__main__':
