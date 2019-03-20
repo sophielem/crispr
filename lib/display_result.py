@@ -136,7 +136,7 @@ def display_hits(dic_seq, genomes_in, genomes_not_in, pam, non_pam_motif_length,
     """
     hit_list = construct_hitlist(dic_seq)
     hit_list = sort_hits(hit_list)
-
+    
     # Put results in local file for access via the interface.
     write_to_file(genomes_in, genomes_not_in, hit_list[:10000], pam,
                   non_pam_motif_length, workdir)

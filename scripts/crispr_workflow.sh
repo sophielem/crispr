@@ -21,10 +21,25 @@ fi
 if [ "$URL_CRISPR" = "" ]; then
     error_json
 fi
+printenv > env.log
 
-setCompare -i "$gi" -o "$gni" -l $rfg -e index 2>> ./setCompare.err 1> ./setCompare.log
+BASE_FOLDER=`pwd`
 
-python $CRISPR_TOOL_SCRIPT_PATH/post_processing.py -sl 20 -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR"  -c 2000 2>> ./post_processing.err 1> ./post_processing.log
+#cp -r $BASE_FOLDER/* $WORKDIR
+#cd $WORKDIR
+pwd > pwd.log
+
+#echo "curl -X GET $URL_CRISPR/handshake" > handshake.cmd
+#curl -X GET $URL_CRISPR/handshake &> handshake.log
+gi=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gi")
+gni=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gni")
+
+echo $gi > f.gi
+fileSet="set_index.txt"
+setCompare -i "$gi" -o "$gni" -l $rfg -e index -f $fileSet 2>> ./setCompare.err 1> ./setCompare.log
+
+echo python -u $CRISPR_TOOL_SCRIPT_PATH/post_processing.py -f $fileSet -sl 20 -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR"  -c 2000 --no-proxy > pp.cmd
+python -u $CRISPR_TOOL_SCRIPT_PATH/post_processing.py -f $fileSet -sl 20 -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR"  -c 2000 --no-proxy 2>> ./post_processing.err 1> ./post_processing.log
 #echo "post_processing.py -sl 20 -pam \"NGG\" -gi \"$gi\" -gni \"$gni\" -r \"$URL_CRISPR\"  -c 2000" >> ./cmd.txt
 #python $CRISPR_TOOL_SCRIPT_PATH/post_processing.py -sl 20 -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR" -c 2000 2>> ./post_processing.err 1> ./post_processing.log
 
@@ -49,3 +64,7 @@ else
 	#number_hits=lines[2].strip()
     echo "{\"out\" : {\"data\" : $(cat ./results.json),  \"not_in\" : \""$not_in"\",  \"number_hits\" : \""$number_hits"\", \"tag\" : \""$loc"\"}}"
 fi
+
+
+#cp -r $WORKDIR/* $BASE_FOLDER
+#cd $BASE_FOLDER
