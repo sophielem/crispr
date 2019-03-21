@@ -12,10 +12,17 @@ class Hit():
     Object Hit containing the CRISPR sequence, indexes where it is found
     and its associated score
     """
-    def __init__(self, sequence, in_dic):
+
+    def set_genomes_dict(self, dic_seq):
+        """
+        Set the dictionary containing coordinates
+        """
+        self.genomes_dict = dic_seq
+
+    def __init__(self, sequence, score):
         self.sequence = sequence
-        self.genomes_dict = in_dic
-        self.score = 0
+        self.genomes_dict = {}
+        self.score = score
 
 
 def eprint(*args, **kwargs):
@@ -25,40 +32,7 @@ def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 
-def construct_hitlist(dict_seq):
-    '''
-    Will construct an object Hit for each sequence in dictionnary,
-    and store all Hits in a list. These function only fill the attributes
-    sequence and genomes_dict of the object
-    '''
-    eprint('\n\n-- Construct final list --')
-    hits_list = []
-    count = 0
-    for seq in dict_seq:
-        count += 1
-        new_hit = Hit(seq, dict_seq[seq])
-        hits_list.append(new_hit)
-    return hits_list
-
-
-def sort_hits(hitlist):
-    """
-    Scoring of the hits found, where positive scores mean stronger
-    sgrna constructs.
-    Complete Hit objects with score and sort the hits with this scores.
-    """
-    eprint('-- Sort hits --')
-    for hit in hitlist:
-        score = 0
-        for genome in hit.genomes_dict:
-            for ref in hit.genomes_dict[genome]:
-                score += len(hit.genomes_dict[genome][ref])
-        hit.score = score
-    sorted_hitlist = sorted(hitlist, key=lambda hit: hit.score, reverse=True)
-    return sorted_hitlist
-
-
-def write_to_file(genomes_in, genomes_not_in, hit_list, pam, non_pam_motif_length, workdir):
+def write_to_file(genomes_in, genomes_not_in, dic_hits, pam, non_pam_motif_length, workdir, nb_top):
     """
     Write results in a file.
     The file is a tabulated file, with first column=sgrna sequence,
@@ -79,7 +53,11 @@ def write_to_file(genomes_in, genomes_not_in, hit_list, pam, non_pam_motif_lengt
     for genome_i in genomes_in:
         output.write('\t' + genome_i)
     output.write('\n')
-    for hit in hit_list:
+    i = 0
+    for sgrna in dic_hits:
+        if i == nb_top : break
+        i += 1
+        hit = dic_hits[sgrna]
         output.write(hit.sequence+'\t')
         for gi in genomes_in:
             for ref in hit.genomes_dict[gi]:
@@ -111,7 +89,7 @@ def create_list_occurences(dic_occurences):
     return list_occurences
 
 
-def output_interface(hit_list, workdir):
+def output_interface(dic_hits, workdir, nb_top):
     """
     Reformat the results to create a json file.
     It will be parsed in javascript to display it in interface.
@@ -120,26 +98,26 @@ def output_interface(hit_list, workdir):
     json_result_file = workdir + '/results.json'
     # print(json_result_file)
     list_dic = []
-
-    for hit in hit_list:
+    i = 0
+    for sgrna in dic_hits:
+        if i == nb_top : break
+        hit = dic_hits[sgrna]
         dic = {'sequence': hit.sequence, 'occurences': create_list_occurences(hit.genomes_dict)}
         list_dic.append(dic)
+        i += 1
 
     list_dic.reverse()
     with open(json_result_file, 'w') as filout:
         json.dump(list_dic, filout, indent=4)
 
 
-def display_hits(dic_seq, genomes_in, genomes_not_in, pam, non_pam_motif_length, workdir):
+def display_hits(dic_hits, genomes_in, genomes_not_in, pam, non_pam_motif_length, workdir, nb_top):
     """
-    Sort hits and write output for interface
+    write output for interface
     """
-    hit_list = construct_hitlist(dic_seq)
-    hit_list = sort_hits(hit_list)
-    
     # Put results in local file for access via the interface.
-    write_to_file(genomes_in, genomes_not_in, hit_list[:10000], pam,
-                  non_pam_motif_length, workdir)
+    write_to_file(genomes_in, genomes_not_in, dic_hits, pam,
+                  non_pam_motif_length, workdir, nb_top)
 
     # Output formatting for printing to interface
-    output_interface(hit_list[:100], workdir)
+    output_interface(dic_hits, workdir, 100)
