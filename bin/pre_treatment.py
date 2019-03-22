@@ -49,7 +49,7 @@ def check_conf_file(filename):
     """
     try:
         with open(filename, "r") as conf_file:
-            text = conf_file.readlines()
+            text = conf_file.readline()
         text = [arg.strip() for arg in text.split(",")]
         valid_taxid(text[2])
         return text[0], text[1], text[2]
@@ -79,11 +79,11 @@ def check_metafile_exist(rfg, basename_file):
             os.path.exists(rfg + "/genome_pickle/" + basename_file + ".p"))
 
 
-def split_conf_file(file):
+def split_conf_file(filename):
     """
     Definition
     """
-    split_filename = file.split(".")
+    split_filename = filename.split(".")
     split_filename[-1] = "conf"
     path_file_conf = ".".join(split_filename)
     return check_conf_file(path_file_conf)
@@ -145,7 +145,7 @@ def args_gestion():
                                 help="Index of the last file to add to database")
 
     args = parser.parse_args()
-    if command != "metafile":
+    if command == "add":
         if args.file and args.dir:
             parser.error("Program terminated&Missing file or directory")
         elif not args.file and not args.dir:
@@ -180,7 +180,7 @@ def set_dic_taxid(filename, gcf, asm, taxid, rfg):
     dic_ref[name + ' ' + gcf] = [ref, taxid]
     # Write the new json file with the new genome
     json.dump(dic_ref, open(rfg + "/genome_ref_taxid.json", 'w'), indent=4)
-    shutil.copyfile(filename, rfg + "/fasta/" + ref + "_genomic.fna")
+    shutil.copyfile(filename, rfg + "/genome_fasta/" + ref + "_genomic.fna")
 
     return ref, name
 
@@ -335,19 +335,23 @@ if __name__ == '__main__':
 
         LIST_INDEX_FILES = []
         # Create list with all fasta files
-        list_files = os.listdir(PARAM.dir) if hasattr(PARAM, "dir") else PARAM.file
+        list_files = os.listdir(PARAM.dir) if PARAM.dir else [PARAM.file]
         # For each fasta file, retrieve the name of the pickle and index files
         # Then, check if they exist and create a list of path to index files
         for filename in list_files:
             GCF, ASM, TAXID = split_conf_file(filename)
-            TARGET_FILE = (list(dic_ref.keys())[list(dic_ref.values()).index([GCF + "_" + ASM, TAXID])])
+            try:
+                TARGET_FILE = (list(dic_ref.keys())[list(dic_ref.values()).index([GCF + "_" + ASM, TAXID])])
+            except Exception as e:
+                sys.exit("Program terminated&GCF and ASM are not in the resume file, check them or create metafiles to write them in the resume file")
+
             if not check_metafile_exist(PARAM.rfg, TARGET_FILE):
-                print("Program terminated&Metafiles do not exist for {}".format(TARGET_FILE))
+                sys.exit("Program terminated&Metafiles do not exist for {}".format(TARGET_FILE))
             else:
-                LIST_INDEX_FILES.append(RFG + "/genome_index/" + TARGET_FILE + ".index")
+                LIST_INDEX_FILES.append(PARAM.rfg + "/genome_index/" + TARGET_FILE + ".index")
 
     elif COMMAND == "all":
-        LIST_INDEX_FILES = [RFG + "/genome_index/" + NAME + " " + GCF + '.index']
+        LIST_INDEX_FILES = [PARAM.rfg + "/genome_index/" + NAME + " " + GCF + '.index']
 
     print("LIST_INDEX_FILES == > {}".format(LIST_INDEX_FILES))
     # if COMMAND == "add" or COMMAND == "all":
