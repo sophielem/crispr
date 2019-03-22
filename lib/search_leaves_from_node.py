@@ -39,6 +39,9 @@ def create_folder(path_folder):
 
 
 def search_subtree(tree, value):
+    """
+    Return a subtree from a given node
+    """
     # Node name is the searched node
     if tree["text"] == value: return tree
     # No children, so return None
@@ -51,6 +54,9 @@ def search_subtree(tree, value):
 
 
 def search_leaves(tree, list_child):
+    """
+    Return a list of all children from a given tree
+    """
     # The node has not children, so it is a leave else traverse children
     if "children" not in list(tree.keys()):
         list_child.append(tree["text"])
