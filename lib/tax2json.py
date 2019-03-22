@@ -74,6 +74,6 @@ if __name__ == '__main__':
 	json_tree = str(get_json(newTree)).replace("'", '"')
 
 	# output to json file (or .txt format)
-	output = open('jsontree.json','w')
+	output = open(sys.argv[2], 'w')
 	output.write(json_tree)
 	output.close()

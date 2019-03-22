@@ -45,7 +45,8 @@ def exists_file(parser, filename):
 
 def check_conf_file(filename):
     """
-    Definition
+    Check if the configure file contains all IDs, and if the taxon ID is in the
+    NCBI database and if the GCF id has the correct format
     """
     try:
         with open(filename, "r") as conf_file:
@@ -75,7 +76,7 @@ def valid_taxid(taxid):
 
 def check_metafile_exist(rfg, basename_file):
     """
-    Definition
+    Check if the pickle and index file exist
     """
     return (os.path.exists(rfg + "/genome_index/" + basename_file + ".index") and
             os.path.exists(rfg + "/genome_pickle/" + basename_file + ".p"))
@@ -83,12 +84,39 @@ def check_metafile_exist(rfg, basename_file):
 
 def split_conf_file(filename):
     """
-    Definition
+    Create the name of the configure file and
+    return if the text is well formatted
     """
     split_filename = filename.split(".")
     split_filename[-1] = "conf"
     path_file_conf = ".".join(split_filename)
     return check_conf_file(path_file_conf)
+
+
+def parse_arg(subparser, command):
+    """
+    Definition
+    """
+    subparser.add_argument("-file", metavar="FILE",
+                            type=lambda x: valid_fasta_file(subparser, x),
+                            help="The path to the pickle file to add to the database")
+    subparser.add_argument("-rfg", metavar="<str>",
+                            help="The path to the reference genome folder",
+                            required=True)
+    subparser.add_argument("-url", metavar="<str>",
+                            help="The end point", required=True)
+    subparser.add_argument("-size", metavar="int", const=1000, nargs='?',
+                            help="Maximal number of entry to add at a time")
+    subparser.add_argument("-min", metavar="int", const=0, nargs='?',
+                            help="Index of the first file to add to database")
+    subparser.add_argument("-max", metavar="int", const=10, nargs='?',
+                            help="Index of the last file to add to database")
+    subparser.add_argument("-tree", metavar="<str>",
+                            help="Path to the json tree", required=True)
+    if command == "add":
+        subparser.add_argument("-dir", metavar="<str>",
+                                help="The path to the pickle file to add to the database")
+    return subparser
 
 
 def args_gestion():
@@ -112,39 +140,11 @@ def args_gestion():
 
     # Add to the database
     add_bdd_parser = subparsers.add_parser("add", help="Add the pickle file to the database")
-    add_bdd_parser.add_argument("-file", metavar="FILE",
-                                type=lambda x: valid_fasta_file(add_bdd_parser, x),
-                                help="The path to the pickle file to add to the database")
-    add_bdd_parser.add_argument("-dir", metavar="<str>",
-                                help="The path to the pickle file to add to the database")
-    add_bdd_parser.add_argument("-rfg", metavar="<str>",
-                                help="The path to the reference genome folder",
-                                required=True)
-    add_bdd_parser.add_argument("-url", metavar="<str>",
-                                help="The end point", required=True)
-    add_bdd_parser.add_argument("-size", metavar="int", const=1000, nargs='?',
-                                help="Maximal number of entry to add at a time")
-    add_bdd_parser.add_argument("-min", metavar="int", const=0, nargs='?',
-                                help="Index of the first file to add to database")
-    add_bdd_parser.add_argument("-max", metavar="int", const=10, nargs='?',
-                                help="Index of the last file to add to database")
+    add_bdd_parser = parse_arg(add_bdd_parser, command)
 
     # Create metafile : pickle and index and add the pickle file to the database
     all_parser = subparsers.add_parser("all", help="Create the pickle file of the genome")
-    all_parser.add_argument("-rfg", metavar="<str>",
-                            help="The path to the reference genome folder",
-                            required=True)
-    all_parser.add_argument("-file", metavar="FILE", type=lambda x: valid_fasta_file(all_parser, x),
-                            help="The path to the fasta file",
-                            required=True)
-    all_parser.add_argument("-url", metavar="<str>",
-                            help="The end point", required=True)
-    all_parser.add_argument("-size", metavar="int", const=1000, nargs='?',
-                                help="Maximal number of entry to add at a time")
-    all_parser.add_argument("-min", metavar="int", const=0, nargs='?',
-                                help="Index of the first file to add to database")
-    all_parser.add_argument("-max", metavar="int", const=10, nargs='?',
-                                help="Index of the last file to add to database")
+    all_parser = parse_arg(all_parser, command)
 
     args = parser.parse_args()
     if command == "add":
@@ -284,17 +284,17 @@ def indexation(name_file, rfg, pickle_file):
 
 
 # CONSTRUCT THE NEW JSON TOPOLOGY TREE
-def json_tree(bdd_path):
+def json_tree(bdd_path, tree_path):
     """
     Take the entire list of genomes and create the topology tree in json format
     """
     print('JSON TREE')
-    os.system('python3 lib/tax2json.py ' + bdd_path)
+    os.system('python3 lib/tax2json.py ' + bdd_path + " " + tree_path)
 
 
 def add_to_database(files_to_add, end_point, iMin, iMax, batchSize):
     """
-    Definition
+    Add genomes in the database
     """
     if iMax > len(files_to_add):
         iMax = len(files_to_add)
@@ -345,7 +345,8 @@ if __name__ == '__main__':
             try:
                 TARGET_FILE = (list(dic_ref.keys())[list(dic_ref.values()).index([GCF + "_" + ASM, TAXID])])
             except Exception as e:
-                sys.exit("Program terminated&GCF and ASM are not in the resume file, check them or create metafiles to write them in the resume file")
+                sys.exit("Program terminated&GCF and ASM are not in the resume file,\
+                          check them or create metafiles to write them in the resume file")
 
             if not check_metafile_exist(PARAM.rfg, TARGET_FILE):
                 sys.exit("Program terminated&Metafiles do not exist for {}".format(TARGET_FILE))
@@ -358,5 +359,5 @@ if __name__ == '__main__':
     print("LIST_INDEX_FILES == > {}".format(LIST_INDEX_FILES))
     # if COMMAND == "add" or COMMAND == "all":
     #     add_to_database(LIST_INDEX_FILES, PARAM.url, PARAM.min, PARAM.max, PARAM.size)
-    #     json_tree(PARAM.rfg)
+    #     json_tree(PARAM.rfg, PARAM.tree)
     #     print("SUCCESS&Add {} to the database. Ready for request".format(NAME))
