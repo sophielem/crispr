@@ -18,13 +18,21 @@ import pycouch.wrapper as couchDB
 
 
 # ARGUMENTS GESTION
-def valid_fasta_file(parser, filename):
+def exists_file(parser, filename):
     """
     Check if the file exists and if it is a standard fasta file
     """
     # Check if the file exists
     if not os.path.isfile(filename):
         parser.error("Program terminated&The file {} does not exist !".format(filename))
+
+
+def valid_fasta_file(parser, filename):
+    """
+    Check if the file exists and if it is a standard fasta file
+    """
+    # Check if the file exists
+    exists_file(parser, filename)
     # Try to open it and check if it is a fasta file
     try:
         fasta = next(SeqIO.parse(filename, "fasta"))
@@ -34,13 +42,18 @@ def valid_fasta_file(parser, filename):
     return filename
 
 
-def exists_file(parser, filename):
+def valid_taxid(taxid):
     """
-    Check if the file exists and if it is a standard fasta file
+    Check if the taxon id given by the user is in the NCBI taxonomy
+    database
     """
-    # Check if the file exists
-    if not os.path.isfile(filename):
-        parser.error("Program terminated&The file {} does not exist !".format(filename))
+    ncbi = NCBITaxa()
+    try:
+        ncbi.get_lineage(taxid)
+        return taxid
+    except Exception as err:
+        sys.exit("Program terminated&The taxon id given ({})\
+                      is not in the NCBI taxonomy database !".format(taxid))
 
 
 def check_conf_file(filename):
@@ -60,28 +73,6 @@ def check_conf_file(filename):
         sys.exit("Program terminated&The config file does not respect the format : GCF, ASM, TAXID")
 
 
-def valid_taxid(taxid):
-    """
-    Check if the taxon id given by the user is in the NCBI taxonomy
-    database
-    """
-    ncbi = NCBITaxa()
-    try:
-        ncbi.get_lineage(taxid)
-        return taxid
-    except Exception as err:
-        sys.exit("Program terminated&The taxon id given ({})\
-                      is not in the NCBI taxonomy database !".format(taxid))
-
-
-def check_metafile_exist(rfg, basename_file):
-    """
-    Check if the pickle and index file exist
-    """
-    return (os.path.exists(rfg + "/genome_index/" + basename_file + ".index") and
-            os.path.exists(rfg + "/genome_pickle/" + basename_file + ".p"))
-
-
 def split_conf_file(filename):
     """
     Create the name of the configure file and
@@ -91,6 +82,14 @@ def split_conf_file(filename):
     split_filename[-1] = "conf"
     path_file_conf = ".".join(split_filename)
     return check_conf_file(path_file_conf)
+
+
+def check_metafile_exist(rfg, basename_file):
+    """
+    Check if the pickle and index file exist
+    """
+    return (os.path.exists(rfg + "/genome_index/" + basename_file + ".index") and
+            os.path.exists(rfg + "/genome_pickle/" + basename_file + ".p"))
 
 
 def parse_arg(subparser, command):
