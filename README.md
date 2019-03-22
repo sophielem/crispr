@@ -8,7 +8,7 @@ This python script decode the plain text given in argument with the alphabet ["A
 Then, it does a research in the crispr database with the decoded sequences and retrieves all organism containing the sequence for each sequence with their coordinates in each organism. Only genomes selected by user are conserved and results are displayed by a *json* file containing the first 100 hits and a *text* file containing the first 10,000 hits.
 
 ##### Format of the *json* file :
-```
+```json
 {'sequence' : word, 'occurences' :
                                     {'org' : genome, 'all_ref' :
                                                                 {'ref' : ref, 'coords' : [coordinates]
@@ -41,7 +41,7 @@ Then, you need the pycouchDB package which can not be installed by *pip* so the 
 
 ## Example
 Explain how to use the script
-```
+```sh
 python post_processing.py -rfg ../reference_genomes -sl 20 -pam "NGG"\
 -gi "genome1&genome2&genome3" -gni "genome4&genome5" -file coding.txt
 ```
@@ -56,9 +56,9 @@ python post_processing.py -rfg ../reference_genomes -sl 20 -pam "NGG"\
 
 ## From a node
 Need a topology tree in *json* format and the name of the node. Then, the algorithm search after the subtree and from this subtree retrieve all leaves.
-Then with the list, we retrieve GCF, ASM and TAXON id from the *genome_ref_taxid.json* file and create a configure file with it in a folder. Then, associated fasta file are copied in the folder and the process to add them in the database is launched.
+Then with the list, we retrieve GCF, ASM and TAXON id from the *genome_ref_taxid.json* file and create a configure file with it in a folder. Then, associated fasta file are copied in the folder. Then the process to add genomes in database must be launched.
 
-```
+```python
 def search_subtree(tree, value):
     # Node name is the searched node
     if tree["text"] == value: return tree
