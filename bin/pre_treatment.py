@@ -11,7 +11,10 @@ import pickle
 import re
 from Bio import SeqIO
 from ete3 import NCBITaxa
+from tqdm import tqdm
+import couchBuild
 import wordIntegerIndexing as decoding
+import pycouch.wrapper as couchDB
 
 
 # ARGUMENTS GESTION
@@ -31,7 +34,30 @@ def valid_fasta_file(parser, filename):
     return filename
 
 
-def valid_taxid(parser, taxid):
+def exists_file(parser, filename):
+    """
+    Check if the file exists and if it is a standard fasta file
+    """
+    # Check if the file exists
+    if not os.path.isfile(filename):
+        parser.error("Program terminated&The file {} does not exist !".format(filename))
+
+
+def check_conf_file(filename):
+    """
+    Definition
+    """
+    try:
+        with open(filename, "r") as conf_file:
+            text = conf_file.readlines()
+        text = [arg.strip() for arg in text.split(",")]
+        valid_taxid(text[2])
+        return text[0], text[1], text[2]
+    except Exception as e:
+        sys.exit("Program terminated&The config file does not respect the format : GCF, ASM, TAXID")
+
+
+def valid_taxid(taxid):
     """
     Check if the taxon id given by the user is in the NCBI taxonomy
     database
@@ -41,8 +67,26 @@ def valid_taxid(parser, taxid):
         ncbi.get_lineage(taxid)
         return taxid
     except Exception as err:
-        parser.error("Program terminated&The taxon id given ({})\
+        sys.exit("Program terminated&The taxon id given ({})\
                       is not in the NCBI taxonomy database !".format(taxid))
+
+
+def check_metafile_exist(rfg, basename_file):
+    """
+    Definition
+    """
+    return (os.path.exists(rfg + "/genome_index/" + basename_file + ".index") and
+            os.path.exists(rfg + "/genome_pickle/" + basename_file + ".p"))
+
+
+def split_conf_file(file):
+    """
+    Definition
+    """
+    split_filename = file.split(".")
+    split_filename[-1] = "conf"
+    path_file_conf = ".".join(split_filename)
+    return check_conf_file(path_file_conf)
 
 
 def args_gestion():
@@ -63,19 +107,25 @@ def args_gestion():
                                  type=lambda x: valid_fasta_file(metafile_parser, x),
                                  help="The path to the fasta file",
                                  required=True)
-    metafile_parser.add_argument("-gcf", metavar="<str>",
-                                 help="The GCF assembly ID ", required=True)
-    metafile_parser.add_argument("-asm", metavar="<str>",
-                                 help="The ASM assembly ID", required=True)
-    metafile_parser.add_argument("-taxid", type=lambda x: valid_taxid(metafile_parser, x),
-                                 help="The taxon ID", required=True)
 
     # Add to the database
     add_bdd_parser = subparsers.add_parser("add", help="Add the pickle file to the database")
     add_bdd_parser.add_argument("-file", metavar="FILE",
-                                type=lambda x: valid_taxid(add_bdd_parser, x),
-                                help="The path to the pickle file to add to the database",
+                                type=lambda x: valid_fasta_file(add_bdd_parser, x),
+                                help="The path to the pickle file to add to the database")
+    add_bdd_parser.add_argument("-dir", metavar="<str>",
+                                help="The path to the pickle file to add to the database")
+    add_bdd_parser.add_argument("-rfg", metavar="<str>",
+                                help="The path to the reference genome folder",
                                 required=True)
+    add_bdd_parser.add_argument("-url", metavar="<str>",
+                                help="The end point", required=True)
+    add_bdd_parser.add_argument("-size", metavar="int", const=1000, nargs='?',
+                                help="Maximal number of entry to add at a time")
+    add_bdd_parser.add_argument("-min", metavar="int", const=0, nargs='?',
+                                help="Index of the first file to add to database")
+    add_bdd_parser.add_argument("-max", metavar="int", const=10, nargs='?',
+                                help="Index of the last file to add to database")
 
     # Create metafile : pickle and index and add the pickle file to the database
     all_parser = subparsers.add_parser("all", help="Create the pickle file of the genome")
@@ -85,17 +135,21 @@ def args_gestion():
     all_parser.add_argument("-file", metavar="FILE", type=lambda x: valid_fasta_file(all_parser, x),
                             help="The path to the fasta file",
                             required=True)
-    all_parser.add_argument("-gcf", metavar="<str>",
-                            help="The GCF assembly ID ", required=True)
-    all_parser.add_argument("-asm", metavar="<str>",
-                            help="The ASM assembly ID", required=True)
-    all_parser.add_argument("-taxid", type=lambda x: valid_taxid(all_parser, x),
-                            help="The taxon ID", required=True)
+    all_parser.add_argument("-url", metavar="<str>",
+                            help="The end point", required=True)
+    all_parser.add_argument("-size", metavar="int", const=1000, nargs='?',
+                                help="Maximal number of entry to add at a time")
+    all_parser.add_argument("-min", metavar="int", const=0, nargs='?',
+                                help="Index of the first file to add to database")
+    all_parser.add_argument("-max", metavar="int", const=10, nargs='?',
+                                help="Index of the last file to add to database")
 
     args = parser.parse_args()
-    if hasattr(args, "taxid"):
-        valid_taxid(parser, args.taxid)
-
+    if command != "metafile":
+        if args.file and args.dir:
+            parser.error("Program terminated&Missing file or directory")
+        elif not args.file and not args.dir:
+            parser.error("Program terminated&Choose file or directory, not both")
     return args, command
 
 
@@ -109,6 +163,7 @@ def set_dic_taxid(filename, gcf, asm, taxid, rfg):
     name = next(seq_record).description
     name = name.split(",")[0]
     name = name.replace("/", "_")
+    name = name.replace("'", "")
     ref = gcf + "_" + asm
 
     with open(rfg + "/genome_ref_taxid.json", "r") as json_data:
@@ -210,7 +265,7 @@ def construct_in(organism, organism_code, rfg, pam="NGG", non_pam_motif_length=2
         seq_dict = find_sgrna_seq(seq_list_reverse, len(pam) + non_pam_motif_length,
                                   True, "-(", seq_dict, genome_seq, organism, ref)
 
-    pickle_file = (rfg + "/pickle/" + organism + ".p")
+    pickle_file = (rfg + "/genome_pickle/" + organism + ".p")
     pickle.dump(seq_dict, open(pickle_file, "wb"), protocol=3)
     return pickle_file
 
@@ -220,7 +275,7 @@ def indexation(name_file, rfg, pickle_file):
     Code each sgrna sequence to a rank. With this, it is easier to compare
     sequences of several genomes
     """
-    target_file = rfg + "/index/" + name_file + '.index'
+    target_file = rfg + "/genome_index/" + name_file + '.index'
 
     total = decoding.indexPickle(pickle_file, target_file)
     print("Successfully indexed", total, "words\nfrom:", name_file, "\ninto:", target_file)
@@ -235,17 +290,67 @@ def json_tree(bdd_path):
     os.system('python3 lib/tax2json.py ' + bdd_path)
 
 
+def add_to_database(files_to_add, end_point, iMin, iMax, batchSize):
+    """
+    Definition
+    """
+    if iMax > len(files_to_add):
+        iMax = len(files_to_add)
+
+    couchDB.setServerUrl(end_point)
+    if not couchDB.couchPing():
+        sys.exit("Program terminated&Impossible to connect to the database")
+
+    with open(rules_file, "r") as rules_filin:
+        couchDB.setKeyMappingRules(json.load(rules_filin))
+
+    for fName in files_to_add[iMin:iMax]:
+        c = couchBuild.GenomeData(dataFile)
+        print("globing", dataFile, "#items", len(c))
+
+        for i in tqdm(range(0,len(c), batchSize)):
+            j = i + batchSize if i + batchSize < len(c) else len(c)
+            d = c[i:j]
+            r = couchDB.volDocAdd(d)
+            for d in r:
+                if not 'ok' in d:
+                    print ("Error here ==>", str(d))
+
+
 if __name__ == '__main__':
     PARAM, COMMAND = args_gestion()
+
     if COMMAND == "metafile" or COMMAND == "all":
+        GCF, ASM, TAXID = split_conf_file(PARAM.file)
         # Create dictionnary with all taxon ID
-        REF_NEW, NAME = set_dic_taxid(PARAM.file, PARAM.gcf, PARAM.asm,
-                                      PARAM.taxid, PARAM.rfg)
-        PICKLE_FILE = construct_in(NAME + " " + PARAM.gcf, REF_NEW, PARAM.rfg)
-        indexation(NAME + " " + PARAM.gcf, PARAM.rfg, PICKLE_FILE)
-        json_tree(PARAM.rfg)
+        REF_NEW, NAME = set_dic_taxid(PARAM.file, GCF, ASM,
+                                      TAXID, PARAM.rfg)
+        PICKLE_FILE = construct_in(NAME + " " + GCF, REF_NEW, PARAM.rfg)
+        indexation(NAME + " " + GCF, PARAM.rfg, PICKLE_FILE)
         print("SUCCESS&Created metafile for {}".format(NAME))
 
-    if COMMAND == "add" or COMMAND == "all":
-        pass
-        print("SUCCESS&Add {} to the database. Ready for request".format(NAME))
+    if COMMAND == "add":
+        with open(PARAM.rfg + "/genome_ref_taxid.json", "r") as json_data:
+            dic_ref = json.load(json_data)
+
+        LIST_INDEX_FILES = []
+        # Create list with all fasta files
+        list_files = os.listdir(PARAM.dir) if hasattr(PARAM, "dir") else PARAM.file
+        # For each fasta file, retrieve the name of the pickle and index files
+        # Then, check if they exist and create a list of path to index files
+        for filename in list_files:
+            GCF, ASM, TAXID = split_conf_file(filename)
+            TARGET_FILE = (list(dic_ref.keys())[list(dic_ref.values()).index([GCF + "_" + ASM, TAXID])])
+            if not check_metafile_exist(PARAM.rfg, TARGET_FILE):
+                print("Program terminated&Metafiles do not exist for {}".format(TARGET_FILE))
+            else:
+                LIST_INDEX_FILES.append(RFG + "/genome_index/" + TARGET_FILE + ".index")
+
+    elif COMMAND == "all":
+        LIST_INDEX_FILES = [RFG + "/genome_index/" + NAME + " " + GCF + '.index']
+
+    print("LIST_INDEX_FILES == > {}".format(LIST_INDEX_FILES))
+    # if COMMAND == "add" or COMMAND == "all":
+    #     add_to_database(LIST_INDEX_FILES, PARAM.url, PARAM.min, PARAM.max, PARAM.size)
+    #     json_tree(PARAM.rfg)
+    #     print("SUCCESS&Add {} to the database. Ready for request".format(NAME))
