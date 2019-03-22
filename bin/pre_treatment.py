@@ -52,6 +52,8 @@ def check_conf_file(filename):
             text = conf_file.readline()
         text = [arg.strip() for arg in text.split(",")]
         valid_taxid(text[2])
+        if not re.search("GCF", text[0]):
+            sys.exit("Program terminated&The GCF code must start with GCF")
         return text[0], text[1], text[2]
     except Exception as e:
         sys.exit("Program terminated&The config file does not respect the format : GCF, ASM, TAXID")
@@ -169,7 +171,7 @@ def set_dic_taxid(filename, gcf, asm, taxid, rfg):
     with open(rfg + "/genome_ref_taxid.json", "r") as json_data:
         dic_ref = json.load(json_data)
 
-    # Check if the reference is not in the dic_ref, so in the database
+    # Check if the reference is not in the dic_ref
     references = [ref_ref[0] for ref_ref in dic_ref.values()]
     tax_ids = [id[1] for id in dic_ref.values()]
     if ref in references:
