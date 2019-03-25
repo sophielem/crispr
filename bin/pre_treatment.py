@@ -186,6 +186,9 @@ def set_dic_taxid(filename, gcf, asm, taxid, rfg):
     return ref, name
 
 
+def set_(arg):
+    pass
+
 # FIND ALL SGRNA
 def complement_seq(sequence):
     """
@@ -305,9 +308,10 @@ def add_to_database(files_to_add, end_point, iMin, iMax, batchSize):
     with open(rules_file, "r") as rules_filin:
         couchDB.setKeyMappingRules(json.load(rules_filin))
 
+    error_files = []
     for fName in files_to_add[iMin:iMax]:
         c = couchBuild.GenomeData(dataFile)
-        print("globing", dataFile, "#items", len(c))
+        # print("globing", dataFile, "#items", len(c))
 
         for i in tqdm(range(0,len(c), batchSize)):
             j = i + batchSize if i + batchSize < len(c) else len(c)
@@ -316,6 +320,8 @@ def add_to_database(files_to_add, end_point, iMin, iMax, batchSize):
             for d in r:
                 if not 'ok' in d:
                     print ("Error here ==>", str(d))
+                    error_files.append(fName)
+    return error_files
 
 
 if __name__ == '__main__':
