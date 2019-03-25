@@ -210,10 +210,10 @@ def check_genome_exists(filename, gcf, asm, taxid, rfg):
     # Check if the reference is not in the dic_ref
     references = [ref_ref[0] for ref_ref in dic_ref.values()]
     tax_ids = [id[1] for id in dic_ref.values()]
-    # if ref in references:
-    #     sys.exit("Program terminated&ERROR : This genome is already in the database")
-    # if taxid in tax_ids:
-    #     sys.exit("Program terminated&ERROR : This taxon ID is already in the database")
+    if ref in references:
+        sys.exit("Program terminated&ERROR : This genome is already in the database")
+    if taxid in tax_ids:
+        sys.exit("Program terminated&ERROR : This taxon ID is already in the database")
 
     shutil.copyfile(filename, rfg + "/genome_fasta/" + ref + "_genomic.fna")
 
@@ -229,7 +229,7 @@ def set_dic_taxid(dic_index_files, error_list, rfg):
     for filename in dic_index_files:
         if filename not in error_list:
             attr = dic_index_files[filename]
-            os.path.basename(filename)
+            filename = os.path.basename(filename)
             name = filename.replace(".index", "")
             dic_ref[name] = attr
     # Write the new json file with the new genome
@@ -396,10 +396,11 @@ if __name__ == '__main__':
                 DIC_INDEX_FILES[PARAM.rfg + "/genome_index/" + NAME + ".index"] = [GCF + "_" + ASM, TAXID]
 
     elif COMMAND == "all":
+        DIC_INDEX_FILES = {}
         DIC_INDEX_FILES[PARAM.rfg + "/genome_index/" + NAME + ".index"] = [REF_NEW, TAXID]
 
         print("DIC_INDEX_FILES == > {}".format(DIC_INDEX_FILES))
     # if COMMAND == "add" or COMMAND == "all":
     #     ERROR_LIST = add_to_database(list(DIC_INDEX_FILES.keys()), PARAM.url, PARAM.min, PARAM.max, PARAM.size, PARAM.m)
-    #     set_dic_taxid(DIC_INDEX_FILES, ERROR_LIST, PARAM.rfg)
+        set_dic_taxid(DIC_INDEX_FILES, [], PARAM.rfg)
     #     json_tree(PARAM.rfg, PARAM.tree)
