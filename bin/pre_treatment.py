@@ -182,6 +182,21 @@ def get_gcf_id(gb_data):
         return None
 
 
+def get_asm_id(gcf):
+    """
+    Definition
+    """
+    handle = Entrez.esearch(db="assembly", term="GCF_000223375.1")
+    for i in handle:
+        if re.search("<Id>", i):
+            print(i)
+    handle = Entrez.esummary(db="assembly",id=372888,report="full")
+    for i in handle:
+        if re.search("<AssemblyName>", i):
+            print(i)
+    return asm
+
+
 def get_gcf_taxid(filename):
     """
     """
@@ -219,21 +234,6 @@ def check_genome_exists(filename, gcf, asm, taxid, rfg):
 
     return ref
 
-
-def set_dic_taxid(dic_index_files, error_list, rfg):
-    """
-    Definition
-    """
-    with open(rfg + "/genome_ref_taxid.json", "r") as json_data:
-        dic_ref = json.load(json_data)
-    for filename in dic_index_files:
-        if filename not in error_list:
-            attr = dic_index_files[filename]
-            filename = os.path.basename(filename)
-            name = filename.replace(".index", "")
-            dic_ref[name] = attr
-    # Write the new json file with the new genome
-    json.dump(dic_ref, open(rfg + "/genome_ref_taxid.json", 'w'), indent=4)
 
 # FIND ALL SGRNA
 def complement_seq(sequence):
@@ -340,6 +340,22 @@ def json_tree(bdd_path, tree_path):
     os.system('python3 lib/tax2json.py ' + bdd_path + " " + tree_path)
 
 
+def set_dic_taxid(dic_index_files, error_list, rfg):
+    """
+    Definition
+    """
+    with open(rfg + "/genome_ref_taxid.json", "r") as json_data:
+        dic_ref = json.load(json_data)
+    for filename in dic_index_files:
+        if filename not in error_list:
+            attr = dic_index_files[filename]
+            filename = os.path.basename(filename)
+            name = filename.replace(".index", "")
+            dic_ref[name] = attr
+    # Write the new json file with the new genome
+    json.dump(dic_ref, open(rfg + "/genome_ref_taxid.json", 'w'), indent=4)
+
+
 def add_to_database(files_to_add, end_point, iMin, iMax, batchSize, rules_file):
     """
     Add genomes in the database
@@ -400,7 +416,8 @@ if __name__ == '__main__':
         DIC_INDEX_FILES[PARAM.rfg + "/genome_index/" + NAME + ".index"] = [REF_NEW, TAXID]
 
         print("DIC_INDEX_FILES == > {}".format(DIC_INDEX_FILES))
+
     # if COMMAND == "add" or COMMAND == "all":
     #     ERROR_LIST = add_to_database(list(DIC_INDEX_FILES.keys()), PARAM.url, PARAM.min, PARAM.max, PARAM.size, PARAM.m)
-        set_dic_taxid(DIC_INDEX_FILES, [], PARAM.rfg)
+    #     set_dic_taxid(DIC_INDEX_FILES, [], PARAM.rfg)
     #     json_tree(PARAM.rfg, PARAM.tree)
