@@ -53,8 +53,9 @@ def valid_taxid(taxid):
         ncbi.get_lineage(taxid)
         return taxid
     except Exception as err:
-        sys.exit("Program terminated&The taxon id given ({})\
-                      is not in the NCBI taxonomy database !".format(taxid))
+        print("Program terminated&The taxon id given ({})\
+               is not in the NCBI taxonomy database !".format(taxid))
+        sys.exit()
 
 
 def check_metafile_exist(rfg, basename_file):
@@ -148,9 +149,14 @@ def get_accession_number(name):
     """
     Definition
     """
-    accession = re.search("(N[CZ]\_[A-Za-z0-9]+)(\.[0-9])", name).group(1)
-    print("Accession  : " + accession)
-    return accession
+    try:
+        accession = re.search("(N[CZ]\_[A-Za-z0-9]+)(\.[0-9])", name).group(1)
+        print("Accession  : " + accession)
+        return accession
+    except Exception as e:
+        print("Program terminated&No accession number found in head of fasta file")
+        sys.exit()
+
 
 
 def get_taxon_id(gb_data):
@@ -178,23 +184,28 @@ def get_gcf_id(gb_data):
         print("GCF  :  " + gcf)
         return gcf
     except Exception as e:
-        print("NO gcf")
-        return None
+        print("No GCF id found")
+        return "None"
 
 
 def get_asm_id(gcf):
     """
     Definition
     """
-    handle = Entrez.esearch(db="assembly", term="GCF_000223375.1")
-    for i in handle:
-        if re.search("<Id>", i):
-            print(i)
-    handle = Entrez.esummary(db="assembly",id=372888,report="full")
-    for i in handle:
-        if re.search("<AssemblyName>", i):
-            print(i)
-    return asm
+    try:
+        handle = Entrez.esearch(db="assembly", term=gcf)
+        for line in handle:
+            if re.search("<Id>", line):
+                id_report = re.search("[0-9]+", line).group()
+        handle = Entrez.esummary(db="assembly",id=id_report,report="full")
+        for line in handle:
+            if re.search("<AssemblyName>", line):
+                asm = re.search("<AssemblyName>(.*)<\/AssemblyName>", line).group()
+                print("ASM    :  " + asm)
+                return asm
+    except Exception as e:
+        print("No ASM id found")
+        return "None"
 
 
 def get_gcf_taxid(filename):
@@ -209,7 +220,8 @@ def get_gcf_taxid(filename):
     gcf = get_gcf_id(gb_data)
     taxid = get_taxon_id(gb_data)
     name = name_organism(gb_data, accession, name)
-    return gcf, taxid, name
+    asm = get_asm_id(gcf) if gcf != "None" else "None"
+    return gcf, asm, taxid, name
 
 
 def check_genome_exists(filename, gcf, asm, taxid, rfg):
@@ -226,9 +238,11 @@ def check_genome_exists(filename, gcf, asm, taxid, rfg):
     references = [ref_ref[0] for ref_ref in dic_ref.values()]
     tax_ids = [id[1] for id in dic_ref.values()]
     if ref in references:
-        sys.exit("Program terminated&ERROR : This genome is already in the database")
+        print("Program terminated&ERROR : This genome is already in the database")
+        sys.exit()
     if taxid in tax_ids:
-        sys.exit("Program terminated&ERROR : This taxon ID is already in the database")
+        print("Program terminated&ERROR : This taxon ID is already in the database")
+        sys.exit()
 
     shutil.copyfile(filename, rfg + "/genome_fasta/" + ref + "_genomic.fna")
 
@@ -365,7 +379,8 @@ def add_to_database(files_to_add, end_point, iMin, iMax, batchSize, rules_file):
 
     couchDB.setServerUrl(end_point)
     if not couchDB.couchPing():
-        sys.exit("Program terminated&Impossible to connect to the database")
+        print("Program terminated&Impossible to connect to the database")
+        sys.exit()
 
     with open(rules_file, "r") as rules_filin:
         couchDB.setKeyMappingRules(json.load(rules_filin))
@@ -388,9 +403,9 @@ def add_to_database(files_to_add, end_point, iMin, iMax, batchSize, rules_file):
 
 if __name__ == '__main__':
     PARAM, COMMAND = args_gestion()
-    ASM = "None"
+
     if COMMAND == "metafile" or COMMAND == "all":
-        GCF, TAXID, NAME = get_gcf_taxid(PARAM.file)
+        GCF, ASM, TAXID, NAME = get_gcf_taxid(PARAM.file)
         # Create dictionnary with all taxon ID
         REF_NEW = check_genome_exists(PARAM.file, GCF, ASM,
                                       TAXID, PARAM.rfg)
@@ -405,9 +420,10 @@ if __name__ == '__main__':
         # For each fasta file, retrieve the name of the pickle and index files
         # Then, check if they exist and create a list of path to index files
         for file_to_add in list_files:
-            GCF, TAXID, NAME = get_gcf_taxid(file_to_add)
+            GCF, ASM, TAXID, NAME = get_gcf_taxid(file_to_add)
             if not check_metafile_exist(PARAM.rfg, NAME):
-                sys.exit("Program terminated&Metafiles do not exist for {}".format(NAME))
+                print("Program terminated&Metafiles do not exist for {}".format(NAME))
+                sys.exit()
             else:
                 DIC_INDEX_FILES[PARAM.rfg + "/genome_index/" + NAME + ".index"] = [GCF + "_" + ASM, TAXID]
 
