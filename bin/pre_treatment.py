@@ -68,7 +68,7 @@ def check_metafile_exist(rfg, basename_file):
 
 def parse_arg(subparser, command):
     """
-    Definition
+    Treat arguments for subparsers
     """
     subparser.add_argument("-file", metavar="FILE",
                            type=lambda x: valid_fasta_file(subparser, x),
@@ -147,7 +147,7 @@ def name_organism(gb_data, accession, name):
 
 def get_accession_number(name):
     """
-    Definition
+    Get the assession number of the head of fasta file
     """
     try:
         accession = re.search("(N[CZ]\_[A-Za-z0-9]+)(\.[0-9])", name).group(1)
@@ -161,7 +161,8 @@ def get_accession_number(name):
 
 def get_taxon_id(gb_data):
     """
-    Definition
+    Get taxonomy ID from a genbank data, check if this id is in the NCBI
+    database and return it
     """
     taxid = None
     taxon = gb_data.features[0].qualifiers["db_xref"]
@@ -177,7 +178,8 @@ def get_taxon_id(gb_data):
 
 def get_gcf_id(gb_data):
     """
-    Definition
+    Get the GCF id, which is the ID for the assembly with annotations from a
+    genbank data
     """
     try:
         gcf = re.search("GCF\_[0-9]+\.[0-9]+", gb_data.dbxrefs[0]).group()
@@ -190,7 +192,7 @@ def get_gcf_id(gb_data):
 
 def get_asm_id(gcf):
     """
-    Definition
+    Get the ASM id, which is the name of the Assembly from a GCF id
     """
     try:
         handle = Entrez.esearch(db="assembly", term=gcf)
@@ -200,7 +202,7 @@ def get_asm_id(gcf):
         handle = Entrez.esummary(db="assembly",id=id_report,report="full")
         for line in handle:
             if re.search("<AssemblyName>", line):
-                asm = re.search("<AssemblyName>(.*)<\/AssemblyName>", line).group()
+                asm = re.search("<AssemblyName>(.*)<\/AssemblyName>", line).group(1)
                 print("ASM    :  " + asm)
                 return asm
     except Exception as e:
@@ -210,13 +212,17 @@ def get_asm_id(gcf):
 
 def get_gcf_taxid(filename):
     """
+    Get the accession Number, the GCF id, the ASM id and the taxonomy id from a
+    fasta file
     """
     seq_record = SeqIO.parse(filename, "fasta")
     name = next(seq_record).description
     accession = get_accession_number(name)
+    # Get the genbank data from the accession number
     Entrez.email = "example@gmail.com"
     res = Entrez.efetch(db="nuccore", id=accession, rettype="gb", seq_start=1, seq_stop=1)
     gb_data = SeqIO.read(res, "genbank")
+    # Get all neccessary informations
     gcf = get_gcf_id(gb_data)
     taxid = get_taxon_id(gb_data)
     name = name_organism(gb_data, accession, name)
@@ -356,15 +362,19 @@ def json_tree(bdd_path, tree_path):
 
 def set_dic_taxid(dic_index_files, error_list, rfg):
     """
-    Definition
+    Add news genomes in the genome_reference with the taxon ID. Before, check
+    if the genome is not in the error_list
     """
     with open(rfg + "/genome_ref_taxid.json", "r") as json_data:
         dic_ref = json.load(json_data)
     for filename in dic_index_files:
+        # The genome has been inserted into the database
         if filename not in error_list:
             attr = dic_index_files[filename]
+            # Retrieve the original name of the organism
             filename = os.path.basename(filename)
             name = filename.replace(".index", "")
+            # Add it to the reference dictionary
             dic_ref[name] = attr
     # Write the new json file with the new genome
     json.dump(dic_ref, open(rfg + "/genome_ref_taxid.json", 'w'), indent=4)
