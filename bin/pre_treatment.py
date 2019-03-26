@@ -455,3 +455,4 @@ if __name__ == '__main__':
                                      PARAM.min, PARAM.max, PARAM.size, PARAM.m)
         set_dic_taxid(DIC_INDEX_FILES, [], PARAM.rfg)
         json_tree(PARAM.rfg, PARAM.tree)
+        print("SUCCESS&Genomes are in the database, except : {}".format(ERROR_LIST))
