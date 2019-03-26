@@ -17,6 +17,8 @@ import couchBuild
 import wordIntegerIndexing as decoding
 import pycouch.wrapper as couchDB
 
+DEBUG = True
+
 
 # ARGUMENTS GESTION
 def exists_file(parser, filename):
@@ -151,7 +153,7 @@ def get_accession_number(name):
     """
     try:
         accession = re.search("(N[CZ]\_[A-Za-z0-9]+)(\.[0-9])", name).group(1)
-        print("Accession  : " + accession)
+        if DEBUG: print("Accession  : " + accession)
         return accession
     except Exception as e:
         print("Program terminated&No accession number found in head of fasta file")
@@ -166,13 +168,13 @@ def get_taxon_id(gb_data):
     """
     taxid = None
     taxon = gb_data.features[0].qualifiers["db_xref"]
-    print("Longueur taxon list  : " + str(len(taxon)))
+    if DEBUG: print("Longueur taxon list  : " + str(len(taxon)))
     for tax in taxon:
         if re.search("taxon", tax):
-            print(tax)
+            if DEBUG: print(tax)
             taxid = re.search("[0-9]+", tax).group()
             valid_taxid(taxid)
-            print("Taxon ID  :  " + taxid)
+            if DEBUG: print("Taxon ID  :  " + taxid)
             return taxid
 
 
@@ -183,7 +185,7 @@ def get_gcf_id(gb_data):
     """
     try:
         gcf = re.search("GCF\_[0-9]+\.[0-9]+", gb_data.dbxrefs[0]).group()
-        print("GCF  :  " + gcf)
+        if DEBUG: print("GCF  :  " + gcf)
         return gcf
     except Exception as e:
         print("No GCF id found")
@@ -203,7 +205,7 @@ def get_asm_id(gcf):
         for line in handle:
             if re.search("<AssemblyName>", line):
                 asm = re.search("<AssemblyName>(.*)<\/AssemblyName>", line).group(1)
-                print("ASM    :  " + asm)
+                if DEBUG: print("ASM    :  " + asm)
                 return asm
     except Exception as e:
         print("No ASM id found")
@@ -441,7 +443,7 @@ if __name__ == '__main__':
         DIC_INDEX_FILES = {}
         DIC_INDEX_FILES[PARAM.rfg + "/genome_index/" + NAME + ".index"] = [REF_NEW, TAXID]
 
-        print("DIC_INDEX_FILES == > {}".format(DIC_INDEX_FILES))
+        if DEBUG: print("DIC_INDEX_FILES == > {}".format(DIC_INDEX_FILES))
 
     # if COMMAND == "add" or COMMAND == "all":
     #     ERROR_LIST = add_to_database(list(DIC_INDEX_FILES.keys()), PARAM.url, PARAM.min, PARAM.max, PARAM.size, PARAM.m)
