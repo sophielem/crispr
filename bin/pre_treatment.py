@@ -263,8 +263,6 @@ def check_genome_exists(filename, gcf, asm, taxid, rfg):
 
 
 # FIND ALL SGRNA
-
-
 def indexation(name_file, rfg, pickle_file):
     """
     Code each sgrna sequence to a rank. With this, it is easier to compare
