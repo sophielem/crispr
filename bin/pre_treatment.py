@@ -274,15 +274,6 @@ def indexation(name_file, rfg, pickle_file):
     print("Successfully indexed", total, "words\nfrom:", name_file, "\ninto:", target_file)
 
 
-# CONSTRUCT THE NEW JSON TOPOLOGY TREE
-def json_tree(bdd_path, tree_path):
-    """
-    Take the entire list of genomes and create the topology tree in json format
-    """
-    print('JSON TREE')
-    os.system('python3 lib/tax2json.py ' + bdd_path + " " + tree_path)
-
-
 def set_dic_taxid(dic_index_files, error_list, rfg):
     """
     Add news genomes in the genome_reference with the taxon ID. Before, check
@@ -371,5 +362,6 @@ if __name__ == '__main__':
         ERROR_LIST = add_to_database(list(DIC_INDEX_FILES.keys()), PARAM.url,
                                      PARAM.min, PARAM.max, PARAM.size, PARAM.m)
         set_dic_taxid(DIC_INDEX_FILES, [], PARAM.rfg)
-        json_tree(PARAM.rfg, PARAM.tree)
+        print('JSON TREE')
+        os.system('python3 lib/tax2json.py ' + PARAM.rfg + " " + PARAM.tree)
         print("SUCCESS&Genomes are in the database, except : {}".format(ERROR_LIST))
