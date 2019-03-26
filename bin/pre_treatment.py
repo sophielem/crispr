@@ -141,8 +141,8 @@ def name_organism(gb_data, accession, name):
     name = name.split(",")[0]
     name = name.replace("/", "_")
     name = name.replace("'", "")
-    m = re.search("^\.[0-9] ", name).group()
-    name = name.replace(m, "")
+    acc = re.search("^\.[0-9] ", name).group()
+    name = name.replace(acc, "")
     name = name.strip()
     return name + " " + get_gcf_id(gb_data)
 
@@ -166,16 +166,20 @@ def get_taxon_id(gb_data):
     Get taxonomy ID from a genbank data, check if this id is in the NCBI
     database and return it
     """
-    taxid = None
-    taxon = gb_data.features[0].qualifiers["db_xref"]
-    if DEBUG: print("Longueur taxon list  : " + str(len(taxon)))
-    for tax in taxon:
-        if re.search("taxon", tax):
-            if DEBUG: print(tax)
-            taxid = re.search("[0-9]+", tax).group()
-            valid_taxid(taxid)
-            if DEBUG: print("Taxon ID  :  " + taxid)
-            return taxid
+    try:
+        taxon = gb_data.features[0].qualifiers["db_xref"]
+        if DEBUG: print("Longueur taxon list  : " + str(len(taxon)))
+        for tax in taxon:
+            if re.search("taxon", tax):
+                if DEBUG: print(tax)
+                taxid = re.search("[0-9]+", tax).group()
+                valid_taxid(taxid)
+                if DEBUG: print("Taxon ID  :  " + taxid)
+                return taxid
+    except Exception as e:
+        pass
+    print("Program terminated&No taxonomy ID found")
+    sys.exit()
 
 
 def get_gcf_id(gb_data):
@@ -201,15 +205,16 @@ def get_asm_id(gcf):
         for line in handle:
             if re.search("<Id>", line):
                 id_report = re.search("[0-9]+", line).group()
-        handle = Entrez.esummary(db="assembly",id=id_report,report="full")
+        handle = Entrez.esummary(db="assembly", id=id_report, report="full")
         for line in handle:
             if re.search("<AssemblyName>", line):
                 asm = re.search("<AssemblyName>(.*)<\/AssemblyName>", line).group(1)
                 if DEBUG: print("ASM    :  " + asm)
                 return asm
     except Exception as e:
-        print("No ASM id found")
-        return "None"
+        pass
+    print("No ASM id found")
+    return "None"
 
 
 def get_gcf_taxid(filename):
@@ -382,12 +387,12 @@ def set_dic_taxid(dic_index_files, error_list, rfg):
     json.dump(dic_ref, open(rfg + "/genome_ref_taxid.json", 'w'), indent=4)
 
 
-def add_to_database(files_to_add, end_point, iMin, iMax, batchSize, rules_file):
+def add_to_database(files_to_add, end_point, i_min, i_max, batch_size, rules_file):
     """
     Add genomes in the database
     """
-    if iMax > len(files_to_add):
-        iMax = len(files_to_add)
+    if i_max > len(files_to_add):
+        i_max = len(files_to_add)
 
     couchDB.setServerUrl(end_point)
     if not couchDB.couchPing():
@@ -398,18 +403,18 @@ def add_to_database(files_to_add, end_point, iMin, iMax, batchSize, rules_file):
         couchDB.setKeyMappingRules(json.load(rules_filin))
 
     error_files = []
-    for fName in files_to_add[iMin:iMax]:
-        c = couchBuild.GenomeData(fName)
-        # print("globing", fName, "#items", len(c))
+    for filename in files_to_add[i_min:i_max]:
+        gen = couchBuild.GenomeData(filename)
+        # print("globing", filename, "#items", len(c))
 
-        for i in tqdm(range(0, len(c), batchSize)):
-            j = i + batchSize if i + batchSize < len(c) else len(c)
-            d = c[i:j]
-            r = couchDB.volDocAdd(d)
-            for d in r:
-                if not 'ok' in d:
-                    print("Error here ==>", str(d))
-                    error_files.append(fName)
+        for i in tqdm(range(0, len(gen), batch_size)):
+            j = i + batch_size if i + batch_size < len(gen) else len(gen)
+            gen_splitted = gen[i:j]
+            res = couchDB.volDocAdd(gen_splitted)
+            for gen_splitted in res:
+                if not 'ok' in gen_splitted:
+                    print("Error here ==>", str(gen_splitted))
+                    error_files.append(filename)
     return error_files
 
 
@@ -428,10 +433,10 @@ if __name__ == '__main__':
     if COMMAND == "add":
         DIC_INDEX_FILES = {}
         # Create list with all fasta files
-        list_files = os.listdir(PARAM.dir) if PARAM.dir else [PARAM.file]
+        LIST_FILES = os.listdir(PARAM.dir) if PARAM.dir else [PARAM.file]
         # For each fasta file, retrieve the name of the pickle and index files
         # Then, check if they exist and create a list of path to index files
-        for file_to_add in list_files:
+        for file_to_add in LIST_FILES:
             GCF, ASM, TAXID, NAME = get_gcf_taxid(file_to_add)
             if not check_metafile_exist(PARAM.rfg, NAME):
                 print("Program terminated&Metafiles do not exist for {}".format(NAME))
@@ -446,6 +451,7 @@ if __name__ == '__main__':
         if DEBUG: print("DIC_INDEX_FILES == > {}".format(DIC_INDEX_FILES))
 
     # if COMMAND == "add" or COMMAND == "all":
-    #     ERROR_LIST = add_to_database(list(DIC_INDEX_FILES.keys()), PARAM.url, PARAM.min, PARAM.max, PARAM.size, PARAM.m)
+    #     ERROR_LIST = add_to_database(list(DIC_INDEX_FILES.keys()), PARAM.url,
+    #                                  PARAM.min, PARAM.max, PARAM.size, PARAM.m)
     #     set_dic_taxid(DIC_INDEX_FILES, [], PARAM.rfg)
     #     json_tree(PARAM.rfg, PARAM.tree)
