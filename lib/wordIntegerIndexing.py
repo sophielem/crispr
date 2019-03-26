@@ -1,7 +1,7 @@
 """
     Translate a dictionary of constant-length CRISPR motifs into an ordered set of integer, using base4 encoding.
     Usage:
-        wordIntegerIndexing.py <pickledDictionary> [--out=<outFile>]
+        wordIntegerIndexing.py <pickledDictionary> [--out=<outFile> --occ]
 
     Options:
         -h --help                               Show this screen
@@ -14,6 +14,31 @@ import pickle
 import math
 from docopt import docopt
 
+def occWeight(data):
+    k,datum = data
+    n = 0
+    #print(datum)
+    for o in datum:
+        for _o in datum[o]:
+            n += len(datum[o][_o])
+    #print(k,n)
+    return n
+
+# same as index pickle, coding and order wise, 
+# we just add a second field to each wordCode line, the occurence number
+def indexAndOccurencePickle(file_path, target_file):
+
+    p_data = pickle.load(open(file_path, "rb"))
+    word_list = list(p_data.keys())
+    wordLen = len(word_list[0])
+    data = sorted( [ (weightWord(w, ["A", "T", "C", "G"], wordLen), occWeight((w, p_data[w])) ) for w in word_list], key=lambda x: x[0])
+
+    with open(target_file, "w") as filout:
+        filout.write(str(len(data)) + "\n")
+        for datum in data:
+            filout.write( ' '.join([str(d) for d in datum]) + "\n")
+
+    return len(data)
 
 def indexPickle(file_path, target_file):
     """
@@ -67,7 +92,9 @@ if __name__ == "__main__":
                    + '.index')
     if ARGUMENTS['--out']:
         TARGET_FILE = ARGUMENTS['--out']
-
-    TOTAL = indexPickle(ARGUMENTS['<pickledDictionary>'], TARGET_FILE)
+    indexFn = indexPickle
+    if ARGUMENTS['--occ']:
+        indexFn = indexAndOccurencePickle
+    TOTAL = indexFn(ARGUMENTS['<pickledDictionary>'], TARGET_FILE)
     print("Successfully indexed", TOTAL, "words\nfrom:",
           ARGUMENTS['<pickledDictionary>'], "\ninto:", TARGET_FILE)
