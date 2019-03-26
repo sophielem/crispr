@@ -450,8 +450,8 @@ if __name__ == '__main__':
 
         if DEBUG: print("DIC_INDEX_FILES == > {}".format(DIC_INDEX_FILES))
 
-    # if COMMAND == "add" or COMMAND == "all":
-    #     ERROR_LIST = add_to_database(list(DIC_INDEX_FILES.keys()), PARAM.url,
-    #                                  PARAM.min, PARAM.max, PARAM.size, PARAM.m)
-    #     set_dic_taxid(DIC_INDEX_FILES, [], PARAM.rfg)
-    #     json_tree(PARAM.rfg, PARAM.tree)
+    if COMMAND == "add" or COMMAND == "all":
+        ERROR_LIST = add_to_database(list(DIC_INDEX_FILES.keys()), PARAM.url,
+                                     PARAM.min, PARAM.max, PARAM.size, PARAM.m)
+        set_dic_taxid(DIC_INDEX_FILES, [], PARAM.rfg)
+        json_tree(PARAM.rfg, PARAM.tree)
