@@ -8,6 +8,7 @@ import json
 import sys
 import shutil
 import re
+import urllib
 from Bio import SeqIO
 from Bio import Entrez
 from ete3 import NCBITaxa
@@ -191,7 +192,7 @@ def get_gcf_id(gb_data):
         gcf = re.search("GCF\_[0-9]+\.[0-9]+", gb_data.dbxrefs[0]).group()
         if DEBUG: print("GCF  :  " + gcf)
         return gcf
-    except Exception as e:
+    except Exception:
         print("No GCF id found")
         return "None"
 
@@ -211,7 +212,7 @@ def get_asm_id(gcf):
                 asm = re.search("<AssemblyName>(.*)<\/AssemblyName>", line).group(1)
                 if DEBUG: print("ASM    :  " + asm)
                 return asm
-    except Exception as e:
+    except Exception:
         pass
     print("No ASM id found")
     return "None"
@@ -227,8 +228,20 @@ def get_gcf_taxid(filename):
     accession = get_accession_number(name)
     # Get the genbank data from the accession number
     Entrez.email = "example@gmail.com"
-    res = Entrez.efetch(db="nuccore", id=accession, rettype="gb", seq_start=1, seq_stop=1)
-    gb_data = SeqIO.read(res, "genbank")
+    try:
+        Entrez.einfo()
+        res = Entrez.efetch(db="nuccore", id=accession, rettype="gb", seq_start=1, seq_stop=1)
+        gb_data = SeqIO.read(res, "genbank")
+    except urllib.error.URLError:
+        print("Program terminated&No connection with the NCBI")
+        sys.exit()
+    except urllib.error.HTTPError:
+        print("Program terminated&The accession number not present in NCBI")
+        sys.exit()
+    except:
+        print("Program terminated&Problem to parse the genbank file, Contact the support")
+        sys.exit()
+
     # Get all neccessary informations
     gcf = get_gcf_id(gb_data)
     taxid = get_taxon_id(gb_data)
