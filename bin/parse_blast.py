@@ -92,6 +92,8 @@ if __name__ == '__main__':
     OUTPUT_BLAST = BlastReport(PARAM.blast)
     if OUTPUT_BLAST.is_hit():
         pickle.dump(OUTPUT_BLAST, open("output_blast.p", "wb"), protocol=3)
+    else:
+        print("Progam terminated&No homologous gene found")
     # for org in OUTPUT_BLAST.homol_gene_iter():
     #     for ref in OUTPUT_BLAST.ref_iter(org):
     #         for coord in OUTPUT_BLAST.coord_gene_iter(org, ref):
