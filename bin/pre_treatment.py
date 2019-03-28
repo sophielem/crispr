@@ -346,9 +346,10 @@ if __name__ == '__main__':
         # Create dictionnary with all taxon ID
         REF_NEW = check_genome_exists(PARAM.file, GCF, ASM,
                                       TAXID, PARAM.rfg)
-        PICKLE_FILE = word_detect.construct_in(PARAM.rfg + "/genome_pickle/" + NAME,
-                                               PARAM.rfg + '/genome_fasta/' + REF_NEW + '_genomic.fna')
-        indexation(NAME, PARAM.rfg, PICKLE_FILE)
+        PICKLE_FILE = PARAM.rfg + "/genome_pickle/" + NAME
+         word_detect.construct_in(PICKLE_FILE,
+                                  PARAM.rfg + '/genome_fasta/' + REF_NEW + '_genomic.fna')
+        indexation(NAME, PARAM.rfg, PICKLE_FILE + ".p")
         print("SUCCESS&Created metafile for {}".format(NAME))
 
     if COMMAND == "add":
