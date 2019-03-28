@@ -60,6 +60,19 @@ class BlastReport(object):
             print(msg)
             return False
 
+    def org_names(self):
+        return list(self.homolog_gene.keys())
+
+    def ref_names(self, org_name):
+        if org_name in self.org_names():
+            return list(self[org_name].keys())
+        return None
+
+    def gene_coords(self, org_name, ref_name):
+        if ref_name in self.ref_names(org_name):
+            return list(self[org_name][ref_name])
+        return None
+
     def coord_gene_iter(self, k, c):
         res = self[k][c]
         for i in res:
@@ -98,3 +111,8 @@ if __name__ == '__main__':
     #     for ref in OUTPUT_BLAST.ref_iter(org):
     #         for coord in OUTPUT_BLAST.coord_gene_iter(org, ref):
     #             print(coord.start)
+
+
+# VERIFIER POURCENTAGE D IDENTITE
+# CORRESPONDANCE ENTRE LES NOMS DE GENOMES
+# GARDER QUE LES GENOMES IN DANS L OBJET BLAST
