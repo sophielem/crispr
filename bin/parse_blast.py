@@ -77,20 +77,6 @@ class BlastReport(object):
             return list(self[org_name][ref_name])
         return None
 
-    def coord_gene_iter(self, k, c):
-        res = self[k][c]
-        for i in res:
-            yield i
-
-    def ref_iter(self, k):
-        for ref in self[k]:
-            yield ref
-
-
-    def homol_gene_iter(self):
-        for org in self.homolog_gene:
-            yield org
-
 
 def check_in_gi(gi_name, blast_name):
     # Remove the GCF code to the end
