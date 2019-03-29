@@ -91,8 +91,6 @@ def args_gestion():
     Take and treat arguments that user gives in command line
     """
     parser = argparse.ArgumentParser(__file__, description="Specific gene program.")
-    parser.add_argument("-seq", metavar="<str>", help="String query sequence",
-                        required=True)
     parser.add_argument("-gi", metavar="<str>",
                         help="The organisms to search inclusion in.",
                         required=True)
@@ -105,15 +103,6 @@ def args_gestion():
     parser.add_argument("-pam", metavar="<str>",
                         help="The pam motif",
                         nargs="?", const="NGG")
-    parser.add_argument("-rfg",metavar="<str>",
-                        help="The path to the reference genome folder",
-                        required=True)
-    # parser.add_argument("-n", type=int,
-    #                     help="The research will be done on the n first bases of the gene",
-    #                     required=True)
-    parser.add_argument('-ip', type=int,
-                        help='identity percentage min for the research of homologous genes using blastn (default:70)',
-                        nargs="?", const=70)
     parser.add_argument("-f", metavar="<str>",
                         help="The file index",
                         required=True)
