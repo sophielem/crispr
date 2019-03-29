@@ -50,7 +50,6 @@ class BlastReport(object):
                 for hsp in hit.iter(tag="Hsp"):
                     if (int(hsp.find("Hsp_identity").text)/ len_query) * 100 > id_min:
                         subdata[ref].append(BlastHit(hsp))
-                print(real_name)
                 if real_name not in data:
                     data[real_name] = {}
                 data[real_name].update(subdata)
@@ -94,7 +93,9 @@ class BlastReport(object):
 
 
 def check_in_gi(gi_name, blast_name):
-    return re.search(gi_name, blast_name)
+    # Remove the GCF code to the end
+    gi_name = " ".join(gi_name.split(" ")[:-1]).strip()
+    return re.search(gi_name + "[ ,$]", blast_name)
 
 
 def args_gestion():
@@ -117,8 +118,12 @@ def args_gestion():
 
 if __name__ == '__main__':
     PARAM = args_gestion()
-    OUTPUT_BLAST = BlastReport(PARAM.blast, PARAM.ip, PARAM.gi)
+    GENOMES_IN = PARAM.gi.split("&")
+    OUTPUT_BLAST = BlastReport(PARAM.blast, PARAM.ip, GENOMES_IN)
     if OUTPUT_BLAST.is_hit():
         pickle.dump(OUTPUT_BLAST, open("output_blast.p", "wb"), protocol=3)
     else:
         print("Progam terminated&No homologous gene found")
+
+# OUTPUT_BLAST = BlastReport("data/xml.xml", 70, ["Bacillus pseudofirmus OF48", "Bacillus pseudofirmus OF4", "NOTIN"])
+# print(OUTPUT_BLAST.homolog_gene)
