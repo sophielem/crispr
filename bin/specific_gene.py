@@ -34,6 +34,29 @@ class ResumeSeq(object):
         if dict_org:
             self.dic_org.update(dict_org)
 
+    def org_names(self):
+        return list(self.dic_org.keys())
+
+    def write(self, genomes_in):
+        to_write = ""
+        for gi in genomes_in:
+            if gi in self.org_names():
+                for ref in self.dic_org[gi]:
+                    to_write += ref + ':' + ','.join(self.dic_org[gi][ref]) + ';'
+            else:
+                to_write += "None ;"
+        to_write += self.total_occ()
+        return to_write.strip(";")
+
+    def list_ref(self, org_name):
+        list_ref = [{"ref": ref, "coords": self.dic_org[org_name][ref].list_coord} for ref in self.dic_org[org_name]]
+        return list_ref
+
+    def list_occ(self):
+        list_occurences = [{'org': genome, 'all_ref': self.list_ref(genome)} for genome in self.org_names()]
+        return list_occurences
+
+
 
 class CoordSeq(object):
     """docstring for CoordSeq."""
@@ -94,6 +117,9 @@ def args_gestion():
     parser.add_argument("-f", metavar="<str>",
                         help="The file index",
                         required=True)
+    parser.add_argument("-nb_top", metavar="<int>",
+                        help="The top hits to download",
+                        default=1000)
     args = parser.parse_args()
 
     return args
@@ -136,7 +162,7 @@ def check_on_gene(blast_file, dic_index, nb_gi):
             tmp = {}
             for ref in blastoutput.ref_names(org):
                 # Find the list of coordinates on gene
-                coord_seq = coord_on_gene(dic_index[seq][org][ref], blastoutput.gene_coords(org, ref))
+                coord_seq = coord_on_gene(dic_index[seq].genomes_dict[org][ref], blastoutput.gene_coords(org, ref))
                 if coord_seq:
                     if not tmp:
                         tmp[org] = {}
@@ -164,9 +190,14 @@ if __name__ == "__main__":
             sequence = decoding.decode(rank, ["A", "T", "C", "G"], len_seq)
             DIC_HITS[sequence] = dspl.Hit(sequence, DIC_INDEX[rank])
             # Search coordinates for each sgrna in each organism
-            DIC_HITS = pp.couchdb_search(DIC_HITS, GENOMES_IN, PARAM.r, int(PARAM.c), PARAM.no_proxy)
+        DIC_HITS = pp.couchdb_search(DIC_HITS, GENOMES_IN, PARAM.r, int(PARAM.c), PARAM.no_proxy)
 
-            RESUME_SEQ = check_on_gene(PARAM.blast, DIC_INDEX, len(GENOMES_IN))
-            RESUME_SEQ = sorted(RESUME_SEQ, key=lambda hit:hit.proportion, reverse=True)
+        RESUME_SEQ = check_on_gene(PARAM.blast, DIC_HITS, len(GENOMES_IN))
+        RESUME_SEQ = sorted(RESUME_SEQ, key=lambda hit:hit.proportion, reverse=True)
+        dspl.display_hits(RESUME_SEQ, GENOMES_IN, GENOMES_NOTIN,
+                          PARAM.pam, int(PARAM.sl), ".", int(PARAM.nb_top))
+        print(','.join(GENOMES_NOTIN))
+        print("TASK_KEY")
+        print(len(RESUME_SEQ))
     else:
         print("Progam terminated&No hits remain")
