@@ -5,6 +5,7 @@ Definition
 
 import argparse
 import pickle
+import re
 import xml.etree.ElementTree as ET
 
 
@@ -26,30 +27,34 @@ class BlastHit(object):
 
 class BlastReport(object):
     """docstring for BlastHit."""
-    def __init__(self, f_name):
+    def __init__(self, f_name, id_min, genomes_in):
         tree = ET.parse(f_name)
         self.root = tree.getroot()
-        self.homolog_gene = self._parse_()
-
-    def _parse_(self):
-        data = {}
-        for hit in self.root.iter(tag="Hit"):
-            org_name = hit.find("Hit_def").text
-            ref = org_name.split(" ")[0]
-            org_name = org_name.replace(ref, "").strip()
-            subdata = {ref : []}
-
-            if org_name not in data:
-                data[org_name] = {}
-            for hsp in hit.iter(tag="Hsp"):
-                subdata[ref].append(BlastHit(hsp))
-            data[org_name].update(subdata)
-        return data
+        self.homolog_gene = self._parse_(id_min, genomes_in)
 
     def __getitem__(self, k):
         if k in self.homolog_gene:
             return self.homolog_gene[k]
         return None
+
+    def _parse_(self, id_min, genomes_in):
+        data = {}
+        len_query = int(self.root.find("BlastOutput_query-len").text)
+        for hit in self.root.iter(tag="Hit"):
+            org_name = hit.find("Hit_def").text
+            ref = org_name.split(" ")[0]
+            org_name = org_name.replace(ref, "").strip()
+            subdata = {ref : []}
+            real_name = "".join(list(filter(lambda x: check_in_gi(x, org_name), genomes_in)))
+            if real_name:
+                for hsp in hit.iter(tag="Hsp"):
+                    if (int(hsp.find("Hsp_identity").text)/ len_query) * 100 > id_min:
+                        subdata[ref].append(BlastHit(hsp))
+                print(real_name)
+                if real_name not in data:
+                    data[real_name] = {}
+                data[real_name].update(subdata)
+        return data
 
     def is_hit(self):
         msg = self.root.find("./BlastOutput_iterations/Iteration/Iteration_message")
@@ -88,6 +93,10 @@ class BlastReport(object):
             yield org
 
 
+def check_in_gi(gi_name, blast_name):
+    return re.search(gi_name, blast_name)
+
+
 def args_gestion():
     """
     Take and treat arguments that user gives in command line
@@ -96,23 +105,20 @@ def args_gestion():
     parser.add_argument("-blast", metavar="<str>",
                         help="The path to the blastn output file",
                         required=True)
+    parser.add_argument('-ip', type=int,
+                        help='identity percentage min for the research of homologous genes using blastn (default:70)',
+                        nargs="?", const=70)
+    parser.add_argument("-gi", metavar="<str>",
+                        help="The organisms to search inclusion in.",
+                        required=True)
     args = parser.parse_args()
     return args
 
 
 if __name__ == '__main__':
     PARAM = args_gestion()
-    OUTPUT_BLAST = BlastReport(PARAM.blast)
+    OUTPUT_BLAST = BlastReport(PARAM.blast, PARAM.ip, PARAM.gi)
     if OUTPUT_BLAST.is_hit():
         pickle.dump(OUTPUT_BLAST, open("output_blast.p", "wb"), protocol=3)
     else:
         print("Progam terminated&No homologous gene found")
-    # for org in OUTPUT_BLAST.homol_gene_iter():
-    #     for ref in OUTPUT_BLAST.ref_iter(org):
-    #         for coord in OUTPUT_BLAST.coord_gene_iter(org, ref):
-    #             print(coord.start)
-
-
-# VERIFIER POURCENTAGE D IDENTITE
-# CORRESPONDANCE ENTRE LES NOMS DE GENOMES
-# GARDER QUE LES GENOMES IN DANS L OBJET BLAST
