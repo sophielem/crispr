@@ -60,20 +60,20 @@ def args_gestion():
     return parser.parse_args()
 
 
-def couchdb_search(sgrna_list, end_point, len_slice, noPoxyBool):
+def couchdb_search(sgrna_list, end_point, len_slice, no_poxy_bool):
     """
     Check if it can connect to the dabase
     Requests a list of sgrna and return the result
     """
-    reqFunc = requests
-    if noPoxyBool:
-        reqFunc = requests.Session()
-        reqFunc.trust_env = False
+    req_func = requests
+    if no_poxy_bool:
+        req_func = requests.Session()
+        req_func.trust_env = False
 
     joker = 0
     results = {"request": {}}
     try:
-        res = reqFunc.get(end_point + "/handshake")
+        res = req_func.get(end_point + "/handshake")
         data = res.json()
         dspl.eprint("HANDSHAKE PACKET:\n" + str(data) + "\n")
     except Exception as e:
@@ -86,8 +86,8 @@ def couchdb_search(sgrna_list, end_point, len_slice, noPoxyBool):
             for i in range(0, len(sgrna_list), len_slice):
                 dspl.eprint(i)
                 request_sliced = {"keys" :sgrna_list[i : i + len_slice]}
-                results["request"].update(reqFunc.post(end_point + "/bulk_request",
-                                                       json=request_sliced).json()["request"])
+                results["request"].update(req_func.post(end_point + "/bulk_request",
+                                                        json=request_sliced).json()["request"])
         except Exception as e:
             dspl.eprint("Something wrong append, retrying time", str(joker))
             dspl.eprint("Error LOG is ", str(e))
@@ -103,42 +103,42 @@ def couchdb_search(sgrna_list, end_point, len_slice, noPoxyBool):
     return results
 
 
-def treat_db_search_20(dic_hits, genomes_in, end_point, len_slice, noPoxyBool):
+def treat_db_search_20(dic_hits, genomes_in, end_point, len_slice, no_poxy_bool):
     """
     Treat directly sequences with 20 length and return an update of a dictionary containing
     Hit objects
     """
-    results = couchdb_search(list(dic_hits.keys()), end_point, len_slice, noPoxyBool)
+    results = couchdb_search(list(dic_hits.keys()), end_point, len_slice, no_poxy_bool)
     for sgrna in results["request"]:
         dic_seq = {}
         for org_name in results["request"][sgrna]:
-            noBACKSLASH_org_name = org_name.replace('/', '_')
-            if noBACKSLASH_org_name in genomes_in:
-                dic_seq[noBACKSLASH_org_name] = results["request"][sgrna][org_name]
+            nobackslash_org_name = org_name.replace('/', '_')
+            if nobackslash_org_name in genomes_in:
+                dic_seq[nobackslash_org_name] = results["request"][sgrna][org_name]
         dic_hits[sgrna].set_genomes_dict(dic_seq)
 
     return dic_hits
 
 
-def treat_db_search_other(dic_hits, dic_index, genomes_in, end_point, len_slice, noPoxyBool):
+def treat_db_search_other(dic_hits, dic_index, genomes_in, end_point, len_slice, no_poxy_bool):
     """
     Find the result for word_20 associated to a word_15. Then merge results and update the
     Hit object
     """
     sgrna_list = [word for w15 in dic_index for word in dic_index[w15][1]]
-    results = couchdb_search(sgrna_list, end_point, len_slice, noPoxyBool)
+    results = couchdb_search(sgrna_list, end_point, len_slice, no_poxy_bool)
     # Loop on word_15 to find their word_20 associated
     for sgrna in dic_hits:
         dic_seq = {}
         for word_20 in dic_index[sgrna][1]:
             for org_name in results["request"][word_20]:
                 # To remove when the database is clean
-                noBACKSLASH_org_name = org_name.replace('/', '_')
-                if noBACKSLASH_org_name in genomes_in:
-                    if noBACKSLASH_org_name in dic_seq:
-                        dic_seq[noBACKSLASH_org_name].update(results["request"][word_20][org_name])
+                nobackslash_org_name = org_name.replace('/', '_')
+                if nobackslash_org_name in genomes_in:
+                    if nobackslash_org_name in dic_seq:
+                        dic_seq[nobackslash_org_name].update(results["request"][word_20][org_name])
                     else:
-                        dic_seq[noBACKSLASH_org_name] = results["request"][word_20][org_name]
+                        dic_seq[nobackslash_org_name] = results["request"][word_20][org_name]
         dic_hits[sgrna].set_genomes_dict(dic_seq)
     return dic_hits
 
@@ -160,13 +160,13 @@ def parse_setcompare_other(rank_w15):
     return (rankw20_occ[0], rankw20_occ[1].strip().split(" "))
 
 
-def parse_setcompare_out(fileIn, nb_top, word_len):
+def parse_setcompare_out(output_c, nb_top, word_len):
     """
     Parse the output of setCompare C script and return a dictionary with the coding word
     and its occurence if the length is 20 or a tuple containing its occurence and
     a list of word_20 associated
     """
-    with open(fileIn, "r") as filin:
+    with open(output_c, "r") as filin:
         for line in filin:
             regex_nb_hits = re.search("^# ([0-9]+)", line)
             if regex_nb_hits:
@@ -192,11 +192,11 @@ if __name__ == '__main__':
     GENOMES_NOTIN = PARAM.gni.split("&")
     DIC_INDEX, NB_HITS = parse_setcompare_out(PARAM.f, int(PARAM.nb_top), int(PARAM.sl))
 
-    len_seq = int(PARAM.sl) + int(len(PARAM.pam))
+    LEN_SEQ = int(PARAM.sl) + int(len(PARAM.pam))
     DIC_HITS = OrderedDict()
     # Decoding of each index into sequence
     for rank in DIC_INDEX:
-        sequence = decoding.decode(rank, ["A", "T", "C", "G"], len_seq)
+        sequence = decoding.decode(rank, ["A", "T", "C", "G"], LEN_SEQ)
         if int(PARAM.sl) == 20:
             DIC_HITS[sequence] = dspl.Hit(sequence, DIC_INDEX[rank])
         else:
