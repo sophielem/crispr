@@ -138,9 +138,18 @@ def args_gestion():
     parser.add_argument("-f", metavar="<str>",
                         help="The file index",
                         required=True)
+    parser.add_argument("-blast", metavar="<str>",
+                        help="The blast output file",
+                        required=True)
     parser.add_argument("-nb_top", metavar="<int>",
                         help="The top hits to download",
                         default=1000)
+    parser.add_argument('--no-proxy', action='store_true')
+    parser.add_argument("-r", metavar="<str>",
+                        help="The end point",
+                        required=True)
+    parser.add_argument("-c", metavar="<int>",
+                        help="The length of the slice for the request",
     args = parser.parse_args()
     return args
 
