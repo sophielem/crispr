@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Definition
+Retrieve sgRNA on a specific gene given by user. Retrieve result from SetCompare script and
+create files for display in webservice.
 """
 
 import sys
@@ -45,8 +46,8 @@ class ResumeSeq(object):
             for coord_seq in self.dic_org[org_name]:
                 occ += coord_seq.total_occ()
         else:
-            for org_name in self.dic_org:
-                occ += self.total_occ(org_name)
+            for name in self.dic_org:
+                occ += self.total_occ(name)
         return occ
 
     def update(self, dict_org):
@@ -156,8 +157,9 @@ def args_gestion():
                         required=True)
     parser.add_argument("-c", metavar="<int>",
                         help="The length of the slice for the request",
-    args = parser.parse_args()
-    return args
+                        required=True)
+
+    return parser.parse_args()
 
 
 def on_gene(sgrna, gene):
@@ -226,23 +228,33 @@ if __name__ == "__main__":
     PARAM = args_gestion()
     GENOMES_IN = PARAM.gi.split("&")
     GENOMES_NOTIN = PARAM.gni.split("&")
-    DIC_INDEX, NB_HITS = pp.parse_setcompare_out(PARAM.f, None)
-    if DIC_INDEX:
-        LEN_SEQ = int(PARAM.sl) + int(len(PARAM.pam))
-        DIC_HITS = OrderedDict()
-        for rank in DIC_INDEX:
-            sequence = decoding.decode(rank, ["A", "T", "C", "G"], LEN_SEQ)
+    DIC_INDEX, NB_HITS = pp.parse_setcompare_out(PARAM.f, None, int(PARAM.sl))
+
+    LEN_SEQ = int(PARAM.sl) + int(len(PARAM.pam))
+    DIC_HITS = OrderedDict()
+    for rank in DIC_INDEX:
+        sequence = decoding.decode(rank, ["A", "T", "C", "G"], LEN_SEQ)
+        if int(PARAM.sl) == 20:
             DIC_HITS[sequence] = dspl.Hit(sequence, DIC_INDEX[rank])
-        # Search coordinates for each sgrna in each organism
-        DIC_HITS = pp.couchdb_search(DIC_HITS, GENOMES_IN, PARAM.r, int(PARAM.c), PARAM.no_proxy)
-        # Keep sgrna which are on gene
-        RESUME_SEQ = check_on_gene(PARAM.blast, DIC_HITS, len(GENOMES_IN))
-        # Sort sgrna by the proportion of organism containing this sgrna on a gene
-        RESUME_SEQ = sorted(RESUME_SEQ, key=lambda hit: RESUME_SEQ[hit].proportion, reverse=True)
-        dspl.display_hits(RESUME_SEQ, GENOMES_IN, GENOMES_NOTIN,
-                          PARAM.pam, int(PARAM.sl), ".", int(PARAM.nb_top))
-        print(','.join(GENOMES_NOTIN))
-        print("TASK_KEY")
-        print(len(RESUME_SEQ))
+        else:
+            DIC_HITS[sequence] = dspl.Hit(sequence, DIC_INDEX[rank][0])
+
+    # Search coordinates for each sgrna in each organism
+    if int(PARAM.sl) == 20:
+        DIC_HITS = pp.treat_db_search_20(DIC_HITS, GENOMES_IN, PARAM.r, int(PARAM.c),
+                                         PARAM.no_proxy)
     else:
-        print("Progam terminated&No hits remain")
+        DIC_HITS = pp.treat_db_search_other(DIC_HITS, DIC_INDEX, GENOMES_IN, PARAM.r,
+                                            int(PARAM.c), PARAM.no_proxy)
+
+    # Keep sgrna which are on gene
+    RESUME_SEQ = check_on_gene(PARAM.blast, DIC_HITS, len(GENOMES_IN))
+    # Sort sgrna by the proportion of organism containing this sgrna on a gene
+    RESUME_SEQ = sorted(RESUME_SEQ, key=lambda hit: RESUME_SEQ[hit].proportion, reverse=True)
+
+    dspl.display_hits(RESUME_SEQ, GENOMES_IN, GENOMES_NOTIN,
+                      PARAM.pam, int(PARAM.sl), ".", int(PARAM.nb_top))
+
+    print(','.join(GENOMES_NOTIN))
+    print("TASK_KEY")
+    print(len(RESUME_SEQ))
