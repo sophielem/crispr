@@ -132,5 +132,5 @@ if __name__ == '__main__':
         print("Progam terminated&No homologous gene found")
 
 # OUTPUT_BLAST = BlastReport("data/xml.xml", 70,
-#                             ["Bacillus pseudofirmus OF48", "Bacillus pseudofirmus OF4", "NOTIN"])
+#                             ["Bacillus pseudofirmus OF48 GCF_000006925", "Bacillus pseudofirmus OF4 GCF_000006865", "NOTIN GCF_526625"])
 # print(OUTPUT_BLAST.homolog_gene)
