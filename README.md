@@ -39,50 +39,87 @@ To execute this script, you need few dependencies :
 
 Then, you need the pycouchDB package which can not be installed by *pip* so the source code is in the *bin* folder.
 
-## Example
+## Example normal mode
 Explain how to use the script
 ```sh
-python post_processing.py -rfg ../reference_genomes -sl 20 -pam "NGG"\
--gi "genome1&genome2&genome3" -gni "genome4&genome5" -file coding.txt
+usage: post_processing.py [-h] [-sl <int>] -pam <str> -gi <str> -gni <str> -r
+                          <str> -c <int> -f <str> [--no-proxy] [-nb_top <int>]
+
+Post-processing results
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -sl <int>      The length of the sgrna, excluding pam
+  -pam <str>     The pam motif
+  -gi <str>      The organisms to search inclusion in.
+  -gni <str>     The organisms to search exclusion from
+  -r <str>       The end point
+  -c <int>       The length of the slice for the request
+  -f <str>       The file index
+  --no-proxy
+  -nb_top <int>  The top hits to download
 ```
 
-# Insert new genomes
-
-## A single genome
-### Create pickle and index files
-
-### Add sgrna sequences in the database
-
-
-## From a node
-Need a topology tree in *json* format and the name of the node. Then, the algorithm search after the subtree and from this subtree retrieve all leaves.
-Then with the list, we retrieve GCF, ASM and TAXON id from the *genome_ref_taxid.json* file and create a configure file with it in a folder. Then, associated fasta file are copied in the folder. Then the process to add genomes in database must be launched.
-
-```python
-def search_subtree(tree, value):
-    # Node name is the searched node
-    if tree["text"] == value: return tree
-    # No children, so return None
-    if "children" not in list(tree.keys()): return None
-    # Traverse the tree via children
-    for subref in tree["children"]:
-        res = search_subtree(subref, value)
-        if res != None:
-            return res
-
-def search_leaves(tree, list_child):
-    # The node has not children, so it is a leave else traverse children
-    if "children" not in list(tree.keys()):
-        list_child.append(tree["text"])
-        return list_child
-    # Traverse the tree via children
-    for subref in tree["children"]:
-        list_child = search_leaves(subref, list_child)
-    return list_child
+```sh
+python bin/post_processing.py -sl 20 -pam "NGG"\
+-gi "genome1&genome2&genome3" -gni "genome4&genome5"\
+-r "http://localhost:1234" -c 1000 -f "data/example_outputC.txt"
 ```
 
-## Date
-March 15 2019
+## Example Specific gene
+Retrieve sgRNA on a specific gene given by user. Retrieve result from SetCompare script and
+create files for displaying on webservice.
+
+```sh
+usage: bin/specific_gene.py [-h] -gi <str> -gni <str> [-sl [<int>]]
+                            [-pam [<str>]] -f <str> -blast <str>
+                            [-nb_top <int>] [--no-proxy] -r <str> -c <int>
+
+Specific gene program.
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -gi <str>      The organisms to search inclusion in.
+  -gni <str>     The organisms to search exclusion from
+  -sl [<int>]    The length of the sgrna, excluding pam
+  -pam [<str>]   The pam motif
+  -f <str>       The file index
+  -blast <str>   The blast output file
+  -nb_top <int>  The top hits to download
+  --no-proxy
+  -r <str>       The end point
+  -c <int>       The length of the slice for the request
+  ```
+
+## Example Create Metafile (*pickle* and *index*)
+
+```sh
+usage: create_metafile.py [-h] -file <str> -out <str>
+
+Create pickleand index metafile
+
+optional arguments:
+  -h, --help   show this help message and exit
+  -file <str>  The fasta file to parse
+  -out <str>   The output path without the extension
+ ```
+ The output path is the path to the output file without the extension.
+
+## Example parse blastn output
+
+```sh
+usage: parse_blast.py [-h] -blast <str> [-ip [IP]] -gi <str>
+
+Parse the output of blastn
+
+optional arguments:
+  -h, --help    show this help message and exit
+  -blast <str>  The path to the blastn output file
+  -ip [IP]      identity percentage min for the research of homologous genes
+                using blastn (default:70)
+  -gi <str>     The organisms to search inclusion in
+ ```
+
 # Indexing ATCG words
 
 ### Usage
@@ -102,3 +139,6 @@ python wordIntegerIndexing.py data/example.pickle
 ```
 
 will produce `./example.index`
+
+## Date
+April 01 2019
