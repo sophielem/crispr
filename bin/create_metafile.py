@@ -14,7 +14,7 @@ def args_gestion():
                         help="The fasta file to parse",
                         required=True)
     parser.add_argument("-out", metavar="<str>",
-                        help="The output path",
+                        help="The output path without the extension",
                         required=True)
     args = parser.parse_args()
     return args
