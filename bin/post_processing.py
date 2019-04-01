@@ -163,7 +163,7 @@ if __name__ == '__main__':
 
         # Display the result for the navigator
         dspl.display_hits(DIC_HITS, GENOMES_IN, GENOMES_NOTIN,
-                          PARAM.pam, int(PARAM.sl), ".", int(PARAM.nb_top))
+                          PARAM.pam, int(PARAM.sl), ".", int(PARAM.nb_top), True, list(DIC_HITS.keys()))
 
         print(','.join(GENOMES_NOTIN))
         print("TASK_KEY")

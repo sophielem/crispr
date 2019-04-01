@@ -27,8 +27,8 @@ class Hit():
     def write(self, genomes_in):
         to_write = ""
         for gi in genomes_in:
-            for ref in hit.genomes_dict[gi]:
-                to_write += ref + ':' + ','.join(hit.genomes_dict[gi][ref]) + ';'
+            for ref in self.genomes_dict[gi]:
+                to_write += ref + ':' + ','.join(self.genomes_dict[gi][ref]) + ';'
         return to_write.strip(';')
 
     def list_ref(self, org_name):
@@ -92,13 +92,13 @@ def output_interface(dic_hits, workdir, nb_top):
         json.dump(list_dic, filout, indent=4)
 
 
-def display_hits(dic_hits, genomes_in, genomes_not_in, pam, non_pam_motif_length, workdir, nb_top):
+def display_hits(dic_hits, genomes_in, genomes_not_in, pam, non_pam_motif_length, workdir, nb_top, hit_obj):
     """
     write output for interface
     """
     # Put results in local file for access via the interface.
     write_to_file(genomes_in, genomes_not_in, dic_hits, pam,
-                  non_pam_motif_length, workdir, nb_top)
+                  non_pam_motif_length, workdir, nb_top, hit_obj)
 
     # Output formatting for printing to interface
     output_interface(dic_hits, workdir, 100)
