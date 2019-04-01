@@ -208,8 +208,6 @@ def check_on_gene(blast_file, dic_index, nb_gi):
                 if coord_seq:
                     tmp[org].append(coord_seq)
             if tmp[org] != []:
-                for l in tmp[org]:
-                    print(l.list_coord)
                 resume_seq[seq].update(tmp)
         # If no coordinate in the ResumeSeq object, then delete the sgrna from the dictionary
         if not resume_seq[seq].dic_org:
