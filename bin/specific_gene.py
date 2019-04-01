@@ -6,6 +6,7 @@ Definition
 import sys
 import argparse
 import pickle
+import re
 from collections import OrderedDict
 import wordIntegerIndexing as decoding
 import display_result as dspl
@@ -15,12 +16,17 @@ from parse_blast import BlastReport, BlastHit
 
 class ResumeSeq(object):
     """docstring for ResumeSeq."""
-    def __init__(self, dic_org=None):
+    def __init__(self, dic_org={}):
         self.proportion = 0
         self.dic_org = dic_org
 
     def __repr__(self):
         return "Proportion : {}\tTotal occurences : {}".format(self.proportion, self.total_occ())
+
+    def __getitem__(self, k):
+        if k in self.dic_org:
+            return self.dic_org[k]
+        return None
 
     def cal_proportion(self, nb_total):
         """
@@ -68,7 +74,7 @@ class ResumeSeq(object):
                     to_write += coord_seq.ref + ':' + ','.join(coord_seq.list_coord) + ';'
             else:
                 to_write += "None ;"
-        to_write += self.total_occ()
+        to_write += str(self.total_occ())
         return to_write.strip(";")
 
     def list_ref(self, org_name):
@@ -91,7 +97,7 @@ class ResumeSeq(object):
 
 class CoordSeq(object):
     """docstring for CoordSeq."""
-    def __init__(self, coords=None, ref=None):
+    def __init__(self, coords=[], ref=None):
         self.list_coord = coords
         self.ref = ref
 
@@ -158,7 +164,9 @@ def on_gene(sgrna, gene):
     """
     Check if a given sgrna is on a given gene
     """
-    return gene.start <= sgrna[0] and gene.end >= sgrna[1]
+    sgrna_start = int(re.search("[+-]\(([0-9]*);", sgrna).group(1))
+    sgrna_end = int(re.search(";([0-9]*)", sgrna).group(1))
+    return gene.start <= sgrna_start and gene.end >= sgrna_end
 
 
 def coord_on_gene(list_coord, list_gene, ref):
@@ -189,14 +197,20 @@ def check_on_gene(blast_file, dic_index, nb_gi):
         resume_seq[seq] = ResumeSeq()
         # For each organism find where an homologous gene has been found
         for org in blastoutput.org_names():
-            tmp = {}
+            tmp = {org: []}
             for ref in blastoutput.ref_names(org):
-                # Find the list of coordinates on gene
-                coord_seq = coord_on_gene(dic_index[seq].genomes_dict[org][ref],
-                                          blastoutput.gene_coords(org, ref), ref)
+                if org in dic_index[seq].genomes_dict and ref in dic_index[seq].genomes_dict[org]:
+                    # Find the list of coordinates on gene
+                    coord_seq = coord_on_gene(dic_index[seq].genomes_dict[org][ref],
+                                              blastoutput.gene_coords(org, ref), ref)
+                else:
+                    coord_seq = None
                 if coord_seq:
                     tmp[org].append(coord_seq)
-            resume_seq[seq].update(tmp)
+            if tmp[org] != []:
+                for l in tmp[org]:
+                    print(l.list_coord)
+                resume_seq[seq].update(tmp)
         # If no coordinate in the ResumeSeq object, then delete the sgrna from the dictionary
         if not resume_seq[seq].dic_org:
             del resume_seq[seq]
@@ -226,7 +240,7 @@ if __name__ == "__main__":
         # Keep sgrna which are on gene
         RESUME_SEQ = check_on_gene(PARAM.blast, DIC_HITS, len(GENOMES_IN))
         # Sort sgrna by the proportion of organism containing this sgrna on a gene
-        RESUME_SEQ = sorted(RESUME_SEQ, key=lambda hit: hit.proportion, reverse=True)
+        RESUME_SEQ = sorted(RESUME_SEQ, key=lambda hit: RESUME_SEQ[hit].proportion, reverse=True)
         dspl.display_hits(RESUME_SEQ, GENOMES_IN, GENOMES_NOTIN,
                           PARAM.pam, int(PARAM.sl), ".", int(PARAM.nb_top))
         print(','.join(GENOMES_NOTIN))
