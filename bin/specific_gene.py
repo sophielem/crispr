@@ -17,9 +17,9 @@ from parse_blast import BlastReport, BlastHit
 
 class ResumeSeq(object):
     """docstring for ResumeSeq."""
-    def __init__(self, dic_org={}):
+    def __init__(self):
         self.proportion = 0
-        self.dic_org = dic_org
+        self.dic_org = {}
 
     def __repr__(self):
         return "Proportion : {}\tTotal occurences : {}".format(self.proportion, self.total_occ())
@@ -98,8 +98,8 @@ class ResumeSeq(object):
 
 class CoordSeq(object):
     """docstring for CoordSeq."""
-    def __init__(self, coords=[], ref=None):
-        self.list_coord = coords
+    def __init__(self, ref):
+        self.list_coord = []
         self.ref = ref
 
     def __repr__(self):
@@ -176,13 +176,13 @@ def coord_on_gene(list_coord, list_gene, ref):
     For a reference organism check if all sgrna are on genes
     Return a CoordSeq object if at least one sgrna is on a gene
     """
-    coord_seq = CoordSeq(ref=ref)
+    coord_seq2 = CoordSeq(ref)
     for coord in list_coord:
         nb_on_gene = list(filter(lambda x: on_gene(coord, x), list_gene))
         if nb_on_gene:
-            coord_seq.update(coord)
-    if coord_seq.list_coord:
-        return coord_seq
+            coord_seq2.update(coord)
+    if coord_seq2.list_coord:
+        return coord_seq2
     return None
 
 
@@ -231,6 +231,7 @@ if __name__ == "__main__":
     DIC_INDEX, NB_HITS = pp.parse_setcompare_out(PARAM.f, None, int(PARAM.sl))
 
     LEN_SEQ = int(PARAM.sl) + int(len(PARAM.pam))
+    dspl.eprint("NB hits == > {}        Length DIC_INDEX ==> {}".format(NB_HITS, len(DIC_INDEX)))
     DIC_HITS = OrderedDict()
     for rank in DIC_INDEX:
         sequence = decoding.decode(rank, ["A", "T", "C", "G"], LEN_SEQ)
@@ -243,6 +244,7 @@ if __name__ == "__main__":
     if int(PARAM.sl) == 20:
         DIC_HITS = pp.treat_db_search_20(DIC_HITS, GENOMES_IN, PARAM.r, int(PARAM.c),
                                          PARAM.no_proxy)
+        dspl.eprint("Length DIC_HITS ==> {}".format(len(DIC_HITS)))
     else:
         DIC_HITS = pp.treat_db_search_other(DIC_HITS, DIC_INDEX, GENOMES_IN, PARAM.r,
                                             int(PARAM.c), PARAM.no_proxy)
