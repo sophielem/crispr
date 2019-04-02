@@ -138,10 +138,10 @@ def args_gestion():
                         required=True)
     parser.add_argument("-sl", metavar="<int>",
                         help="The length of the sgrna, excluding pam",
-                        nargs="?", const=20)
+                        nargs="?", default=20)
     parser.add_argument("-pam", metavar="<str>",
                         help="The pam motif",
-                        nargs="?", const="NGG")
+                        nargs="?", default="NGG")
     parser.add_argument("-f", metavar="<str>",
                         help="The file index",
                         required=True)

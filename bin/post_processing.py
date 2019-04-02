@@ -34,10 +34,10 @@ def args_gestion():
     # parser.add_argument("-file", metavar="FILE", type=lambda x: valid_file(parser, x),
     #                     help="The path to the fasta file")
     parser.add_argument("-sl", metavar="<int>",
-                        help="The length of the sgrna, excluding pam")
+                        help="The length of the sgrna, excluding pam", default=20)
     parser.add_argument("-pam", metavar="<str>",
                         help="The pam motif",
-                        required=True)
+                        required=True, default="NGG")
     parser.add_argument("-gi", metavar="<str>",
                         help="The organisms to search inclusion in.",
                         required=True)
