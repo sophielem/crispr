@@ -22,6 +22,14 @@ if [ "$URL_CRISPR" = "" ]; then
     error_json
 fi
 
+fileBlast="data/jeu_test/blast.xml"
+queryFasta="data/jeu_test/query.fasta"
+dbBlast="dbBlast"
+parseBlast="output_blast.p"
+fileSet="data/jeu_test/output_c.txt"
+metafileQuery=""
+
+
 # Create Metafile
 echo python -u $CRISPR_TOOL_SCRIPT_PATH/create_metafile.py -file $queryFasta -out $metafileQuery > sg.cmd
 python -u $CRISPR_TOOL_SCRIPT_PATH/create_metafile.py -file $queryFasta -out $metafileQuery
