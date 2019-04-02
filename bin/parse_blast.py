@@ -118,6 +118,9 @@ def args_gestion():
     parser.add_argument("-gi", metavar="<str>",
                         help="The organisms to search inclusion in.",
                         required=True)
+    parser.add_argument("-o", metavar="<str>",
+                        help="The output path for the pickle file",
+                        nargs="?", default="output_blast.p")
     args = parser.parse_args()
     return args
 
@@ -127,10 +130,6 @@ if __name__ == '__main__':
     GENOMES_IN = PARAM.gi.split("&")
     OUTPUT_BLAST = BlastReport(PARAM.blast, PARAM.ip, GENOMES_IN)
     if OUTPUT_BLAST.is_hit():
-        pickle.dump(OUTPUT_BLAST, open("output_blast.p", "wb"), protocol=3)
+        pickle.dump(OUTPUT_BLAST, open(PARAM.o, "wb"), protocol=3)
     else:
         print("Progam terminated&No homologous gene found")
-
-# OUTPUT_BLAST = BlastReport("data/xml.xml", 70,
-#                             ["Bacillus pseudofirmus OF48 GCF_000006925", "Bacillus pseudofirmus OF4 GCF_000006865", "NOTIN GCF_526625"])
-# print(OUTPUT_BLAST.homolog_gene)
