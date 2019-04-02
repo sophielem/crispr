@@ -228,7 +228,7 @@ if __name__ == "__main__":
     PARAM = args_gestion()
     GENOMES_IN = PARAM.gi.split("&")
     GENOMES_NOTIN = PARAM.gni.split("&")
-    DIC_INDEX, NB_HITS = pp.parse_setcompare_out(PARAM.f, None, int(PARAM.sl))
+    DIC_INDEX, NB_HITS = pp.parse_setcompare_out(PARAM.f, int(PARAM.nb_top)) if int(PARAM.sl) == 20 else pp.parse_setcompare_other(PARAM.f, int(PARAM.nb_top))
 
     LEN_SEQ = int(PARAM.sl) + int(len(PARAM.pam))
     dspl.eprint("NB hits == > {}        Length DIC_INDEX ==> {}".format(NB_HITS, len(DIC_INDEX)))

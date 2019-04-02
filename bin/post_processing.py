@@ -152,15 +152,7 @@ def check_find_database(dic_hits):
             dspl.eprint("Not find in database : {}".format(sgrna))
 
 
-def parse_setcompare_other(rank_w15):
-    """
-    Return a tuple of occurence and list of word_20
-    """
-    rankw20_occ = rank_w15[1].split(",")
-    return (rankw20_occ[0], rankw20_occ[1].strip().split(" "))
-
-
-def parse_setcompare_out(output_c, nb_top, word_len):
+def parse_setcompare_other(output_c, nb_top):
     """
     Parse the output of setCompare C script and return a dictionary with the coding word
     and its occurence if the length is 20 or a tuple containing its occurence and
@@ -181,8 +173,32 @@ def parse_setcompare_out(output_c, nb_top, word_len):
         for rank_occ in filin:
             if i == nb_top: break
             rank_splitted = rank_occ.split(":")
-            index_dic[int(rank_splitted[0])] = rank_splitted[1] if word_len == 20 else parse_setcompare_other(rank_splitted)
+            rankw20_occ = rank_splitted[1].split("[")
+            index_dic[int(rank_splitted[0])] = (rankw20_occ[0], rankw20_occ[1][:-2].split(","))
             i += 1
+    return index_dic, nb_hits
+
+
+def parse_setcompare_out(output_c, nb_top):
+    """
+    Parse the output of setCompare C script and return a dictionary with the coding word
+    and its occurence if the length is 20 or a tuple containing its occurence and
+    a list of word_20 associated
+    """
+    with open(output_c, "r") as filin:
+        text = filin.readlines()
+
+    nb_hits = re.search("[0-9]+", text[-2]).group()
+    if int(nb_hits) == 0:
+        print("Program terminated&No hits remain")
+        sys.exit()
+
+    index_dic = OrderedDict()
+    i = 0
+    for rank_occ in text[-1].strip().split(","):
+        if i == nb_top: break
+        index_dic[int(rank_occ.split(":")[0])] = rank_occ.split(":")[1]
+        i += 1
     return index_dic, nb_hits
 
 
@@ -190,7 +206,7 @@ if __name__ == '__main__':
     PARAM = args_gestion()
     GENOMES_IN = PARAM.gi.split("&")
     GENOMES_NOTIN = PARAM.gni.split("&")
-    DIC_INDEX, NB_HITS = parse_setcompare_out(PARAM.f, int(PARAM.nb_top), int(PARAM.sl))
+    DIC_INDEX, NB_HITS = parse_setcompare_out(PARAM.f, int(PARAM.nb_top)) if int(PARAM.sl) == 20 else parse_setcompare_other(PARAM.f, int(PARAM.nb_top))
 
     LEN_SEQ = int(PARAM.sl) + int(len(PARAM.pam))
     DIC_HITS = OrderedDict()
