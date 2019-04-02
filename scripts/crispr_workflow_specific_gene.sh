@@ -41,7 +41,7 @@ echo $gi > f.gi
 
 # Set Compare
 fileSet="set_index.txt"
-setCompare -i "$gi" -o "$gni" -l $rfg -e index -f $fileSet 2>> ./setCompare.err 1> ./setCompare.log
+setCompare -i "$gi" -o "$gni" -l $rfg -e index -f $fileSet -d 23 -c $LEN_WORD -s $metafileQuery".index" 2>> ./setCompare.err 1> ./setCompare.log
 
 # Blast N to find homologous genes
 echo blastn -outfmt 5 -query $queryFasta -db $dbBlast > $fileBlast >> sg.cmd
