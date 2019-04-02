@@ -22,5 +22,5 @@ def args_gestion():
 
 if __name__ == '__main__':
     PARAM = args_gestion()
-    word_detect.construct_in(PARAM.out + ".p", PARAM.file)
-    decoding.indexPickle(PARAM.out + ".p", PARAM.out + ".index")
+    word_detect.construct_in(PARAM.file, PARAM.out + ".p")
+    decoding.indexAndOccurencePickle(PARAM.out + ".p", PARAM.out + ".index")
