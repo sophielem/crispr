@@ -106,6 +106,7 @@ optional arguments:
  The output path is the path to the output file without the extension.
 
 ## Example parse blastn output
+Make db : makeblastdb -in file.fasta -title "Database with all genomes" -dbtype nucl
 
 ```sh
 usage: parse_blast.py [-h] -blast <str> [-ip [IP]] -gi <str>
