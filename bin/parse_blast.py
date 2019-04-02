@@ -63,7 +63,7 @@ class BlastReport(object):
         Return true if there are hits else return False
         """
         msg = self.root.find("./BlastOutput_iterations/Iteration/Iteration_message")
-        if not msg:
+        if not hasattr(msg, "text"):
             return True
         msg = msg.text
         print(msg)
@@ -132,4 +132,4 @@ if __name__ == '__main__':
     if OUTPUT_BLAST.is_hit():
         pickle.dump(OUTPUT_BLAST, open(PARAM.o, "wb"), protocol=3)
     else:
-        print("Progam terminated&No homologous gene found")
+        print("Program terminated&No homologous gene found")

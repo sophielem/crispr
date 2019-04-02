@@ -220,7 +220,7 @@ def check_on_gene(blast_file, dic_index, nb_gi):
     if resume_seq:
         return resume_seq
     # None sgrna on homologous gene
-    print("Progam terminated&No hits on genes")
+    print("Program terminated&No hits on genes")
     sys.exit()
 
 
