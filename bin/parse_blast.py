@@ -114,7 +114,7 @@ def args_gestion():
     parser.add_argument('-ip', type=int,
                         help='identity percentage min for the research of\
                               homologous genes using blastn (default:70)',
-                        nargs="?", const=70)
+                        nargs="?", default=70)
     parser.add_argument("-gi", metavar="<str>",
                         help="The organisms to search inclusion in.",
                         required=True)
