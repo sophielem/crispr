@@ -16,8 +16,10 @@ import xml.etree.ElementTree as ET
 class BlastHit(object):
     """docstring for BlastHit."""
     def __init__(self, hsp):
-        self.start = int(hsp.find("Hsp_hit-from").text) - 1
-        self.end = int(hsp.find("Hsp_hit-to").text) - 1
+        hsp_from = int(hsp.find("Hsp_hit-from").text) - 1
+        hsp_to = int(hsp.find("Hsp_hit-to").text) - 1
+        self.start = min(hsp_from, hsp_to)
+        self.end = max(hsp_from, hsp_to)
         self.len = int(hsp.find("Hsp_align-len").text)
 
     def __repr__(self):
