@@ -166,8 +166,8 @@ def on_gene(sgrna, gene):
     """
     Check if a given sgrna is on a given gene
     """
-    sgrna_start = int(re.search("[+-]\(([0-9]*);", sgrna).group(1))
-    sgrna_end = int(re.search(";([0-9]*)", sgrna).group(1))
+    sgrna_start = int(re.search("[+-]\(([0-9]*),", sgrna).group(1))
+    sgrna_end = int(re.search(",([0-9]*)", sgrna).group(1))
     return gene.start <= sgrna_start and gene.end >= sgrna_end
 
 
@@ -250,10 +250,10 @@ if __name__ == "__main__":
     # Keep sgrna which are on gene
     RESUME_SEQ = check_on_gene(PARAM.blast, DIC_HITS, len(GENOMES_IN))
     # Sort sgrna by the proportion of organism containing this sgrna on a gene
-    RESUME_SEQ = sorted(RESUME_SEQ, key=lambda hit: RESUME_SEQ[hit].proportion, reverse=True)
+    LIST_ORDERED = sorted(RESUME_SEQ, key=lambda hit: RESUME_SEQ[hit].proportion, reverse=True)
 
     dspl.display_hits(RESUME_SEQ, GENOMES_IN, GENOMES_NOTIN,
-                      PARAM.pam, int(PARAM.sl), ".", int(PARAM.nb_top))
+                      PARAM.pam, int(PARAM.sl), ".", int(PARAM.nb_top), False, LIST_ORDERED)
 
     print(','.join(GENOMES_NOTIN))
     print("TASK_KEY")

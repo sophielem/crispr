@@ -99,7 +99,7 @@ def couchdb_search(sgrna_list, end_point, len_slice, no_poxy_bool):
             continue
         break
 
-    dspl.eprint("motif-broker ans:\n", str(results))
+    # dspl.eprint("motif-broker ans:\n", str(results))
     return results
 
 

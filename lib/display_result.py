@@ -47,7 +47,7 @@ def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 
-def write_to_file(genomes_in, genomes_not_in, dic_hits, pam, non_pam_motif_length, workdir, nb_top, hit_obj):
+def write_to_file(genomes_in, genomes_not_in, dic_hits, pam, non_pam_motif_length, workdir, nb_top, hit_obj, list_ordered):
     """
     Write results in a file.
     The file is a tabulated file, with first column=sgrna sequence,
@@ -69,7 +69,7 @@ def write_to_file(genomes_in, genomes_not_in, dic_hits, pam, non_pam_motif_lengt
         output.write('\t' + genome_i)
     output.write('\n')
     i = 0
-    for sgrna in dic_hits:
+    for sgrna in list_ordered:
         if i == nb_top : break
         i += 1
         hit = dic_hits[sgrna]
@@ -92,13 +92,13 @@ def output_interface(dic_hits, workdir, nb_top):
         json.dump(list_dic, filout, indent=4)
 
 
-def display_hits(dic_hits, genomes_in, genomes_not_in, pam, non_pam_motif_length, workdir, nb_top, hit_obj):
+def display_hits(dic_hits, genomes_in, genomes_not_in, pam, non_pam_motif_length, workdir, nb_top, hit_obj, list_ordered):
     """
     write output for interface
     """
     # Put results in local file for access via the interface.
     write_to_file(genomes_in, genomes_not_in, dic_hits, pam,
-                  non_pam_motif_length, workdir, nb_top, hit_obj)
+                  non_pam_motif_length, workdir, nb_top, hit_obj, list_ordered)
 
     # Output formatting for printing to interface
     output_interface(dic_hits, workdir, 100)
