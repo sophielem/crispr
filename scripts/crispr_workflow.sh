@@ -8,8 +8,8 @@ error_json () {
 if [ "$pam" != "NGG" ]; then
     error_json
 
-elif [ "$sl" != "20" ]; then
-    error_json
+#elif [ "$sl" != "20" ]; then
+#    error_json
 
 elif [ "$CRISPR_TOOL_SCRIPT_PATH" = "" ]; then
     error_json
@@ -18,6 +18,13 @@ elif  [ "$URL_CRISPR" = "" ]; then
     error_json
 
 else
+
+    slFlag = ""
+    #  shorter word 
+    if [ "$sl" != "20" ]; then
+        ((_sl = $sl + 3))
+        slFlag="-d 23 -c ${_sl}"
+    fi
     printenv > env.log
 
     BASE_FOLDER=`pwd`
@@ -33,10 +40,10 @@ else
 
     echo $gi > f.gi
     fileSet="set_index.txt"
-    setCompare -i "$gi" -o "$gni" -l $rfg -e index -f $fileSet 2>> ./setCompare.err 1> ./setCompare.log
+    setCompare $slFlag -i "$gi" -o "$gni" -l $rfg -e index -f $fileSet 2>> ./setCompare.err 1> ./setCompare.log
 
-    echo python -u $CRISPR_TOOL_SCRIPT_PATH/post_processing.py -f $fileSet -sl 20 -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR"  -c 2000 --no-proxy > pp.cmd
-    python -u $CRISPR_TOOL_SCRIPT_PATH/post_processing.py -f $fileSet -sl 20 -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR"  -c 2000 --no-proxy 2>> ./post_processing.err 1> ./post_processing.log
+    echo python -u $CRISPR_TOOL_SCRIPT_PATH/post_processing.py -f $fileSet -sl $sl -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR"  -c 2000 --no-proxy > pp.cmd
+    python -u $CRISPR_TOOL_SCRIPT_PATH/post_processing.py -f $fileSet -sl $sl -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR"  -c 2000 --no-proxy 2>> ./post_processing.err 1> ./post_processing.log
     #echo "post_processing.py -sl 20 -pam \"NGG\" -gi \"$gi\" -gni \"$gni\" -r \"$URL_CRISPR\"  -c 2000" >> ./cmd.txt
     #python $CRISPR_TOOL_SCRIPT_PATH/post_processing.py -sl 20 -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR" -c 2000 2>> ./post_processing.err 1> ./post_processing.log
 
