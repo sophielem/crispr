@@ -215,7 +215,8 @@ def create_dic_hits(param, genomes_in):
     for rank in dic_index:
         sequence = decoding.decode(rank, ["A", "T", "C", "G"], len_seq)
         occ = dic_index[rank] if int(param.sl) == 20 else dic_index[rank][0]
-        dic_index[rank][1] = [decoding.decode(int(w20), ["A", "T", "C", "G"], len_seq) for w20 in dic_index[rank][1]]
+        if int(param.sl != 20):
+            dic_index[rank][1] = [decoding.decode(int(w20), ["A", "T", "C", "G"], 23) for w20 in dic_index[rank][1]]
         dic_hits[sequence] = dspl.Hit(sequence, occ)
 
     # Search coordinates for each sgrna in each organism
