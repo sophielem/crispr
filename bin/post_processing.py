@@ -129,9 +129,8 @@ def treat_db_search_other(dic_hits, dic_index, genomes_in, end_point, len_slice,
     results = couchdb_search(sgrna_list, end_point, len_slice, no_poxy_bool)
     # Loop on word_15 to find their word_20 associated
     for sgrna in dic_hits:
-        decode_w20 = [decoding.decode(w20, ["A", "T", "C", "G"], len_seq) for w20 in dic_index[sgrna][1]]
         dic_seq = {}
-        for word_20 in decode_w20:
+        for word_20 in dic_index[sgrna][1]:
             for org_name in results["request"][word_20]:
                 # To remove when the database is clean
                 nobackslash_org_name = org_name.replace('/', '_')
@@ -175,7 +174,7 @@ def parse_setcompare_other(output_c, nb_top):
             if i == nb_top: break
             rank_splitted = rank_occ.split(":")
             rankw20_occ = rank_splitted[1].split("[")
-            index_dic[int(rank_splitted[0])] = (rankw20_occ[0], rankw20_occ[1][:-2].split(","))
+            index_dic[int(rank_splitted[0])] = [rankw20_occ[0], rankw20_occ[1][:-2].split(",")]
             i += 1
     return index_dic, nb_hits
 
@@ -216,6 +215,7 @@ def create_dic_hits(param, genomes_in):
     for rank in dic_index:
         sequence = decoding.decode(rank, ["A", "T", "C", "G"], len_seq)
         occ = dic_index[rank] if int(param.sl) == 20 else dic_index[rank][0]
+        dic_index[rank][1] = [decoding.decode(int(w20), ["A", "T", "C", "G"], len_seq) for w20 in dic_index[rank][1]]
         dic_hits[sequence] = dspl.Hit(sequence, occ)
 
     # Search coordinates for each sgrna in each organism
