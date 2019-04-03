@@ -10,6 +10,10 @@ if [ "$pam" != "NGG" ]; then
     error_json
 fi
 
+if [ "$sl" != "20" ]; then
+    error_json
+fi
+
 if [ "$CRISPR_TOOL_SCRIPT_PATH" = "" ]; then
     error_json
 fi
