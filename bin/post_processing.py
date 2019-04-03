@@ -120,7 +120,7 @@ def treat_db_search_20(dic_hits, genomes_in, end_point, len_slice, no_poxy_bool)
     return dic_hits
 
 
-def treat_db_search_other(dic_hits, dic_index, genomes_in, end_point, len_slice, no_poxy_bool):
+def treat_db_search_other(dic_hits, dic_index, genomes_in, end_point, len_slice, no_poxy_bool, len_seq):
     """
     Find the result for word_20 associated to a word_15. Then merge results and update the
     Hit object
@@ -129,8 +129,9 @@ def treat_db_search_other(dic_hits, dic_index, genomes_in, end_point, len_slice,
     results = couchdb_search(sgrna_list, end_point, len_slice, no_poxy_bool)
     # Loop on word_15 to find their word_20 associated
     for sgrna in dic_hits:
+        decode_w20 = [decoding.decode(w20, ["A", "T", "C", "G"], len_seq) for w20 in dic_index[sgrna][1]]
         dic_seq = {}
-        for word_20 in dic_index[sgrna][1]:
+        for word_20 in decode_w20:
             for org_name in results["request"][word_20]:
                 # To remove when the database is clean
                 nobackslash_org_name = org_name.replace('/', '_')
