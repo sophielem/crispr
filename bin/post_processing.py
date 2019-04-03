@@ -125,12 +125,12 @@ def treat_db_search_other(dic_hits, dic_index, genomes_in, end_point, len_slice,
     Find the result for word_20 associated to a word_15. Then merge results and update the
     Hit object
     """
-    sgrna_list = [word for w15 in dic_index for word in dic_index[w15][1]]
+    sgrna_list = [word for w15 in dic_index for word in dic_index[w15]]
     results = couchdb_search(sgrna_list, end_point, len_slice, no_poxy_bool)
     # Loop on word_15 to find their word_20 associated
     for sgrna in dic_hits:
         dic_seq = {}
-        for word_20 in dic_index[sgrna][1]:
+        for word_20 in dic_index[sgrna]:
             for org_name in results["request"][word_20]:
                 # To remove when the database is clean
                 nobackslash_org_name = org_name.replace('/', '_')
@@ -211,12 +211,13 @@ def create_dic_hits(param, genomes_in):
 
     len_seq = int(param.sl) + int(len(param.pam))
     dic_hits = OrderedDict()
+    dic_new = {}
     # Decoding of each index into sequence
     for rank in dic_index:
         sequence = decoding.decode(rank, ["A", "T", "C", "G"], len_seq)
         occ = dic_index[rank] if int(param.sl) == 20 else dic_index[rank][0]
         if int(param.sl) != 20:
-            dic_index[rank][1] = [decoding.decode(int(w20), ["A", "T", "C", "G"], 23) for w20 in dic_index[rank][1]]
+            dic_new[sequence] = [decoding.decode(int(w20), ["A", "T", "C", "G"], 23) for w20 in dic_index[rank][1]]
         dic_hits[sequence] = dspl.Hit(sequence, occ)
 
     # Search coordinates for each sgrna in each organism
@@ -224,7 +225,7 @@ def create_dic_hits(param, genomes_in):
         dic_hits = treat_db_search_20(dic_hits, genomes_in, param.r, int(param.c),
                                       param.no_proxy)
     else:
-        dic_hits = treat_db_search_other(dic_hits, dic_index, genomes_in, param.r,
+        dic_hits = treat_db_search_other(dic_hits, dic_new, genomes_in, param.r,
                                          int(param.c), param.no_proxy, len_seq)
     return dic_hits
 
