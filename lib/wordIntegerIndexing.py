@@ -71,6 +71,16 @@ def weightWord(word, alphabet, length=None):
         rank += wei * pow(base, i)
     return rank
 
+def project(value, lenFrom, lenTo, alphabet="ATCG"):
+    base = len(alphabet)
+    _value = value
+    offset = 0
+    for i in range(lenFrom, lenTo-1, -1):
+        w = math.trunc(value / pow(base, i))
+        offset += w * pow(base, i)
+        value = value % pow(base, i)
+    
+    return _value - offset
 
 def decode(rank, alphabet, length=20):
     """
