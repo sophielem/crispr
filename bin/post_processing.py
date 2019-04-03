@@ -203,29 +203,36 @@ def parse_setcompare_out(output_c, nb_top):
     return index_dic, nb_hits
 
 
+def create_dic_hits(param, genomes_in):
+    """
+    Definition
+    """
+    dic_index, nb_hits = parse_setcompare_out(param.f, int(param.nb_top)) if int(param.sl) == 20 else parse_setcompare_other(param.f, int(param.nb_top))
+    dspl.eprint("NB_HITS  ==>  {}     Length DIC_INDEX  ==>  {}".format(nb_hits, len(dic_index)))
+
+    len_seq = int(param.sl) + int(len(param.pam))
+    dic_hits = OrderedDict()
+    # Decoding of each index into sequence
+    for rank in dic_index:
+        sequence = decoding.decode(rank, ["A", "T", "C", "G"], len_seq)
+        occ = dic_index[rank] if int(param.sl) == 20 else dic_index[rank][0]
+        dic_hits[sequence] = dspl.Hit(sequence, occ)
+
+    # Search coordinates for each sgrna in each organism
+    if int(param.sl) == 20:
+        dic_hits = treat_db_search_20(dic_hits, genomes_in, param.r, int(param.c),
+                                      param.no_proxy)
+    else:
+        dic_hits = treat_db_search_other(dic_hits, dic_index, genomes_in, param.r,
+                                         int(param.c), param.no_proxy, len_seq)
+    return dic_hits
+
+
 if __name__ == '__main__':
     PARAM = args_gestion()
     GENOMES_IN = PARAM.gi.split("&")
     GENOMES_NOTIN = PARAM.gni.split("&")
-    DIC_INDEX, NB_HITS = parse_setcompare_out(PARAM.f, int(PARAM.nb_top)) if int(PARAM.sl) == 20 else parse_setcompare_other(PARAM.f, int(PARAM.nb_top))
-
-    LEN_SEQ = int(PARAM.sl) + int(len(PARAM.pam))
-    DIC_HITS = OrderedDict()
-    # Decoding of each index into sequence
-    for rank in DIC_INDEX:
-        sequence = decoding.decode(rank, ["A", "T", "C", "G"], LEN_SEQ)
-        if int(PARAM.sl) == 20:
-            DIC_HITS[sequence] = dspl.Hit(sequence, DIC_INDEX[rank])
-        else:
-            DIC_HITS[sequence] = dspl.Hit(sequence, DIC_INDEX[rank][0])
-
-    # Search coordinates for each sgrna in each organism
-    if int(PARAM.sl) == 20:
-        DIC_HITS = treat_db_search_20(DIC_HITS, GENOMES_IN, PARAM.r, int(PARAM.c),
-                                      PARAM.no_proxy)
-    else:
-        DIC_HITS = treat_db_search_other(DIC_HITS, DIC_INDEX, GENOMES_IN, PARAM.r,
-                                         int(PARAM.c), PARAM.no_proxy)
+    DIC_HITS = create_dic_hits(PARAM, GENOMES_IN)
 
     # Display the result for the navigator
     dspl.display_hits(DIC_HITS, GENOMES_IN, GENOMES_NOTIN,

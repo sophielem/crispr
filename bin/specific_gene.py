@@ -228,32 +228,14 @@ if __name__ == "__main__":
     PARAM = args_gestion()
     GENOMES_IN = PARAM.gi.split("&")
     GENOMES_NOTIN = PARAM.gni.split("&")
-    DIC_INDEX, NB_HITS = pp.parse_setcompare_out(PARAM.f, int(PARAM.nb_top)) if int(PARAM.sl) == 20 else pp.parse_setcompare_other(PARAM.f, int(PARAM.nb_top))
-
-    LEN_SEQ = int(PARAM.sl) + int(len(PARAM.pam))
-    dspl.eprint("NB hits == > {}        Length DIC_INDEX ==> {}".format(NB_HITS, len(DIC_INDEX)))
-    DIC_HITS = OrderedDict()
-    for rank in DIC_INDEX:
-        sequence = decoding.decode(rank, ["A", "T", "C", "G"], LEN_SEQ)
-        if int(PARAM.sl) == 20:
-            DIC_HITS[sequence] = dspl.Hit(sequence, DIC_INDEX[rank])
-        else:
-            DIC_HITS[sequence] = dspl.Hit(sequence, DIC_INDEX[rank][0])
-
-    # Search coordinates for each sgrna in each organism
-    if int(PARAM.sl) == 20:
-        DIC_HITS = pp.treat_db_search_20(DIC_HITS, GENOMES_IN, PARAM.r, int(PARAM.c),
-                                         PARAM.no_proxy)
-        dspl.eprint("Length DIC_HITS ==> {}".format(len(DIC_HITS)))
-    else:
-        DIC_HITS = pp.treat_db_search_other(DIC_HITS, DIC_INDEX, GENOMES_IN, PARAM.r,
-                                            int(PARAM.c), PARAM.no_proxy)
+    DIC_HITS = pp.create_dic_hits(PARAM, GENOMES_IN)
 
     # Keep sgrna which are on gene
     RESUME_SEQ = check_on_gene(PARAM.blast, DIC_HITS, len(GENOMES_IN))
     # Sort sgrna by the proportion of organism containing this sgrna on a gene
     LIST_ORDERED = sorted(RESUME_SEQ, key=lambda hit: RESUME_SEQ[hit].proportion, reverse=True)
 
+    # Display the result for the navigator
     dspl.display_hits(RESUME_SEQ, GENOMES_IN, GENOMES_NOTIN,
                       PARAM.pam, int(PARAM.sl), ".", int(PARAM.nb_top), False, LIST_ORDERED)
 
