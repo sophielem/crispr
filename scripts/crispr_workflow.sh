@@ -10,10 +10,6 @@ if [ "$pam" != "NGG" ]; then
     error_json
 fi
 
-if [ "$sl" != "20" ]; then
-    error_json
-fi
-
 if [ "$CRISPR_TOOL_SCRIPT_PATH" = "" ]; then
     error_json
 fi
@@ -36,7 +32,12 @@ gni=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --
 
 echo $gi > f.gi
 fileSet="set_index.txt"
-setCompare -i "$gi" -o "$gni" -l $rfg -e index -f $fileSet 2>> ./setCompare.err 1> ./setCompare.log
+if [ "$sl" != "20" ]; then
+    setCompare -i "$gi" -o "$gni" -l $rfg -e index -f $fileSet 2 -d 23 -c $sl 2>> ./setCompare.err 1> ./setCompare.log
+else
+    setCompare -i "$gi" -o "$gni" -l $rfg -e index -f $fileSet 2>> ./setCompare.err 1> ./setCompare.log
+fi
+
 
 echo python -u $CRISPR_TOOL_SCRIPT_PATH/post_processing.py -f $fileSet -sl 20 -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR"  -c 2000 --no-proxy > pp.cmd
 python -u $CRISPR_TOOL_SCRIPT_PATH/post_processing.py -f $fileSet -sl 20 -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR"  -c 2000 --no-proxy 2>> ./post_processing.err 1> ./post_processing.log

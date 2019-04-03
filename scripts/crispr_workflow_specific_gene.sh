@@ -10,10 +10,6 @@ if [ "$pam" != "NGG" ]; then
     error_json
 fi
 
-if [ "$sl" != "20" ]; then
-    error_json
-fi
-
 if [ "$CRISPR_TOOL_SCRIPT_PATH" = "" ]; then
     error_json
 fi
@@ -41,7 +37,13 @@ echo $gi > f.gi
 
 # Set Compare
 fileSet="set_index.txt"
-setCompare -i "$gi" -o "$gni" -l $rfg -e index -f $fileSet -d 23 -c $LEN_WORD -s $metafileQuery".index" 2>> ./setCompare.err 1> ./setCompare.log
+
+if [ "$sl" != "20" ]; then
+    setCompare -i "$gi" -o "$gni" -l $rfg -e index -f $fileSet -d 23 -c $sl -s $metafileQuery".index" 2>> ./setCompare.err 1> ./setCompare.log
+else
+    setCompare -i "$gi" -o "$gni" -l $rfg -e index -f $fileSet -s $metafileQuery".index" 2>> ./setCompare.err 1> ./setCompare.log
+fi
+
 
 # Blast N to find homologous genes
 echo blastn -outfmt 5 -query $queryFasta -db $dbBlast > $fileBlast >> sg.cmd
