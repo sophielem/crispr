@@ -34,6 +34,8 @@ else
     pwd > pwd.log
 
     # Create Metafile
+    queryFasta=""
+    metafileQuery="./query_fasta"
     echo python -u $CRISPR_TOOL_SCRIPT_PATH/create_metafile.py -file $queryFasta -out $metafileQuery > sg.cmd
     python -u $CRISPR_TOOL_SCRIPT_PATH/create_metafile.py -file $queryFasta -out $metafileQuery
 
@@ -47,10 +49,13 @@ else
     setCompare $slFlag -i "$gi" -o "$gni" -l $rfg -e index -f $fileSet -s $metafileQuery".index" 2>> ./setCompare.err 1> ./setCompare.log
 
     # Blast N to find homologous genes
+    fileBlast="blast_output.xml"
+    dbBlast=""
     echo blastn -outfmt 5 -query $queryFasta -db $dbBlast > $fileBlast >> sg.cmd
     blastn -outfmt 5 -query $queryFasta -db $dbBlast > $fileBlast
 
     # Parse the blast output
+    parseBlast="parse_blast.p"
     echo python -u $CRISPR_TOOL_SCRIPT_PATH/parse_blast.py -blast $fileBlast -gi "$gi" -o $parseBlast >> sg.cmd
     python -u $CRISPR_TOOL_SCRIPT_PATH/parse_blast.py -blast $fileBlast -gi "$gi" -o $parseBlast 2>> ./parse_blast.err 1> ./parse_blast.log
 
