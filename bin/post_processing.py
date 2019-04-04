@@ -9,6 +9,7 @@ import os
 import time
 import argparse
 import re
+import operator
 from collections import OrderedDict
 import requests
 import wordIntegerIndexing as decoding
@@ -135,12 +136,29 @@ def treat_db_search_other(dic_hits, dic_index, genomes_in, end_point, len_slice,
                 # To remove when the database is clean
                 nobackslash_org_name = org_name.replace('/', '_')
                 if nobackslash_org_name in genomes_in:
+                    results["request"][word_20][org_name] = update_coord(results["request"][word_20][org_name], len_seq)
                     if nobackslash_org_name in dic_seq:
                         dic_seq[nobackslash_org_name] = merge_dic(dic_seq[nobackslash_org_name], results["request"][word_20][org_name])
                     else:
                         dic_seq[nobackslash_org_name] = results["request"][word_20][org_name]
         dic_hits[sgrna].set_genomes_dict(dic_seq)
     return dic_hits
+
+
+def update_coord(dic_results, len_seq):
+    """
+    Update coordinates with the length of sgRNA
+    """
+    offset = 23 - len_seq
+    return {ref: [replace_coord("[+-]\(([0-9]*),", operator.add, coord, offset) if coord[0] == "+" else replace_coord(",([0-9]*)", operator.sub, coord, offset) for coord in dic_results[ref]] for ref in dic_results}
+
+
+def replace_coord(regex, op_func, coord, offset):
+    """
+    Change the coordinate string
+    """
+    sgrna_start = int(re.search(regex, coord).group(1))
+    return coord.replace(str(sgrna_start), str(op_func(sgrna_start, offset)))
 
 
 def merge_dic(dic_seq_ref, dic_results):
