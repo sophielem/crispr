@@ -166,9 +166,12 @@ def on_gene(sgrna, gene):
     """
     Check if a given sgrna is on a given gene
     """
-    sgrna_start = int(re.search("[+-]\(([0-9]*),", sgrna).group(1))
-    sgrna_end = int(re.search(",([0-9]*)", sgrna).group(1))
-    return gene.start <= sgrna_start and gene.end >= sgrna_end
+    try:
+        sgrna_start = int(re.search("[+-]\(([0-9]*),", sgrna).group(1))
+        sgrna_end = int(re.search(",([0-9]*)", sgrna).group(1))
+        return gene.start <= sgrna_start and gene.end >= sgrna_end
+    except:
+        return []
 
 
 def coord_on_gene(list_coord, list_gene, ref):
