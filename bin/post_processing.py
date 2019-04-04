@@ -9,6 +9,7 @@ import os
 import time
 import argparse
 import re
+import operator
 from collections import OrderedDict
 import requests
 import wordIntegerIndexing as decoding
@@ -125,23 +126,52 @@ def treat_db_search_other(dic_hits, dic_index, genomes_in, end_point, len_slice,
     Find the result for word_20 associated to a word_15. Then merge results and update the
     Hit object
     """
-    sgrna_list = [word for w15 in dic_index for word in dic_index[w15][1]]
+    sgrna_list = [word for w15 in dic_index for word in dic_index[w15]]
     results = couchdb_search(sgrna_list, end_point, len_slice, no_poxy_bool)
     # Loop on word_15 to find their word_20 associated
     for sgrna in dic_hits:
-        decode_w20 = [decoding.decode(w20, ["A", "T", "C", "G"], len_seq) for w20 in dic_index[sgrna][1]]
         dic_seq = {}
-        for word_20 in decode_w20:
+        for word_20 in dic_index[sgrna]:
             for org_name in results["request"][word_20]:
                 # To remove when the database is clean
                 nobackslash_org_name = org_name.replace('/', '_')
                 if nobackslash_org_name in genomes_in:
+                    results["request"][word_20][org_name] = update_coord(results["request"][word_20][org_name], len_seq)
                     if nobackslash_org_name in dic_seq:
-                        dic_seq[nobackslash_org_name].update(results["request"][word_20][org_name])
+                        dic_seq[nobackslash_org_name] = merge_dic(dic_seq[nobackslash_org_name], results["request"][word_20][org_name])
                     else:
                         dic_seq[nobackslash_org_name] = results["request"][word_20][org_name]
         dic_hits[sgrna].set_genomes_dict(dic_seq)
     return dic_hits
+
+
+def update_coord(dic_results, len_seq):
+    """
+    Update coordinates with the length of sgRNA
+    """
+    offset = 23 - len_seq
+    return {ref: [replace_coord("[+-]\(([0-9]*),", operator.add, coord, offset) if coord[0] == "+" else replace_coord(",([0-9]*)", operator.sub, coord, offset) for coord in dic_results[ref]] for ref in dic_results}
+
+
+def replace_coord(regex, op_func, coord, offset):
+    """
+    Change the coordinate string
+    """
+    sgrna_start = int(re.search(regex, coord).group(1))
+    return coord.replace(str(sgrna_start), str(op_func(sgrna_start, offset)))
+
+
+def merge_dic(dic_seq_ref, dic_results):
+    """
+    Merge dictionaries. Because several word_20 are associated to word_15
+    so the same reference can be write
+    """
+    for ref in dic_results:
+        if ref in dic_seq_ref.keys():
+            dic_seq_ref[ref] += dic_results[ref]
+        else:
+            dic_seq_ref[ref] = dic_results[ref]
+    return dic_seq_ref
 
 
 def check_find_database(dic_hits):
@@ -175,7 +205,7 @@ def parse_setcompare_other(output_c, nb_top):
             if i == nb_top: break
             rank_splitted = rank_occ.split(":")
             rankw20_occ = rank_splitted[1].split("[")
-            index_dic[int(rank_splitted[0])] = (rankw20_occ[0], rankw20_occ[1][:-2].split(","))
+            index_dic[int(rank_splitted[0])] = [rankw20_occ[0], rankw20_occ[1][:-2].split(",")]
             i += 1
     return index_dic, nb_hits
 
@@ -212,10 +242,13 @@ def create_dic_hits(param, genomes_in):
 
     len_seq = int(param.sl) + int(len(param.pam))
     dic_hits = OrderedDict()
+    dic_new = {}
     # Decoding of each index into sequence
     for rank in dic_index:
         sequence = decoding.decode(rank, ["A", "T", "C", "G"], len_seq)
         occ = dic_index[rank] if int(param.sl) == 20 else dic_index[rank][0]
+        if int(param.sl) != 20:
+            dic_new[sequence] = [decoding.decode(int(w20), ["A", "T", "C", "G"], 23) for w20 in dic_index[rank][1]]
         dic_hits[sequence] = dspl.Hit(sequence, occ)
 
     # Search coordinates for each sgrna in each organism
@@ -223,7 +256,7 @@ def create_dic_hits(param, genomes_in):
         dic_hits = treat_db_search_20(dic_hits, genomes_in, param.r, int(param.c),
                                       param.no_proxy)
     else:
-        dic_hits = treat_db_search_other(dic_hits, dic_index, genomes_in, param.r,
+        dic_hits = treat_db_search_other(dic_hits, dic_new, genomes_in, param.r,
                                          int(param.c), param.no_proxy, len_seq)
     return dic_hits
 
