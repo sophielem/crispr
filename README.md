@@ -35,12 +35,12 @@ To execute this script, you need few dependencies :
 * docopt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;== 0.6.2
 * ete3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;== 3.1.1
 * biopython == 1.66
-* tqdm (progress bar)
 
-Then, you need the pycouchDB package which can not be installed by *pip* so the source code is in the *bin* folder.
+You also need blastn.
 
-## Example normal mode
-Explain how to use the script
+## Usage
+### Normal mode
+
 ```sh
 usage: post_processing.py [-h] [-sl <int>] -pam <str> -gi <str> -gni <str> -r
                           <str> -c <int> -f <str> [--no-proxy] [-nb_top <int>]
@@ -66,7 +66,7 @@ python bin/post_processing.py -sl 20 -pam "NGG"\
 -r "http://localhost:1234" -c 1000 -f "data/example_outputC.txt"
 ```
 
-## Example Specific gene
+### Specific gene
 Retrieve sgRNA on a specific gene given by user. Retrieve result from SetCompare script and
 create files for displaying on webservice.
 
@@ -91,7 +91,7 @@ optional arguments:
   -c <int>       The length of the slice for the request
   ```
 
-## Example Create Metafile (*pickle* and *index*)
+### Create Metafile (*pickle* and *index*)
 
 ```sh
 usage: create_metafile.py [-h] -file <str> -out <str>
@@ -105,8 +105,11 @@ optional arguments:
  ```
  The output path is the path to the output file without the extension.
 
-## Example parse blastn output
-Make db : makeblastdb -in file.fasta -title "Database with all genomes" -dbtype nucl
+### Parse blastn output
+If no database for blast software, use this command to create it:
+```sh
+makeblastdb -in file.fasta -title "Database with all genomes" -dbtype nucl
+```
 
 ```sh
 usage: parse_blast.py [-h] -blast <str> [-ip [IP]] -gi <str>
