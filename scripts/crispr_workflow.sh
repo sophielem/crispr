@@ -19,8 +19,8 @@ elif  [ "$URL_CRISPR" = "" ]; then
 
 else
 
-    slFlag = ""
-    #  shorter word 
+    slFlag=""
+    #  shorter word
     if [ "$sl" != "20" ]; then
         ((_sl = $sl + 3))
         slFlag="-d 23 -c ${_sl}"
