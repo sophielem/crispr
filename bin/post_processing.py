@@ -136,11 +136,24 @@ def treat_db_search_other(dic_hits, dic_index, genomes_in, end_point, len_slice,
                 nobackslash_org_name = org_name.replace('/', '_')
                 if nobackslash_org_name in genomes_in:
                     if nobackslash_org_name in dic_seq:
-                        dic_seq[nobackslash_org_name].update(results["request"][word_20][org_name])
+                        dic_seq[nobackslash_org_name] = merge_dic(dic_seq[nobackslash_org_name], results["request"][word_20][org_name])
                     else:
                         dic_seq[nobackslash_org_name] = results["request"][word_20][org_name]
         dic_hits[sgrna].set_genomes_dict(dic_seq)
     return dic_hits
+
+
+def merge_dic(dic_seq_ref, dic_results):
+    """
+    Merge dictionaries. Because several word_20 are associated to word_15
+    so the same reference can be write
+    """
+    for ref in dic_results:
+        if ref in dic_seq_ref.keys():
+            dic_seq_ref[ref] += dic_results[ref]
+        else:
+            dic_seq_ref[ref] = dic_results[ref]
+    return dic_seq_ref
 
 
 def check_find_database(dic_hits):
