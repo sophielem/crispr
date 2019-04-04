@@ -29,8 +29,6 @@ else
 
     BASE_FOLDER=`pwd`
 
-    #cp -r $BASE_FOLDER/* $WORKDIR
-    #cd $WORKDIR
     pwd > pwd.log
 
     # Create Metafile
@@ -50,14 +48,14 @@ else
 
     # Blast N to find homologous genes
     fileBlast="blast_output.xml"
-    dbBlast=""
+    dbBlast="/data/databases/mobi/crispr_clean/db_blast.fasta"
     echo blastn -outfmt 5 -query $queryFasta -db $dbBlast > $fileBlast >> sg.cmd
     blastn -outfmt 5 -query $queryFasta -db $dbBlast > $fileBlast
 
     # Parse the blast output
     parseBlast="parse_blast.p"
-    echo python -u $CRISPR_TOOL_SCRIPT_PATH/parse_blast.py -blast $fileBlast -gi "$gi" -o $parseBlast >> sg.cmd
-    python -u $CRISPR_TOOL_SCRIPT_PATH/parse_blast.py -blast $fileBlast -gi "$gi" -o $parseBlast 2>> ./parse_blast.err 1> ./parse_blast.log
+    echo python -u $CRISPR_TOOL_SCRIPT_PATH/parse_blast.py -blast $fileBlast -gi "$gi" -o $parseBlast -ip $pid >> sg.cmd
+    python -u $CRISPR_TOOL_SCRIPT_PATH/parse_blast.py -blast $fileBlast -gi "$gi" -o $parseBlast -ip $pid 2>> ./parse_blast.err 1> ./parse_blast.log
 
     if grep "Program terminated" ./parse_blast.log > /dev/null;
     then
