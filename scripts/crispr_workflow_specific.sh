@@ -38,7 +38,7 @@ $seq" > $queryFasta
 
     metafileQuery="query"
     echo python -u $CRISPR_TOOL_SCRIPT_PATH/create_metafile.py -file $queryFasta -out $metafileQuery > sg.cmd
-    python -u $CRISPR_TOOL_SCRIPT_PATH/create_metafile.py -file $queryFasta -out $metafileQuery
+    python -u $CRISPR_TOOL_SCRIPT_PATH/create_metafile.py -file $queryFasta -out $metafileQuery 2>> ./metafile.err 1>./metafile.log
 
     # Filter genomes
     gi=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gi")
