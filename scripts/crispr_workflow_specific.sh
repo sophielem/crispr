@@ -70,7 +70,7 @@ $seq" > $queryFasta
 
         # Blast N to find homologous genes
         fileBlast="blast_output.xml"
-        dbBlast="/data/databases/mobi/crispr_clean/db_blast.fasta"
+        dbBlast="/data/databases/mobi/crispr_clean/big.fasta"
         echo blastn -outfmt 5 -query $queryFasta -db $dbBlast > $fileBlast >> sg.cmd
         blastn -outfmt 5 -query $queryFasta -db $dbBlast > $fileBlast
 
