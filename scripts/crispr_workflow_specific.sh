@@ -34,7 +34,7 @@ else
     # Create Metafile
     queryFasta="query.fasta"
     echo ">query
-    $seq" > $queryFasta
+$seq" > $queryFasta
 
     metafileQuery="query"
     echo python -u $CRISPR_TOOL_SCRIPT_PATH/create_metafile.py -file $queryFasta -out $metafileQuery > sg.cmd
