@@ -202,7 +202,7 @@ def parse_setcompare_other(output_c, nb_top):
         index_dic = OrderedDict()
         i = 0
         for rank_occ in filin:
-            if i == nb_top: break
+            if i == nb_top or rank_occ == "\n": break
             rank_splitted = rank_occ.split(":")
             rankw20_occ = rank_splitted[1].split("[")
             index_dic[int(rank_splitted[0])] = [rankw20_occ[0], rankw20_occ[1][:-2].split(",")]
