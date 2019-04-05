@@ -31,7 +31,7 @@ class BlastReport(object):
     def __init__(self, f_name, id_min, genomes_in):
         tree = ET.parse(f_name)
         self.root = tree.getroot()
-        self.homolog_gene = self._parse_(id_min, genomes_in)
+        self.homolog_gene = self._parse_(id_min, genomes_in) if not self.is_hit() else {}
 
     def __getitem__(self, k):
         if k in self.homolog_gene:
