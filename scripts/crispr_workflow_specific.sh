@@ -18,6 +18,7 @@ check_prg_no_terminated () {
         false
     else
          true
+    fi
 }
 
 if [ "$pam" != "NGG" ]; then
