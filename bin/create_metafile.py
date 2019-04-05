@@ -22,5 +22,8 @@ def args_gestion():
 
 if __name__ == '__main__':
     PARAM = args_gestion()
-    word_detect.construct_in(PARAM.file, PARAM.out + ".p")
-    decoding.indexAndOccurencePickle(PARAM.out + ".p", PARAM.out + ".index")
+    DIC_PICKLE = word_detect.construct_in(PARAM.file, PARAM.out + ".p")
+    if DIC_PICKLE:
+        decoding.indexAndOccurencePickle(PARAM.out + ".p", PARAM.out + ".index")
+    else:
+        print("Program terminated&No sgRNA sequences on the query")
