@@ -32,11 +32,11 @@ else
     pwd > pwd.log
 
     # Create Metafile
-    queryFasta="input/query.fasta"
+    queryFasta="query.fasta"
     echo ">query
     $seq" > $queryFasta
 
-    metafileQuery="input/query"
+    metafileQuery="query"
     echo python -u $CRISPR_TOOL_SCRIPT_PATH/create_metafile.py -file $queryFasta -out $metafileQuery > sg.cmd
     python -u $CRISPR_TOOL_SCRIPT_PATH/create_metafile.py -file $queryFasta -out $metafileQuery
 
