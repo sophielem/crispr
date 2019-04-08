@@ -72,9 +72,10 @@ $seq" > $queryFasta
     fi
 
     if [ $nb_hits = 0 ];then
+        echo "{\"emptySearch\" :  \"No common hits between the sequence and included genomes \""  > ./fail.log
         PRG_TERMINATED=1
     fi
-    
+
         # Blast N to find homologous genes
         fileBlast="blast_output.xml"
         dbBlast="/data/databases/mobi/crispr_clean/big.fasta"
