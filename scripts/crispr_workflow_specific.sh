@@ -68,6 +68,13 @@ $seq" > $queryFasta
         fileSet="set_index.txt"
         setCompare $slFlag -i "$gi" -o "$gni" -l $rfg -e index -f $fileSet -s $metafileQuery".index" 2>> ./setCompare.err 1> ./setCompare.log
 
+        nb_hits=`sed -n "s/^# \([0-9]*\).*/\1/p" output_c.txt`
+    fi
+
+    if [ $nb_hits = 0 ];then
+        PRG_TERMINATED=1
+    fi
+    
         # Blast N to find homologous genes
         fileBlast="blast_output.xml"
         dbBlast="/data/databases/mobi/crispr_clean/big.fasta"
