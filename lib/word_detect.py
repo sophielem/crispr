@@ -94,7 +94,6 @@ def construct_in(fasta_file, pickle_file, pam="NGG", non_pam_motif_length=20):
     Construct the sequences for first organism,
     with python regular expression research
     """
-    print("SEARCH SGRNA")
     sgrna = "N" * non_pam_motif_length + pam
     organism = ".".join(os.path.basename(fasta_file).split(".")[0:-1])
     seq_dict = {}
@@ -111,9 +110,8 @@ def construct_in(fasta_file, pickle_file, pam="NGG", non_pam_motif_length=20):
         seq_dict = find_sgrna_seq(seq_list_reverse, len(pam) + non_pam_motif_length,
                                   True, "-(", seq_dict, genome_seq, organism, ref)
 
-    pickle_file =  pickle_file + ".p"
     pickle.dump(seq_dict, open(pickle_file, "wb"), protocol=3)
-    return pickle_file
+    return seq_dict
 
 
 if __name__ == '__main__':
