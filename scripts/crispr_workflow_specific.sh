@@ -68,7 +68,7 @@ $seq" > $queryFasta
         fileSet="set_index.txt"
         setCompare $slFlag -i "$gi" -o "$gni" -l $rfg -e index -f $fileSet -s $metafileQuery".index" 2>> ./setCompare.err 1> ./setCompare.log
 
-        nb_hits=`sed -n "s/^# \([0-9]*\).*/\1/p" output_c.txt`
+        nb_hits=`sed -n "s/^# \([0-9]*\).*/\1/p" $fileSet`
     fi
 
     if [ $nb_hits = 0 ];then
