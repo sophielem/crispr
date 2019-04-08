@@ -8,15 +8,15 @@ import json
 import sys
 import shutil
 import re
-import urllib
 from Bio import SeqIO
-from Bio import Entrez
 from ete3 import NCBITaxa
 from tqdm import tqdm
 import couchBuild
 import word_detect
 import wordIntegerIndexing as decoding
 import pycouch.wrapper as couchDB
+import display_result as dspl
+import get_assembly_infos as gai
 
 DEBUG = True
 
@@ -46,21 +46,6 @@ def valid_fasta_file(parser, filename):
     return filename
 
 
-def valid_taxid(taxid):
-    """
-    Check if the taxon id given by the user is in the NCBI taxonomy
-    database
-    """
-    ncbi = NCBITaxa()
-    try:
-        ncbi.get_lineage(taxid)
-        return taxid
-    except Exception as err:
-        print("Program terminated&The taxon id given ({})\
-               is not in the NCBI taxonomy database !".format(taxid))
-        sys.exit()
-
-
 def check_metafile_exist(rfg, basename_file):
     """
     Check if the pickle and index file exist
@@ -81,11 +66,11 @@ def parse_arg(subparser, command):
                            required=True)
     subparser.add_argument("-url", metavar="<str>",
                            help="The end point", required=True)
-    subparser.add_argument("-size", metavar="int", const=1000, nargs='?',
+    subparser.add_argument("-size", metavar="int",
                            help="Maximal number of entry to add at a time")
-    subparser.add_argument("-min", metavar="int", const=0, nargs='?',
+    subparser.add_argument("-min", metavar="int",
                            help="Index of the first file to add to database")
-    subparser.add_argument("-max", metavar="int", const=10, nargs='?',
+    subparser.add_argument("-max", metavar="int",
                            help="Index of the last file to add to database")
     subparser.add_argument("-tree", metavar="<str>",
                            help="Path to the json tree", required=True)
@@ -133,123 +118,6 @@ def args_gestion():
     return args, command
 
 
-# CHECK IF THE TAXON ID IS ALREADY PRESENT AND COPY THE FASTA FILE
-def name_organism(gb_data, accession, name):
-    """
-    Return the name of the organism with the GCF at the end
-    """
-    name = name.replace(accession, "")
-    name = name.split(",")[0]
-    name = name.replace("/", "_")
-    name = name.replace("'", "")
-    acc = re.search("^\.[0-9] ", name).group()
-    name = name.replace(acc, "")
-    name = name.strip()
-    return name + " " + get_gcf_id(gb_data)
-
-
-def get_accession_number(name):
-    """
-    Get the assession number of the head of fasta file
-    """
-    try:
-        accession = re.search("(N[CZ]\_[A-Za-z0-9]+)(\.[0-9])", name).group(1)
-        if DEBUG: print("Accession  : " + accession)
-        return accession
-    except Exception as e:
-        print("Program terminated&No accession number found in head of fasta file")
-        sys.exit()
-
-
-
-def get_taxon_id(gb_data):
-    """
-    Get taxonomy ID from a genbank data, check if this id is in the NCBI
-    database and return it
-    """
-    try:
-        taxon = gb_data.features[0].qualifiers["db_xref"]
-        if DEBUG: print("Longueur taxon list  : " + str(len(taxon)))
-        for tax in taxon:
-            if re.search("taxon", tax):
-                if DEBUG: print(tax)
-                taxid = re.search("[0-9]+", tax).group()
-                valid_taxid(taxid)
-                if DEBUG: print("Taxon ID  :  " + taxid)
-                return taxid
-    except Exception as e:
-        pass
-    print("Program terminated&No taxonomy ID found")
-    sys.exit()
-
-
-def get_gcf_id(gb_data):
-    """
-    Get the GCF id, which is the ID for the assembly with annotations from a
-    genbank data
-    """
-    try:
-        gcf = re.search("GCF\_[0-9]+\.[0-9]+", gb_data.dbxrefs[0]).group()
-        if DEBUG: print("GCF  :  " + gcf)
-        return gcf
-    except Exception:
-        print("No GCF id found")
-        return "None"
-
-
-def get_asm_id(gcf):
-    """
-    Get the ASM id, which is the name of the Assembly from a GCF id
-    """
-    try:
-        handle = Entrez.esearch(db="assembly", term=gcf)
-        for line in handle:
-            if re.search("<Id>", line):
-                id_report = re.search("[0-9]+", line).group()
-        handle = Entrez.esummary(db="assembly", id=id_report, report="full")
-        for line in handle:
-            if re.search("<AssemblyName>", line):
-                asm = re.search("<AssemblyName>(.*)<\/AssemblyName>", line).group(1)
-                if DEBUG: print("ASM    :  " + asm)
-                return asm
-    except Exception:
-        pass
-    print("No ASM id found")
-    return "None"
-
-
-def get_gcf_taxid(filename):
-    """
-    Get the accession Number, the GCF id, the ASM id and the taxonomy id from a
-    fasta file
-    """
-    seq_record = SeqIO.parse(filename, "fasta")
-    name = next(seq_record).description
-    accession = get_accession_number(name)
-    # Get the genbank data from the accession number
-    Entrez.email = "example@gmail.com"
-    try:
-        Entrez.einfo()
-        res = Entrez.efetch(db="nuccore", id=accession, rettype="gb", seq_start=1, seq_stop=1)
-        gb_data = SeqIO.read(res, "genbank")
-    except urllib.error.URLError:
-        print("Program terminated&No connection with the NCBI")
-        sys.exit()
-    except urllib.error.HTTPError:
-        print("Program terminated&The accession number not present in NCBI")
-        sys.exit()
-    except:
-        print("Program terminated&Problem to parse the genbank file, Contact the support")
-        sys.exit()
-
-    # Get all neccessary informations
-    gcf = get_gcf_id(gb_data)
-    taxid = get_taxon_id(gb_data)
-    name = name_organism(gb_data, accession, name)
-    asm = get_asm_id(gcf) if gcf != "None" else "None"
-    return gcf, asm, taxid, name
-
-
 def check_genome_exists(filename, gcf, asm, taxid, rfg):
     """
     Create dictionnary for json file and gzip the fasta file
@@ -275,21 +143,19 @@ def check_genome_exists(filename, gcf, asm, taxid, rfg):
     return ref
 
 
-# FIND ALL SGRNA
-def indexation(name_file, rfg, pickle_file):
+def create_metafile(fasta_file, pickle_file, index_file, name):
     """
-    Code each sgrna sequence to a rank. With this, it is easier to compare
-    sequences of several genomes
+    Create pickle and index files
     """
-    target_file = rfg + "/genome_index/" + name_file + '.index'
-
-    total = decoding.indexPickle(pickle_file, target_file)
-    print("Successfully indexed", total, "words\nfrom:", name_file, "\ninto:", target_file)
+    word_detect.construct_in(fasta_file, pickle_file)
+    total = decoding.indexAndOccurencePickle(pickle_file, index_file)
+    dspl.eprint("Successfully indexed", total, "words\nfrom:", name, "\ninto:", index_file)
+    dspl.eprint("SUCCESS&Created metafile for {}".format(name))
 
 
 def set_dic_taxid(dic_index_files, error_list, rfg):
     """
-    Add news genomes in the genome_reference with the taxon ID. Before, check
+    Add new genomes in the genome_reference with the taxon ID. Before, check
     if the genome is not in the error_list
     """
     with open(rfg + "/genome_ref_taxid.json", "r") as json_data:
@@ -307,54 +173,49 @@ def set_dic_taxid(dic_index_files, error_list, rfg):
     json.dump(dic_ref, open(rfg + "/genome_ref_taxid.json", 'w'), indent=4)
 
 
-def add_to_database(files_to_add, end_point, i_min, i_max, batch_size, rules_file):
-    """
-    Add genomes in the database
-    """
-    if i_max > len(files_to_add):
-        i_max = len(files_to_add)
-
-    couchDB.setServerUrl(end_point)
-    if not couchDB.couchPing():
-        print("Program terminated&Impossible to connect to the database")
-        sys.exit()
-
-    with open(rules_file, "r") as rules_filin:
-        couchDB.setKeyMappingRules(json.load(rules_filin))
-
-    error_files = []
-    for filename in files_to_add[i_min:i_max]:
-        gen = couchBuild.GenomeData(filename)
-        # print("globing", filename, "#items", len(c))
-
-        for i in tqdm(range(0, len(gen), batch_size)):
-            j = i + batch_size if i + batch_size < len(gen) else len(gen)
-            gen_splitted = gen[i:j]
-            res = couchDB.volDocAdd(gen_splitted)
-            for gen_splitted in res:
-                if not 'ok' in gen_splitted:
-                    print("Error here ==>", str(gen_splitted))
-                    error_files.append(filename)
-    return error_files
+# def add_to_database(files_to_add, end_point, i_min, i_max, batch_size, rules_file):
+#     """
+#     Add genomes in the database
+#     """
+#     if i_max > len(files_to_add):
+#         i_max = len(files_to_add)
+#
+#     couchDB.setServerUrl(end_point)
+#     if not couchDB.couchPing():
+#         print("Program terminated&Impossible to connect to the database")
+#         sys.exit()
+#
+#     with open(rules_file, "r") as rules_filin:
+#         couchDB.setKeyMappingRules(json.load(rules_filin))
+#
+#     error_files = []
+#     for filename in files_to_add[i_min:i_max]:
+#         gen = couchBuild.GenomeData(filename)
+#         # print("globing", filename, "#items", len(c))
+#
+#         for i in tqdm(range(0, len(gen), batch_size)):
+#             j = i + batch_size if i + batch_size < len(gen) else len(gen)
+#             gen_splitted = gen[i:j]
+#             res = couchDB.volDocAdd(gen_splitted)
+#             for gen_splitted in res:
+#                 if not 'ok' in gen_splitted:
+#                     dspl.eprint("Error here ==>", str(gen_splitted))
+#                     error_files.append(filename)
+#     return error_files
 
 
 if __name__ == '__main__':
     PARAM, COMMAND = args_gestion()
 
     if COMMAND == "metafile" or COMMAND == "all":
-        GCF, ASM, TAXID, NAME = get_gcf_taxid(PARAM.file)
+        GCF, ASM, TAXID, NAME = gai.get_gcf_taxid(PARAM.file)
         # Create dictionnary with all taxon ID
         REF_NEW = check_genome_exists(PARAM.file, GCF, ASM,
                                       TAXID, PARAM.rfg)
-
-        PICKLE_FILE = word_detect.construct_in(PARAM.rfg + '/genome_fasta/' + REF_NEW + '_genomic.fna',
-                                               PARAM.rfg + "/genome_pickle/" + NAME + ".p")
-                                               
-        target_file = PARAM.rfg + "/genome_index/" + NAME + '.index'
-        decoding.indexAndOccurencePickle(PARAM.out + ".p", PARAM.out + ".index")
-        print("Successfully indexed", total, "words\nfrom:", name_file, "\ninto:", target_file)
-        indexation(NAME, PARAM.rfg, PICKLE_FILE)
-        print("SUCCESS&Created metafile for {}".format(NAME))
+        create_metafile(PARAM.rfg + '/genome_fasta/' + REF_NEW + '_genomic.fna',
+                        PARAM.rfg + "/genome_pickle/" + NAME + ".p",
+                        PARAM.rfg + "/genome_index/" + NAME + '.index',
+                        NAME)
 
     if COMMAND == "add":
         DIC_INDEX_FILES = {}
@@ -363,7 +224,7 @@ if __name__ == '__main__':
         # For each fasta file, retrieve the name of the pickle and index files
         # Then, check if they exist and create a list of path to index files
         for file_to_add in LIST_FILES:
-            GCF, ASM, TAXID, NAME = get_gcf_taxid(file_to_add)
+            GCF, ASM, TAXID, NAME = gai.get_gcf_taxid(file_to_add)
             if not check_metafile_exist(PARAM.rfg, NAME):
                 print("Program terminated&Metafiles do not exist for {}".format(NAME))
                 sys.exit()
@@ -377,9 +238,15 @@ if __name__ == '__main__':
         if DEBUG: print("DIC_INDEX_FILES == > {}".format(DIC_INDEX_FILES))
 
     if COMMAND == "add" or COMMAND == "all":
-        ERROR_LIST = add_to_database(list(DIC_INDEX_FILES.keys()), PARAM.url,
-                                     PARAM.min, PARAM.max, PARAM.size, PARAM.m)
-        set_dic_taxid(DIC_INDEX_FILES, [], PARAM.rfg)
-        print('JSON TREE')
-        os.system('python3 lib/tax2json.py ' + PARAM.rfg + " " + PARAM.tree)
-        print("SUCCESS&Genomes are in the database, except : {}".format(ERROR_LIST))
+        # ERROR_LIST = add_to_database(list(DIC_INDEX_FILES.keys()), PARAM.url,
+        #                              PARAM.min, PARAM.max, PARAM.size, PARAM.m)
+        os.system("python couchBuild.py --url {} --map {} --data {}".format(PARAM.url, PARAM.m, list(DIC_INDEX_FILES.keys())))
+        if os.path.isfile("error_add_db.err"):
+            with open("error_add_db.err", "r") as filin:
+                ERROR_LIST = filin.read().splitlines()
+        else:
+            ERROR_LIST = []
+        set_dic_taxid(DIC_INDEX_FILES, ERROR_LIST, PARAM.rfg)
+        dspl.eprint('JSON TREE')
+        os.system('python lib/tax2json.py ' + PARAM.rfg + " " + PARAM.tree)
+        dspl.eprint("SUCCESS&Genomes are in the database, except : {}".format(ERROR_LIST))
