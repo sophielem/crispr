@@ -88,6 +88,7 @@ if __name__ == "__main__":
         if iMax > len(fileNames):
             iMax = len(fileNames)
 
+        error_files = []
         for fName in fileNames[iMin:iMax]:
             dataFile = rootDir + '/' + fName[0]
             c = GenomeData(dataFile)
@@ -106,3 +107,8 @@ if __name__ == "__main__":
                 for d in r:
                     if not 'ok' in d:
                         print ("Error here ==>", str(d))
+                        error_files.append(fName)
+    if error_files:
+        with open("error_add_db.err", "w") as filout:
+            for file_name in error_files:
+                filout.write(file_name)
