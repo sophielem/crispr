@@ -3,8 +3,9 @@ import re
 import urllib
 from Bio import SeqIO
 from Bio import Entrez
+from ete3 import NCBITaxa
 import display_result as dspl
-
+DEBUG = True
 # CHECK IF THE TAXON ID IS ALREADY PRESENT AND COPY THE FASTA FILE
 def valid_taxid(taxid):
     """
@@ -40,7 +41,8 @@ def get_accession_number(name):
     Get the assession number of the head of fasta file
     """
     try:
-        accession = re.search("(N[CZ]\_[A-Za-z0-9]+)(\.[0-9])", name).group(1)
+        accession = re.search("([A-Z]+[\_]?[A-Za-z0-9]+)\.[0-9]*", name).group(1)
+
         if DEBUG: print("Accession  : " + accession)
         return accession
     except Exception as e:
