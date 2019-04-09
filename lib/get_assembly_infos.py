@@ -1,3 +1,7 @@
+"""
+
+"""
+
 import sys
 import re
 import urllib
@@ -120,11 +124,11 @@ def get_gcf_taxid(filename):
         Entrez.einfo()
         res = Entrez.efetch(db="nuccore", id=accession, rettype="gb", seq_start=1, seq_stop=1)
         gb_data = SeqIO.read(res, "genbank")
-    except urllib.error.URLError:
-        print("Program terminated&No connection with the NCBI")
-        sys.exit()
     except urllib.error.HTTPError:
         print("Program terminated&The accession number not present in NCBI")
+        sys.exit()
+    except urllib.error.URLError:
+        print("Program terminated&No connection with the NCBI")
         sys.exit()
     except:
         print("Program terminated&Problem to parse the genbank file, Contact the support")
