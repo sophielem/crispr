@@ -7,13 +7,10 @@ import argparse
 import json
 import sys
 import shutil
-import re
+import subprocess
 from Bio import SeqIO
-from tqdm import tqdm
-import couchBuild
 import word_detect
 import wordIntegerIndexing as decoding
-import pycouch.wrapper as couchDB
 import display_result as dspl
 import get_assembly_infos as gai
 
@@ -161,15 +158,10 @@ def set_dic_taxid(dic_index_files, error_list, rfg):
     """
     with open(rfg + "/genome_ref_taxid.json", "r") as json_data:
         dic_ref = json.load(json_data)
-    for filename in dic_index_files:
-        # The genome has been inserted into the database
-        if filename not in error_list:
-            attr = dic_index_files[filename]
-            # Retrieve the original name of the organism
-            filename = os.path.basename(filename)
-            name = filename.replace(".index", "")
-            # Add it to the reference dictionary
-            dic_ref[name] = attr
+    tmp_dic = {os.path.basename(filename).replace(".index", ""): dic_index_files[filename]
+               for filename in dic_index_files
+               if os.path.basename(filename).replace(".index", "") not in error_list}
+    dic_ref.update(tmp_dic)
     # Write the new json file with the new genome
     json.dump(dic_ref, open(rfg + "/genome_ref_taxid.json", 'w'), indent=4)
 
