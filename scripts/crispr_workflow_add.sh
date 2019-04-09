@@ -1,26 +1,25 @@
 #!/bin/bash
-# nb_file=(`ls $FILE_PATH | wc -l`)
-# echo "$nb_file"
-#
-# if [[ $nb_file = 1 ]]; then
-#     for FASTA_FILE in $FILE_PATH; do
-#         command="python $CRISPR_TOOL_SCRIPT_PATH/pre_treatment.py all -rfg $rfg -file $FASTA_FILE -gcf $gcf -asm $asm -taxid $taxid 2>> ./pre_treatment.err 1> ./pre_treatment.log"
-#         echo "$command"
-#     done
-# else
-#     for FASTA_FILE in $FILE_PATH; do
-#         sbatch --export=rfg="$rfg",FASTA_FILE="$FASTA_FILE",gcf="$gcf",asm="$asm",taxid="$taxid" create_metafile.sbatch
-#     done
-#
-#     for FASTA_FILE in $FILE_PATH; do
-#         command="python $CRISPR_TOOL_SCRIPT_PATH/pre_treatment.py add -rfg $rfg -file $FASTA_FILE -gcf $gcf 2>> ./pre_treatment.err 1> ./pre_treatment.log"
-#         echo "$command"
-#     done
-# fi
 
-for FASTA_FILE in $FILE_PATH; do
-    command="python $CRISPR_TOOL_SCRIPT_PATH/pre_treatment.py all -rfg $rfg -file $FASTA_FILE -gcf $gcf -asm $asm -taxid $taxid 2> ./pre_treatment.err 1> ./pre_treatment.log"
-    echo "$command"
+error_json () {
+    echo "{\"emptySearch\": \"There is a problem, impossible to finish the program\"}" > fail.log
+    cat fail.log
+}
+
+if [ "$pam" != "NGG" ]; then
+    error_json
+elif [ "$CRISPR_TOOL_SCRIPT_PATH" = "" ]; then
+    error_json
+
+elif  [ "$URL_CRISPR" = "" ]; then
+    error_json
+else
+
+    url_db=""
+    if [ $COMMAND = "all" ];then
+        url_db="-url $URL_CRISPR -tree $TREE -m $MAP_BD"
+    fi
+    echo python $CRISPR_TOOL_SCRIPT_PATH/pre-treatment.py $COMMAND -file $FASTA_FILE $url_db 2> ./pre_treatment.err 1> ./pre_treatment.log
+
     if grep "Program terminated" ./pre_treatment.log > /dev/null;
     then
     perl -ne 'if ($_ =~ /Program terminated/){
@@ -35,10 +34,9 @@ for FASTA_FILE in $FILE_PATH; do
             @success_split=split(/&/);
             $msg = $success_split[1];
             $msg =~ s/\n$//;
-            print "{\"message\" :  \"$msg\" }";
+            print "{\"Success\" :  \"$msg\" }";
         };
         ' ./pre_treatment.log > ./success.log;
         cat ./success.log
     fi
-
-done
+fi
