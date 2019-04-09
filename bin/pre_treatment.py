@@ -220,8 +220,12 @@ if __name__ == '__main__':
                 ERROR_LIST = filin.read().splitlines()
         else:
             ERROR_LIST = []
-        set_dic_taxid(DIC_INDEX_FILES, ERROR_LIST, PARAM.rfg)
-        dspl.eprint("--- JSON TREE ---")
-        CMD_LINE = 'python lib/tax2json.py ' + PARAM.rfg + " " + PARAM.tree
-        PROCESS = subprocess.call(CMD_LINE.split())
-        print("SUCCESS&Genomes are in the database, except : {}".format(ERROR_LIST))
+        # If error to insert all genomes, stop the program
+        if len(ERROR_LIST) == len(list(DIC_INDEX_FILES.keys())):
+            print("Program terminated&Problem to insert genome into database")
+        else:
+            set_dic_taxid(DIC_INDEX_FILES, ERROR_LIST, PARAM.rfg)
+            dspl.eprint("--- JSON TREE ---")
+            CMD_LINE = 'python lib/tax2json.py ' + PARAM.rfg + " " + PARAM.tree
+            PROCESS = subprocess.call(CMD_LINE.split())
+            print("SUCCESS&Genomes are in the database, except : {}".format(ERROR_LIST))
