@@ -5,7 +5,7 @@ error_json () {
     cat fail.log
 }
 
-check_prg_no_terminated () {
+parse_logFile () {
     if grep "Program terminated" $1 > /dev/null;
     then
         perl -ne 'if ($_ =~ /Program terminated/){
@@ -47,57 +47,56 @@ else
 
     pwd > pwd.log
 
-    # Create Metafile
+    ### CREATE METAFILE ###
     queryFasta="query.fasta"
-    echo ">query
-$seq" > $queryFasta
+    printf ">query\n$seq\n" > $queryFasta
 
     metafileQuery="query"
     echo python -u $CRISPR_TOOL_SCRIPT_PATH/create_metafile.py -file $queryFasta -out $metafileQuery > sg.cmd
     python -u $CRISPR_TOOL_SCRIPT_PATH/create_metafile.py -file $queryFasta -out $metafileQuery 2>> ./metafile.err 1>./metafile.log
-
-    check_prg_no_terminated ./metafile.log
+    # Check if sgRNA on the query gene
+    parse_logFile ./metafile.log
     PRG_TERMINATED=$?
     if [ $PRG_TERMINATED = 0 ];then
-        # Filter genomes
+        ### FILTER GENOMES ###
         gi=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gi")
         gni=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gni")
         echo $gi > f.gi
 
-        # Set Compare
+        ### INTERSECTION ###
         fileSet="set_index.txt"
         setCompare $slFlag -i "$gi" -o "$gni" -l $rfg -e index -f $fileSet -s $metafileQuery".index" 2>> ./setCompare.err 1> ./setCompare.log
 
         nb_hits=`sed -n "s/^# \([0-9]*\).*/\1/p" $fileSet`
     fi
-
+    # Check if hits in intersection
     if [ $nb_hits = 0 ];then
         echo "{\"emptySearch\" :  \"No common hits between the sequence and included genomes \""  > ./fail.log
         PRG_TERMINATED=1
     fi
 
+    ### BLAST N TO FIND HOMOLOGOUS GENES ###
     if [ $PRG_TERMINATED = 0 ];then
-        # Blast N to find homologous genes
         fileBlast="blast_output.xml"
-        # dbBlast="/data/databases/mobi/crispr_clean/big.fasta"
         echo blastn -outfmt 5 -query $queryFasta -db $blastdb > $fileBlast >> sg.cmd
         blastn -outfmt 5 -query $queryFasta -db $blastdb > $fileBlast
 
-        # Parse the blast output
+        ### PARSE BLAST OUTPUT ###
         parseBlast="parse_blast.p"
         echo python -u $CRISPR_TOOL_SCRIPT_PATH/parse_blast.py -blast $fileBlast -gi "$gi" -o $parseBlast -ip $pid >> sg.cmd
         python -u $CRISPR_TOOL_SCRIPT_PATH/parse_blast.py -blast $fileBlast -gi "$gi" -o $parseBlast -ip $pid 2>> ./parse_blast.err 1> ./parse_blast.log
-
-        check_prg_no_terminated ./parse_blast.log
+        # check if hits
+        parse_logFile ./parse_blast.log
         PRG_TERMINATED=$?
     fi
 
+    ### CHECK IG SGRNA ARE ON HOMOLOGOUS GENES ###
     if [ $PRG_TERMINATED = 0 ];then
         # Post-processing with setCompare output and blast output
         echo python -u $CRISPR_TOOL_SCRIPT_PATH/specific_gene.py -f $fileSet -sl $sl -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR"  -c 2000 --no-proxy -blast $parseBlast >> sg.cmd
         python -u $CRISPR_TOOL_SCRIPT_PATH/specific_gene.py -f $fileSet -sl $sl -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR"  -c 2000 --no-proxy -blast $parseBlast 2>> ./specific_gene.err 1> ./specific_gene.log
-
-        check_prg_no_terminated ./specific_gene.log
+        # Check if exist sgrna on genes
+        parse_logFile ./specific_gene.log
         PRG_TERMINATED=$?
     fi
 
