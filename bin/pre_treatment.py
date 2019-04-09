@@ -210,15 +210,18 @@ if __name__ == '__main__':
     if COMMAND == "add" or COMMAND == "all":
         DIC_INDEX_FILES = set_index_file_all(PARAM.rfg, NAME, REF_NEW, TAXID) if COMMAND == "all" else set_index_file_add(PARAM)
         if DEBUG: dspl.eprint(DIC_INDEX_FILES)
-        # ERROR_LIST = add_to_database(list(DIC_INDEX_FILES.keys()), PARAM.url,
-        #                              PARAM.min, PARAM.max, PARAM.size, PARAM.m)
-        os.system("python couchBuild.py --url {} --map {} --data {}".format(PARAM.url, PARAM.m, list(DIC_INDEX_FILES.keys())))
+        # Insertion into the database
+        CMD_LINE = "python lib/couchBuild.py --url {} \
+                    --map {} --data {}".format(PARAM.url, PARAM.m, list(DIC_INDEX_FILES.keys()))
+        PROCESS = subprocess.call(CMD_LINE.split())
+        # If error for some organism
         if os.path.isfile("error_add_db.err"):
             with open("error_add_db.err", "r") as filin:
                 ERROR_LIST = filin.read().splitlines()
         else:
             ERROR_LIST = []
         set_dic_taxid(DIC_INDEX_FILES, ERROR_LIST, PARAM.rfg)
-        dspl.eprint('JSON TREE')
-        os.system('python lib/tax2json.py ' + PARAM.rfg + " " + PARAM.tree)
-        dspl.eprint("SUCCESS&Genomes are in the database, except : {}".format(ERROR_LIST))
+        dspl.eprint("--- JSON TREE ---")
+        CMD_LINE = 'python lib/tax2json.py ' + PARAM.rfg + " " + PARAM.tree
+        PROCESS = subprocess.call(CMD_LINE.split())
+        print("SUCCESS&Genomes are in the database, except : {}".format(ERROR_LIST))
