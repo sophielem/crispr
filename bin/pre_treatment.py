@@ -9,7 +9,6 @@ import sys
 import shutil
 import re
 from Bio import SeqIO
-from ete3 import NCBITaxa
 from tqdm import tqdm
 import couchBuild
 import word_detect
@@ -147,7 +146,9 @@ def create_metafile(fasta_file, pickle_file, index_file, name):
     """
     Create pickle and index files
     """
+    dspl.eprint("--- Search sgRNA ---")
     word_detect.construct_in(fasta_file, pickle_file)
+    dspl.eprint("--- Indexation ---")
     total = decoding.indexAndOccurencePickle(pickle_file, index_file)
     dspl.eprint("Successfully indexed", total, "words\nfrom:", name, "\ninto:", index_file)
     dspl.eprint("SUCCESS&Created metafile for {}".format(name))
