@@ -80,13 +80,6 @@ def create_config_file(list_leaves, rfg, path_folder):
         ref = dic_ref[leaf][0]
         shutil.copy(path_fasta + ref + "_genomic.fna", path_folder)
 
-        gcf = re.search("GCF.*\_", ref).group()
-        asm = ref.replace(gcf, "")
-        gcf = gcf[:-1]
-        ids = ".".join([gcf, asm, dic_ref[leaf][1]])
-        with open(path_folder + "/" +  ref + "_genomic.conf", "r") as conf_file:
-            conf_file.write(ids)
-
 
 if __name__ == '__main__':
     PARAM = args_gestion()
