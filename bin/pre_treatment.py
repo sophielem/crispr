@@ -158,40 +158,40 @@ def set_dic_taxid(dic_index_files, error_list, rfg):
     """
     with open(rfg + "/genome_ref_taxid.json", "r") as json_data:
         dic_ref = json.load(json_data)
-    tmp_dic = {os.path.basename(filename).replace(".index", ""): dic_index_files[filename]
+    tmp_dic = {os.path.basename(filename).replace(".p", ""): dic_index_files[filename]
                for filename in dic_index_files
-               if os.path.basename(filename).replace(".index", "") not in error_list}
+               if os.path.basename(filename).replace(".p", "") not in error_list}
     dic_ref.update(tmp_dic)
     # Write the new json file with the new genome
     json.dump(dic_ref, open(rfg + "/genome_ref_taxid.json", 'w'), indent=4)
 
 
-def set_index_file_add(param):
+def set_pickle_file_add(param):
     """
-    Defintiion
+    Set the dictionnary of pickle files to add into the database
     """
-    dic_index_files = {}
+    dic_pickle_files = {}
     # Create list with all fasta files
     list_files = os.listdir(param.dir) if param.dir else [param.file]
     # For each fasta file, retrieve the name of the pickle and index files
-    # Then, check if they exist and create a list of path to index files
+    # Then, check if they exist and create a list of path to pickle files
     for file_to_add in list_files:
         gcf, asm, taxid, name = gai.get_gcf_taxid(file_to_add)
         if not check_metafile_exist(param.rfg, name):
             print("Program terminated&Metafiles do not exist for {}".format(name))
             sys.exit()
         else:
-            dic_index_files[param.rfg + "/genome_index/" + name + ".index"] = [gcf + "_" + asm, taxid]
-    return dic_index_files
+            dic_pickle_files[param.rfg + "/genome_index/" + name + ".p"] = [gcf + "_" + asm, taxid]
+    return dic_pickle_files
 
 
-def set_index_file_all(rfg, name, ref, taxid):
+def set_pickle_file_all(rfg, name, ref, taxid):
     """
-    Definition
+    Set the dictionnary of pickle files to add into the database
     """
-    dic_index_files = {}
-    dic_index_files[rfg + "/genome_index/" + name + ".index"] = [ref, taxid]
-    return dic_index_files
+    dic_pickle_files = {}
+    dic_pickle_files[rfg + "/genome_index/" + name + ".p"] = [ref, taxid]
+    return dic_pickle_files
 
 
 if __name__ == '__main__':
@@ -208,11 +208,11 @@ if __name__ == '__main__':
                         NAME)
 
     if COMMAND == "add" or COMMAND == "all":
-        DIC_INDEX_FILES = set_index_file_all(PARAM.rfg, NAME, REF_NEW, TAXID) if COMMAND == "all" else set_index_file_add(PARAM)
-        if DEBUG: dspl.eprint(DIC_INDEX_FILES)
+        DIC_PICKLE_FILES = set_pickle_file_all(PARAM.rfg, NAME, REF_NEW, TAXID) if COMMAND == "all" else set_pickle_file_add(PARAM)
+        if DEBUG: dspl.eprint(DIC_PICKLE_FILES)
         # Insertion into the database
         CMD_LINE = "python lib/couchBuild.py --url {} \
-                    --map {} --data {}".format(PARAM.url, PARAM.m, list(DIC_INDEX_FILES.keys()))
+                    --map {} --data {}".format(PARAM.url, PARAM.m, list(DIC_PICKLE_FILES.keys()))
         PROCESS = subprocess.call(CMD_LINE.split())
         # If error for some organism
         if os.path.isfile("error_add_db.err"):
@@ -221,10 +221,10 @@ if __name__ == '__main__':
         else:
             ERROR_LIST = []
         # If error to insert all genomes, stop the program
-        if len(ERROR_LIST) == len(list(DIC_INDEX_FILES.keys())):
+        if len(ERROR_LIST) == len(list(DIC_PICKLE_FILES.keys())):
             print("Program terminated&Problem to insert genome into database")
         else:
-            set_dic_taxid(DIC_INDEX_FILES, ERROR_LIST, PARAM.rfg)
+            set_dic_taxid(DIC_PICKLE_FILES, ERROR_LIST, PARAM.rfg)
             dspl.eprint("--- JSON TREE ---")
             CMD_LINE = 'python lib/tax2json.py ' + PARAM.rfg + " " + PARAM.tree
             PROCESS = subprocess.call(CMD_LINE.split())
