@@ -174,35 +174,32 @@ def set_dic_taxid(dic_index_files, error_list, rfg):
     json.dump(dic_ref, open(rfg + "/genome_ref_taxid.json", 'w'), indent=4)
 
 
-# def add_to_database(files_to_add, end_point, i_min, i_max, batch_size, rules_file):
-#     """
-#     Add genomes in the database
-#     """
-#     if i_max > len(files_to_add):
-#         i_max = len(files_to_add)
-#
-#     couchDB.setServerUrl(end_point)
-#     if not couchDB.couchPing():
-#         print("Program terminated&Impossible to connect to the database")
-#         sys.exit()
-#
-#     with open(rules_file, "r") as rules_filin:
-#         couchDB.setKeyMappingRules(json.load(rules_filin))
-#
-#     error_files = []
-#     for filename in files_to_add[i_min:i_max]:
-#         gen = couchBuild.GenomeData(filename)
-#         # print("globing", filename, "#items", len(c))
-#
-#         for i in tqdm(range(0, len(gen), batch_size)):
-#             j = i + batch_size if i + batch_size < len(gen) else len(gen)
-#             gen_splitted = gen[i:j]
-#             res = couchDB.volDocAdd(gen_splitted)
-#             for gen_splitted in res:
-#                 if not 'ok' in gen_splitted:
-#                     dspl.eprint("Error here ==>", str(gen_splitted))
-#                     error_files.append(filename)
-#     return error_files
+def set_index_file_add(param):
+    """
+    Defintiion
+    """
+    dic_index_files = {}
+    # Create list with all fasta files
+    list_files = os.listdir(param.dir) if param.dir else [param.file]
+    # For each fasta file, retrieve the name of the pickle and index files
+    # Then, check if they exist and create a list of path to index files
+    for file_to_add in list_files:
+        gcf, asm, taxid, name = gai.get_gcf_taxid(file_to_add)
+        if not check_metafile_exist(param.rfg, name):
+            print("Program terminated&Metafiles do not exist for {}".format(name))
+            sys.exit()
+        else:
+            dic_index_files[param.rfg + "/genome_index/" + name + ".index"] = [gcf + "_" + asm, taxid]
+    return dic_index_files
+
+
+def set_index_file_all(rfg, name, ref, taxid):
+    """
+    Definition
+    """
+    dic_index_files = {}
+    dic_index_files[rfg + "/genome_index/" + name + ".index"] = [ref, taxid]
+    return dic_index_files
 
 
 if __name__ == '__main__':
@@ -218,27 +215,9 @@ if __name__ == '__main__':
                         PARAM.rfg + "/genome_index/" + NAME + '.index',
                         NAME)
 
-    if COMMAND == "add":
-        DIC_INDEX_FILES = {}
-        # Create list with all fasta files
-        LIST_FILES = os.listdir(PARAM.dir) if PARAM.dir else [PARAM.file]
-        # For each fasta file, retrieve the name of the pickle and index files
-        # Then, check if they exist and create a list of path to index files
-        for file_to_add in LIST_FILES:
-            GCF, ASM, TAXID, NAME = gai.get_gcf_taxid(file_to_add)
-            if not check_metafile_exist(PARAM.rfg, NAME):
-                print("Program terminated&Metafiles do not exist for {}".format(NAME))
-                sys.exit()
-            else:
-                DIC_INDEX_FILES[PARAM.rfg + "/genome_index/" + NAME + ".index"] = [GCF + "_" + ASM, TAXID]
-
-    elif COMMAND == "all":
-        DIC_INDEX_FILES = {}
-        DIC_INDEX_FILES[PARAM.rfg + "/genome_index/" + NAME + ".index"] = [REF_NEW, TAXID]
-
-        if DEBUG: print("DIC_INDEX_FILES == > {}".format(DIC_INDEX_FILES))
-
     if COMMAND == "add" or COMMAND == "all":
+        DIC_INDEX_FILES = set_index_file_all(PARAM.rfg, NAME, REF_NEW, TAXID) if COMMAND == "all" else set_index_file_add(PARAM)
+        if DEBUG: dspl.eprint(DIC_INDEX_FILES)
         # ERROR_LIST = add_to_database(list(DIC_INDEX_FILES.keys()), PARAM.url,
         #                              PARAM.min, PARAM.max, PARAM.size, PARAM.m)
         os.system("python couchBuild.py --url {} --map {} --data {}".format(PARAM.url, PARAM.m, list(DIC_INDEX_FILES.keys())))
