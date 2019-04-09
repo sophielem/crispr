@@ -138,5 +138,5 @@ def get_gcf_taxid(filename):
     gcf = get_gcf_id(gb_data)
     taxid = get_taxon_id(gb_data)
     name = name_organism(gb_data, accession, name)
-    asm = get_asm_id(gcf) if gcf != "None" else "None"
+    asm = get_asm_id(gcf) if gcf != "None" else name
     return gcf, asm, taxid, name
