@@ -21,7 +21,6 @@ import copy, json
 
 from docopt import docopt
 import pycouch.wrapper as couchDB
-from tqdm import tqdm
 
 
 # Convenience functions to split the content of pickle input file
@@ -94,7 +93,7 @@ if __name__ == "__main__":
             c = GenomeData(dataFile)
             print("globing", dataFile, "#items", len(c))
 
-            for i in tqdm(range(0,len(c), batchSize)):
+            for i in range(0,len(c), batchSize):
                 j = i + batchSize if i + batchSize < len(c) else len(c)
                 #print(i,':',j)
                 d = c[i:j]
