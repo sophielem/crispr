@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+"""
+Test for specific Gene script. Use the Blast output and the output of setCompare from the folder
+test/data/sg
+The total number of sgRNA is 28
+"""
 
 import os
 import sys
@@ -12,10 +17,11 @@ if __name__ == '__main__':
     os.system("python -u bin/specific_gene.py -f test/data/sg/output_c.txt -sl 20 -pam \"NGG\" -gi \"" + gi + "\" -gni \"\" -r " + sys.argv[1] + "  -c 2000 --no-proxy -blast test/parse_blast.p")
 
     res = json.load(open("test/results.json", "r"))
-
+    # Check if the total number of sgRNA is correct
     if len(res) != 28:
         sys.exit("Problem with Specific Gene test")
 
+    # Check if found sequences are corect
     ref = json.load(open("test/data/sg/results.json", "r"))
 
     diff = difflib.ndiff(res.readlines(), ref.readlines())

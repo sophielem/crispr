@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+"""
+Test for All genome script and exclude one genome. Use the output of setCompare from the folder
+test/data/ag_exclude
+The total number of sgRNA is 12
+"""
 
 import os
 import sys
@@ -11,10 +16,11 @@ if __name__ == '__main__':
     gni = "Grimontia hollisae GCF_001558255.1"
     os.system("python -u bin/post_processing.py -f test/data/ag_exclude/set_index.txt -sl 20 -pam \"NGG\" -gi \"" + gi + "\" -gni \"" + gni + "\" -r " + sys.argv[1] + "  -c 2000 --no-proxy")
     res = json.load(open("test/results.json", "r"))
-
+    # Check if the total number of sgRNA is correct
     if len(res) != 12:
         sys.exit("Problem with exclude test")
 
+    # Check if found sequences are corect
     ref = json.load(open("test/data/ag_exclude/results.json", "r"))
 
     diff = difflib.ndiff(res.readlines(), ref.readlines())
