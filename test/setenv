@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+target=`pwd`
+echo $target
+
+export PYTHONPATH="$target/lib/:$PYTHONPATH"
+export PYTHONPATH="$target/bin/:$PYTHONPATH"
+export PYTHONPATH="$target/:$PYTHONPATH"
