@@ -1,0 +1,3425 @@
+[
+    {
+        "sequence": "ACTTTTAATCAATTGGTCGCAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(48781,48803)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(893635,893657)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TCGTCGGGCTCATAACCCGAAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(355883,355905)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "-(310030,310052)",
+                            "-(574177,574199)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GCGGCGCCAGAACCTAAATCTGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(320506,320528)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "-(864786,864808)",
+                            "-(865125,865147)",
+                            "-(865465,865487)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "ATTTAGGTTCTGGCGCCGCAAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(320502,320524)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(864782,864804)",
+                            "+(865121,865143)",
+                            "+(865461,865483)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GGTGTTTGGCACCTCGATGTCGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(378580,378602)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2858821,2858843)",
+                            "+(2956503,2956525)",
+                            "-(510777,510799)",
+                            "-(563359,563381)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GACGCACCAGATTTAGGTTCTGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(320512,320534)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(864792,864814)",
+                            "+(865131,865153)",
+                            "+(865471,865493)",
+                            "+(865810,865832)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GATGTGATGAGCCGACATCGAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(378569,378591)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(510788,510810)",
+                            "+(563370,563392)",
+                            "-(2858810,2858832)",
+                            "-(2956492,2956514)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GATGTCGGCTCATCACATCCTGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(378565,378587)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2858806,2858828)",
+                            "+(2956488,2956510)",
+                            "-(510792,510814)",
+                            "-(563374,563396)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TGTCGGCTCATCACATCCTGGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(378563,378585)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2858804,2858826)",
+                            "+(2956486,2956508)",
+                            "-(510794,510816)",
+                            "-(563376,563398)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "ATGTCGGCTCATCACATCCTGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(378564,378586)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2858805,2858827)",
+                            "+(2956487,2956509)",
+                            "-(510793,510815)",
+                            "-(563375,563397)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GCGCAACCTTGCCAAGGTTGAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(422326,422348)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2012771,2012793)",
+                            "+(2013077,2013099)",
+                            "+(2013382,2013404)",
+                            "-(309879,309901)",
+                            "-(310141,310163)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GGTGGGTAGTTTGACTGGGGCGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(378834,378856)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2671750,2671772)",
+                            "+(2859074,2859096)",
+                            "+(2956756,2956778)",
+                            "-(510524,510546)",
+                            "-(563106,563128)",
+                            "-(664429,664451)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GCAGGGTAAGTCGACCCCTAAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(379738,379760)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2672652,2672674)",
+                            "+(2859976,2859998)",
+                            "+(2957658,2957680)",
+                            "-(509622,509644)",
+                            "-(562204,562226)",
+                            "-(663527,663549)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GCAACTGACTTGTAATCAGTAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(33588,33610)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2851763,2851785)",
+                            "-(503710,503732)",
+                            "-(2591227,2591249)",
+                            "-(2591512,2591534)",
+                            "-(2591765,2591787)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(1346699,1346721)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GTCCAACGTTAATCGGGGCAGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(379755,379777)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2672669,2672691)",
+                            "+(2859993,2860015)",
+                            "+(2957675,2957697)",
+                            "-(509605,509627)",
+                            "-(562187,562209)",
+                            "-(663510,663532)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GTAAGTCGACCCCTAAGGCGAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(379733,379755)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2672647,2672669)",
+                            "+(2859971,2859993)",
+                            "+(2957653,2957675)",
+                            "-(509627,509649)",
+                            "-(562209,562231)",
+                            "-(663532,663554)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GACTTGTGGCTAGGGGTGAAAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(380311,380333)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2673220,2673242)",
+                            "+(2860544,2860566)",
+                            "+(2958226,2958248)",
+                            "-(509054,509076)",
+                            "-(561636,561658)",
+                            "-(662959,662981)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CGCCGTCGATATGAACTCTTGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(378602,378624)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(510755,510777)",
+                            "+(563337,563359)",
+                            "+(664660,664682)",
+                            "-(2671519,2671541)",
+                            "-(2858843,2858865)",
+                            "-(2956525,2956547)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CGCCCAAGAGTTCATATCGACGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(378604,378626)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2671521,2671543)",
+                            "+(2858845,2858867)",
+                            "+(2956527,2956549)",
+                            "-(510753,510775)",
+                            "-(563335,563357)",
+                            "-(664658,664680)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CGTCGATATGAACTCTTGGGCGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(378605,378627)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(510752,510774)",
+                            "+(563334,563356)",
+                            "+(664657,664679)",
+                            "-(2671522,2671544)",
+                            "-(2858846,2858868)",
+                            "-(2956528,2956550)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CCGCCGTCGATATGAACTCTTGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(378601,378623)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(510756,510778)",
+                            "+(563338,563360)",
+                            "+(664661,664683)",
+                            "-(2671518,2671540)",
+                            "-(2858842,2858864)",
+                            "-(2956524,2956546)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CCGTAACTATAACGGTCCTAAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(379159,379181)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2672076,2672098)",
+                            "+(2859400,2859422)",
+                            "+(2957082,2957104)",
+                            "-(510198,510220)",
+                            "-(562780,562802)",
+                            "-(664103,664125)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CCCAGTCATGAACCACAAAGTGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(196290,196312)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(507845,507867)",
+                            "+(560218,560240)",
+                            "+(661608,661630)",
+                            "-(2674519,2674541)",
+                            "-(2861753,2861775)",
+                            "-(2959435,2959457)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CCTTAGGACCGTTATAGTTACGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(379159,379181)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(510198,510220)",
+                            "+(562780,562802)",
+                            "+(664103,664125)",
+                            "-(2672076,2672098)",
+                            "-(2859400,2859422)",
+                            "-(2957082,2957104)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CCACTTTGTGGTTCATGACTGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(196290,196312)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2674519,2674541)",
+                            "+(2861753,2861775)",
+                            "+(2959435,2959457)",
+                            "-(507845,507867)",
+                            "-(560218,560240)",
+                            "-(661608,661630)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CCAAGAGTTCATATCGACGGCGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(378601,378623)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2671518,2671540)",
+                            "+(2858842,2858864)",
+                            "+(2956524,2956546)",
+                            "-(510756,510778)",
+                            "-(563338,563360)",
+                            "-(664661,664683)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CTGCGTACCTTTTGTATAATGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(380524,380546)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2673426,2673448)",
+                            "+(2860750,2860772)",
+                            "+(2958432,2958454)",
+                            "-(508848,508870)",
+                            "-(561430,561452)",
+                            "-(662753,662775)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CTGCTTCTAAGCCAACATCCTGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(380022,380044)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(509342,509364)",
+                            "+(561924,561946)",
+                            "+(663247,663269)",
+                            "-(2672932,2672954)",
+                            "-(2860256,2860278)",
+                            "-(2957938,2957960)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CTGCACGAATGGCGTAATGATGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(379105,379127)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2672022,2672044)",
+                            "+(2859346,2859368)",
+                            "+(2957028,2957050)",
+                            "-(510252,510274)",
+                            "-(562834,562856)",
+                            "-(664157,664179)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CACTCCCATGGTGTGACGGGCGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(196218,196240)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(507778,507800)",
+                            "+(661541,661563)",
+                            "-(2674586,2674608)",
+                            "-(2861820,2861842)",
+                            "-(2959502,2959524)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "-(893991,894013)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CACTTTGTGGTTCATGACTGGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(196291,196313)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2674518,2674540)",
+                            "+(2861752,2861774)",
+                            "+(2959434,2959456)",
+                            "-(507846,507868)",
+                            "-(560219,560241)",
+                            "-(661609,661631)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CACACCGCCCGTCACACCATGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(196214,196236)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2674590,2674612)",
+                            "+(2861824,2861846)",
+                            "+(2959506,2959528)",
+                            "-(507774,507796)",
+                            "-(661537,661559)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(893995,894017)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CATCATTACGCCATTCGTGCAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(379106,379128)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(510251,510273)",
+                            "+(562833,562855)",
+                            "+(664156,664178)",
+                            "-(2672023,2672045)",
+                            "-(2859347,2859369)",
+                            "-(2957029,2957051)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TGGCGAACAGCCATACCCTTGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(378529,378551)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(510828,510850)",
+                            "+(563410,563432)",
+                            "+(664733,664755)",
+                            "-(2671446,2671468)",
+                            "-(2858770,2858792)",
+                            "-(2956452,2956474)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TGGCTGTTCGCCATTTAAAGTGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(378519,378541)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2671436,2671458)",
+                            "+(2858760,2858782)",
+                            "+(2956442,2956464)",
+                            "-(510838,510860)",
+                            "-(563420,563442)",
+                            "-(664743,664765)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TGGCTCAGATTGAACGCTGGCGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(194834,194856)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2675981,2676003)",
+                            "+(2863200,2863222)",
+                            "+(2960882,2960904)",
+                            "-(506398,506420)",
+                            "-(660146,660168)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(895386,895408)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TGCCCCGATTAACGTTGGACAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(379758,379780)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(509602,509624)",
+                            "+(562184,562206)",
+                            "+(663507,663529)",
+                            "-(2672672,2672694)",
+                            "-(2859996,2860018)",
+                            "-(2957678,2957700)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TGTGACGGGCGGTGTGTACAAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(196207,196229)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(507767,507789)",
+                            "+(661530,661552)",
+                            "-(2674597,2674619)",
+                            "-(2861831,2861853)",
+                            "-(2959513,2959535)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "-(894002,894024)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TGTCCAACGTTAATCGGGGCAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(379756,379778)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2672670,2672692)",
+                            "+(2859994,2860016)",
+                            "+(2957676,2957698)",
+                            "-(509604,509626)",
+                            "-(562186,562208)",
+                            "-(663509,663531)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TCGCTGACCCATTATACAAAAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(380517,380539)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(508855,508877)",
+                            "+(561437,561459)",
+                            "+(662760,662782)",
+                            "-(2673419,2673441)",
+                            "-(2860743,2860765)",
+                            "-(2958425,2958447)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TCATGGCTCAGATTGAACGCTGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(194831,194853)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2675984,2676006)",
+                            "+(2863203,2863225)",
+                            "+(2960885,2960907)",
+                            "-(506395,506417)",
+                            "-(660143,660165)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(895389,895411)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TTCCTGTCCAACGTTAATCGGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(379760,379782)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2672674,2672696)",
+                            "+(2859998,2860020)",
+                            "+(2957680,2957702)",
+                            "-(509600,509622)",
+                            "-(562182,562204)",
+                            "-(663505,663527)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TTCATATCGACGGCGGTGTTTGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(378594,378616)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2671511,2671533)",
+                            "+(2858835,2858857)",
+                            "+(2956517,2956539)",
+                            "-(510763,510785)",
+                            "-(563345,563367)",
+                            "-(664668,664690)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TTTAAAGTGGTACGCGAGCTGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(378506,378528)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2671423,2671445)",
+                            "+(2858747,2858769)",
+                            "+(2956429,2956451)",
+                            "-(510851,510873)",
+                            "-(563433,563455)",
+                            "-(664756,664778)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TAGAACGTCGTGAGACAGTTCGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(378481,378503)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2671398,2671420)",
+                            "+(2858722,2858744)",
+                            "+(2956404,2956426)",
+                            "-(510876,510898)",
+                            "-(563458,563480)",
+                            "-(664781,664803)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TACCCTGCCCCGATTAACGTTGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(379753,379775)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(509607,509629)",
+                            "+(562189,562211)",
+                            "+(663512,663534)",
+                            "-(2672667,2672689)",
+                            "-(2859991,2860013)",
+                            "-(2957673,2957695)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TATACGGTGTGACGCCTGCCCGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(379251,379273)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2672168,2672190)",
+                            "+(2859492,2859514)",
+                            "+(2957174,2957196)",
+                            "-(510106,510128)",
+                            "-(562688,562710)",
+                            "-(664011,664033)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TAAGTTCCGACCTGCACGAATGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(379116,379138)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2672033,2672055)",
+                            "+(2859357,2859379)",
+                            "+(2957039,2957061)",
+                            "-(510241,510263)",
+                            "-(562823,562845)",
+                            "-(664146,664168)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "AGGTCGGAACTTACCCGACAAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(379126,379148)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(510231,510253)",
+                            "+(562813,562835)",
+                            "+(664136,664158)",
+                            "-(2672043,2672065)",
+                            "-(2859367,2859389)",
+                            "-(2957049,2957071)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "AGGTAGCGAAATTCCTTGTCGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(379139,379161)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2672056,2672078)",
+                            "+(2859380,2859402)",
+                            "+(2957062,2957084)",
+                            "-(510218,510240)",
+                            "-(562800,562822)",
+                            "-(664123,664145)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "AGCGGATGACTTGTGGCTAGGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(380318,380340)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2673227,2673249)",
+                            "+(2860551,2860573)",
+                            "+(2958233,2958255)",
+                            "-(509047,509069)",
+                            "-(561629,561651)",
+                            "-(662952,662974)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "AGCTCGCGTACCACTTTAAATGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(378509,378531)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(510848,510870)",
+                            "+(563430,563452)",
+                            "+(664753,664775)",
+                            "-(2671426,2671448)",
+                            "-(2858750,2858772)",
+                            "-(2956432,2956454)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "ACCACTTTGTGGTTCATGACTGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(196289,196311)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2674520,2674542)",
+                            "+(2861754,2861776)",
+                            "+(2959436,2959458)",
+                            "-(507844,507866)",
+                            "-(560217,560239)",
+                            "-(661607,661629)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "ACTGCGTACCTTTTGTATAATGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(380525,380547)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2673427,2673449)",
+                            "+(2860751,2860773)",
+                            "+(2958433,2958455)",
+                            "-(508847,508869)",
+                            "-(561429,561451)",
+                            "-(662752,662774)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "ACACACCGCCCGTCACACCATGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(196213,196235)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2674591,2674613)",
+                            "+(2861825,2861847)",
+                            "+(2959507,2959529)",
+                            "-(507773,507795)",
+                            "-(661536,661558)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(893996,894018)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "ACAAGGAATTTCGCTACCTTAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(379143,379165)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(510214,510236)",
+                            "+(562796,562818)",
+                            "+(664119,664141)",
+                            "-(2672060,2672082)",
+                            "-(2859384,2859406)",
+                            "-(2957066,2957088)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "ATGGCGAACAGCCATACCCTTGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(378528,378550)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(510829,510851)",
+                            "+(563411,563433)",
+                            "+(664734,664756)",
+                            "-(2671445,2671467)",
+                            "-(2858769,2858791)",
+                            "-(2956451,2956473)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "ATTTAAAGTGGTACGCGAGCTGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(378507,378529)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2671424,2671446)",
+                            "+(2858748,2858770)",
+                            "+(2956430,2956452)",
+                            "-(510850,510872)",
+                            "-(563432,563454)",
+                            "-(664755,664777)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "ATTACGCCATTCGTGCAGGTCGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(379110,379132)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(510247,510269)",
+                            "+(562829,562851)",
+                            "+(664152,664174)",
+                            "-(2672027,2672049)",
+                            "-(2859351,2859373)",
+                            "-(2957033,2957055)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "ATTACGCTTTCTTTAAATGATGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(379999,380021)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(509365,509387)",
+                            "+(561947,561969)",
+                            "+(663270,663292)",
+                            "-(2672909,2672931)",
+                            "-(2860233,2860255)",
+                            "-(2957915,2957937)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "AAGGTAGCGAAATTCCTTGTCGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(379140,379162)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2672057,2672079)",
+                            "+(2859381,2859403)",
+                            "+(2957063,2957085)",
+                            "-(510217,510239)",
+                            "-(562799,562821)",
+                            "-(664122,664144)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "AAGAAAGCGTAATAGCTCACTGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(379989,380011)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2672899,2672921)",
+                            "+(2860223,2860245)",
+                            "+(2957905,2957927)",
+                            "-(509375,509397)",
+                            "-(561957,561979)",
+                            "-(663280,663302)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "AACGGCGGCCGTAACTATAACGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(379167,379189)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2672084,2672106)",
+                            "+(2859408,2859430)",
+                            "+(2957090,2957112)",
+                            "-(510190,510212)",
+                            "-(562772,562794)",
+                            "-(664095,664117)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "AAAGGTACTCCGGGGATAACAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(378634,378656)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2671551,2671573)",
+                            "+(2858875,2858897)",
+                            "+(2956557,2956579)",
+                            "-(510723,510745)",
+                            "-(563305,563327)",
+                            "-(664628,664650)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GGGCGGTGTGTACAAGGCCCGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(196201,196223)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(507761,507783)",
+                            "+(560134,560156)",
+                            "+(661524,661546)",
+                            "-(2674603,2674625)",
+                            "-(2861837,2861859)",
+                            "-(2959519,2959541)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "-(894008,894030)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GGGCTACACACGTGCTACAATGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(196039,196061)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2674765,2674787)",
+                            "+(2861999,2862021)",
+                            "+(2959681,2959703)",
+                            "-(507599,507621)",
+                            "-(559972,559994)",
+                            "-(661362,661384)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(894170,894192)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GGGACGACGTCAAGTCATCATGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(196004,196026)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2674800,2674822)",
+                            "+(2862034,2862056)",
+                            "+(2959716,2959738)",
+                            "-(507564,507586)",
+                            "-(559937,559959)",
+                            "-(661327,661349)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(894205,894227)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GCTGCTGGCACGGAGTTAGCCGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(195321,195343)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(506881,506903)",
+                            "+(559254,559276)",
+                            "+(660644,660666)",
+                            "-(2675483,2675505)",
+                            "-(2862717,2862739)",
+                            "-(2960399,2960421)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "-(894888,894910)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GCAAACAGGATTAGATACCCTGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(195596,195618)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2675208,2675230)",
+                            "+(2862442,2862464)",
+                            "+(2960124,2960146)",
+                            "-(507156,507178)",
+                            "-(559529,559551)",
+                            "-(660919,660941)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(894613,894635)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GATAAGGGTTGCGCTCGTTGCGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(195916,195938)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(507475,507497)",
+                            "+(559848,559870)",
+                            "+(661238,661260)",
+                            "-(2674889,2674911)",
+                            "-(2862123,2862145)",
+                            "-(2959805,2959827)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "-(894294,894316)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CGGGCGGTGTGTACAAGGCCCGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(196202,196224)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(507762,507784)",
+                            "+(560135,560157)",
+                            "+(661525,661547)",
+                            "-(2674602,2674624)",
+                            "-(2861836,2861858)",
+                            "-(2959518,2959540)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "-(894007,894029)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CGCACAAGCGGTGGAGCATGTGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(195751,195773)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2675054,2675076)",
+                            "+(2862288,2862310)",
+                            "+(2959970,2959992)",
+                            "-(507310,507332)",
+                            "-(559683,559705)",
+                            "-(661073,661095)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(894459,894481)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CGATCTCTAGCTGGTCTGAGAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(195098,195120)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2675706,2675728)",
+                            "+(2862940,2862962)",
+                            "+(2960622,2960644)",
+                            "-(506658,506680)",
+                            "-(559031,559053)",
+                            "-(660421,660443)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(895111,895133)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CGAAAGCGTGGGGAGCAAACAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(195582,195604)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2675222,2675244)",
+                            "+(2862456,2862478)",
+                            "+(2960138,2960160)",
+                            "-(507142,507164)",
+                            "-(559515,559537)",
+                            "-(660905,660927)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(894627,894649)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CTCCGTATTACCGCGGCTGCTGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(195336,195358)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(506896,506918)",
+                            "+(559269,559291)",
+                            "+(660659,660681)",
+                            "-(2675468,2675490)",
+                            "-(2862702,2862724)",
+                            "-(2960384,2960406)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "-(894873,894895)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CTCCTACGGGAGGCAGCAGTGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(195157,195179)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2675647,2675669)",
+                            "+(2862881,2862903)",
+                            "+(2960563,2960585)",
+                            "-(506717,506739)",
+                            "-(559090,559112)",
+                            "-(660480,660502)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(895052,895074)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CAGCTCGTGTTGTGAAATGTTGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(195885,195907)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2674920,2674942)",
+                            "+(2862154,2862176)",
+                            "+(2959836,2959858)",
+                            "-(507444,507466)",
+                            "-(559817,559839)",
+                            "-(661207,661229)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(894325,894347)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CAGCAGCCGCGGTAATACGGAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(195337,195359)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2675467,2675489)",
+                            "+(2862701,2862723)",
+                            "+(2960383,2960405)",
+                            "-(506897,506919)",
+                            "-(559270,559292)",
+                            "-(660660,660682)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(894872,894894)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CAGTGGGGAATATTGCACAATGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(195173,195195)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2675631,2675653)",
+                            "+(2862865,2862887)",
+                            "+(2960547,2960569)",
+                            "-(506733,506755)",
+                            "-(559106,559128)",
+                            "-(660496,660518)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(895036,895058)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CACATGCTCCACCGCTTGTGCGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(195750,195772)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(507309,507331)",
+                            "+(559682,559704)",
+                            "+(661072,661094)",
+                            "-(2675055,2675077)",
+                            "-(2862289,2862311)",
+                            "-(2959971,2959993)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "-(894460,894482)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TGCCAGCAGCCGCGGTAATACGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(195334,195356)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2675470,2675492)",
+                            "+(2862704,2862726)",
+                            "+(2960386,2960408)",
+                            "-(506894,506916)",
+                            "-(559267,559289)",
+                            "-(660657,660679)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(894875,894897)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TGCTGCCTCCCGTAGGAGTCTGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(195152,195174)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(506712,506734)",
+                            "+(559085,559107)",
+                            "+(660475,660497)",
+                            "-(2675652,2675674)",
+                            "-(2862886,2862908)",
+                            "-(2960568,2960590)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "-(895057,895079)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TCCCCACTGCTGCCTCCCGTAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(195159,195181)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(506719,506741)",
+                            "+(559092,559114)",
+                            "+(660482,660504)",
+                            "-(2675645,2675667)",
+                            "-(2862879,2862901)",
+                            "-(2960561,2960583)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "-(895050,895072)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TCCTACGGGAGGCAGCAGTGGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(195158,195180)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2675646,2675668)",
+                            "+(2862880,2862902)",
+                            "+(2960562,2960584)",
+                            "-(506718,506740)",
+                            "-(559091,559113)",
+                            "-(660481,660503)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(895051,895073)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TTGCGACCGTACTCCCCAGGCGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(195698,195720)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(507257,507279)",
+                            "+(559630,559652)",
+                            "+(661020,661042)",
+                            "-(2675107,2675129)",
+                            "-(2862341,2862363)",
+                            "-(2960023,2960045)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "-(894512,894534)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TTGACGGGGGCCCGCACAAGCGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(195739,195761)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2675066,2675088)",
+                            "+(2862300,2862322)",
+                            "+(2959982,2960004)",
+                            "-(507298,507320)",
+                            "-(559671,559693)",
+                            "-(661061,661083)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(894471,894493)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TATTACCGCGGCTGCTGGCACGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(195331,195353)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(506891,506913)",
+                            "+(559264,559286)",
+                            "+(660654,660676)",
+                            "-(2675473,2675495)",
+                            "-(2862707,2862729)",
+                            "-(2960389,2960411)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "-(894878,894900)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TAACTCCGTGCCAGCAGCCGCGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(195326,195348)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2675478,2675500)",
+                            "+(2862712,2862734)",
+                            "+(2960394,2960416)",
+                            "-(506886,506908)",
+                            "-(559259,559281)",
+                            "-(660649,660671)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(894883,894905)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TAAAACTCAAATGAATTGACGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(195724,195746)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2675081,2675103)",
+                            "+(2862315,2862337)",
+                            "+(2959997,2960019)",
+                            "-(507283,507305)",
+                            "-(559656,559678)",
+                            "-(661046,661068)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(894486,894508)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "AGCTCGTGTTGTGAAATGTTGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(195886,195908)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2674919,2674941)",
+                            "+(2862153,2862175)",
+                            "+(2959835,2959857)",
+                            "-(507445,507467)",
+                            "-(559818,559840)",
+                            "-(661208,661230)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(894324,894346)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "AGCAGCCGCGGTAATACGGAGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(195338,195360)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2675466,2675488)",
+                            "+(2862700,2862722)",
+                            "+(2960382,2960404)",
+                            "-(506898,506920)",
+                            "-(559271,559293)",
+                            "-(660661,660683)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(894871,894893)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "AGTGGGGAATATTGCACAATGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(195174,195196)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2675630,2675652)",
+                            "+(2862864,2862886)",
+                            "+(2960546,2960568)",
+                            "-(506734,506756)",
+                            "-(559107,559129)",
+                            "-(660497,660519)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(895035,895057)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "ACGGGGGCCCGCACAAGCGGTGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(195742,195764)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2675063,2675085)",
+                            "+(2862297,2862319)",
+                            "+(2959979,2960001)",
+                            "-(507301,507323)",
+                            "-(559674,559696)",
+                            "-(661064,661086)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(894468,894490)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "ACGGTCCAGACTCCTACGGGAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(195147,195169)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2675657,2675679)",
+                            "+(2862891,2862913)",
+                            "+(2960573,2960595)",
+                            "-(506707,506729)",
+                            "-(559080,559102)",
+                            "-(660470,660492)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(895062,895084)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "ACGTCGTCCCCACCTTCCTCCGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(195991,196013)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(507551,507573)",
+                            "+(559924,559946)",
+                            "+(661314,661336)",
+                            "-(2674813,2674835)",
+                            "-(2862047,2862069)",
+                            "-(2959729,2959751)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "-(894218,894240)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "ACTGGGGTGAAGTCGTAACAAGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(196307,196329)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2674502,2674524)",
+                            "+(2861736,2861758)",
+                            "+(2959418,2959440)",
+                            "-(507862,507884)",
+                            "-(560235,560257)",
+                            "-(661625,661647)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(893893,893915)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "ACTCCTACGGGAGGCAGCAGTGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(195156,195178)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2675648,2675670)",
+                            "+(2862882,2862904)",
+                            "+(2960564,2960586)",
+                            "-(506716,506738)",
+                            "-(559089,559111)",
+                            "-(660479,660501)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(895053,895075)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "ACATGCTCCACCGCTTGTGCGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "+(195749,195771)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(507308,507330)",
+                            "+(559681,559703)",
+                            "+(661071,661093)",
+                            "-(2675056,2675078)",
+                            "-(2862290,2862312)",
+                            "-(2959972,2959994)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "-(894461,894483)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "AAACTCAAATGAATTGACGGGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(195726,195748)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2675079,2675101)",
+                            "+(2862313,2862335)",
+                            "+(2959995,2960017)",
+                            "-(507285,507307)",
+                            "-(559658,559680)",
+                            "-(661048,661070)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(894484,894506)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "AAAACTCAAATGAATTGACGGGG",
+        "occurences": [
+            {
+                "org": "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_015662.1",
+                        "coords": [
+                            "-(195725,195747)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Aliivibrio wodanis GCF_000953695.1",
+                "all_ref": [
+                    {
+                        "ref": "NZ_LN554846.1",
+                        "coords": [
+                            "+(2675080,2675102)",
+                            "+(2862314,2862336)",
+                            "+(2959996,2960018)",
+                            "-(507284,507306)",
+                            "-(559657,559679)",
+                            "-(661047,661069)"
+                        ]
+                    },
+                    {
+                        "ref": "NZ_LN554847.1",
+                        "coords": [
+                            "+(894485,894507)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]
