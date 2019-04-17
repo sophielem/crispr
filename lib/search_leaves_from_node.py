@@ -79,7 +79,12 @@ def create_config_file(list_leaves, rfg, path_folder):
     for leaf in list_leaves:
         ref = dic_ref[leaf][0]
         shutil.copy(path_fasta + ref + "_genomic.fna", path_folder)
-
+        taxid = dic_ref[leaf][1]
+        asm = ref.split("_")[-1]
+        gcf = "_".join(ref.split("_")[ :-1])
+        with open(path_folder + ref, "w") as config_file:
+            config_file.write("GCF\tASM\tTaxon ID\n")
+            config_file.write("{}\t{}\t{}".format(gcf, asm, taxid))
 
 if __name__ == '__main__':
     PARAM = args_gestion()
@@ -88,3 +93,4 @@ if __name__ == '__main__':
 
     SUBTREE = search_subtree(PARAM.tree, PARAM.node)
     LIST_LEAVES = search_leaves(SUBTREE, [])
+    create_config_file(LIST_LEAVES, PARAM.rfg, PATH_FOLDER)
