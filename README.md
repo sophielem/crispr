@@ -103,7 +103,7 @@ optional arguments:
   -file <str>  The fasta file to parse
   -out <str>   The output path without the extension
  ```
- The output path is the path to the output file without the extension.
+
 
 ### Parse blastn output
 If no database for blast software, use this command to create it:
@@ -144,5 +144,11 @@ python wordIntegerIndexing.py data/example.pickle
 
 will produce `./example.index`
 
+
+# Tests
+
+To launch test, just execute python test/ *{sg | ag_simple | ag_len_16 | ag_exclude} _test.py* end_point_for_motif-broker. If a message is displaying, then there is a problem with the code because
+it cannot find correct results.
+
 ## Date
-April 01 2019
+April 18 2019
