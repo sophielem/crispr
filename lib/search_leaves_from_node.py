@@ -75,18 +75,29 @@ def create_config_file(list_leaves, rfg, path_folder):
     """
     path_fasta = rfg + "/genome_fasta/"
 
-    with open(rfg + "/genome_ref_taxid.json", "r") as json_data:
-        dic_ref = json.load(json_data)
+    try:
+        with open(rfg + "/genome_ref_taxid.json", "r") as json_data:
+            dic_ref = json.load(json_data)
+    except:
+        sys.exit("No genome_ref_taxid file in the path {}, can't copy fasta file".format(rfg))
+
 
     for leaf in list_leaves:
-        ref = dic_ref[leaf][0]
-        shutil.copy(path_fasta + ref + "_genomic.fna", path_folder)
-        taxid = dic_ref[leaf][1]
-        asm = ref.split("_")[-1]
-        gcf = "_".join(ref.split("_")[ :-1])
-        with open(path_folder + ref, "w") as config_file:
-            config_file.write("GCF\tASM\tTaxon ID\n")
-            config_file.write("{}\t{}\t{}".format(gcf, asm, taxid))
+        try:
+            ref = dic_ref[leaf][0]
+            shutil.copy(path_fasta + ref + "_genomic.fna", path_folder)
+            taxid = dic_ref[leaf][1]
+            asm = ref.split("_")[-1]
+            gcf = "_".join(ref.split("_")[ :-1])
+            with open(path_folder + ref, "w") as config_file:
+                config_file.write("GCF\tASM\tTaxon ID\n")
+                config_file.write("{}\t{}\t{}".format(gcf, asm, taxid))
+        except KeyError:
+            print("The organism {} is not in the genome_ref_taxid file, can't find its reference".format(leaf))
+        except FileNotFoundError:
+            print("No fasta file found for {} at {}".format(leaf, path_fasta + ref + "_genomic.fna")
+        except:
+            print("Problem with the organism {}".format(leaf))
 
 
 if __name__ == '__main__':
