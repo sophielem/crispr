@@ -3,6 +3,8 @@
 Add new genomes from a given node in an existing tree in json format
 """
 
+import os
+import sys
 import json
 import argparse
 import shutil
@@ -19,7 +21,7 @@ def args_gestion():
     parser.add_argument("-tree", metavar="<str>",
                         help="The path to the json tree",
                         required=True)
-    parser.add_argument("-node", metava="<str>",
+    parser.add_argument("-node", metavar="<str>",
                         help="The node to search after",
                         required=True)
     parser.add_argument("-dir", metavar="<str>",
@@ -86,11 +88,17 @@ def create_config_file(list_leaves, rfg, path_folder):
             config_file.write("GCF\tASM\tTaxon ID\n")
             config_file.write("{}\t{}\t{}".format(gcf, asm, taxid))
 
+
 if __name__ == '__main__':
     PARAM = args_gestion()
-    PATH_FOLDER = PARAM.dir + "/genomes_add"
+    PATH_FOLDER = PARAM.dir + "/genomes_add/"
     create_folder(PATH_FOLDER)
-
-    SUBTREE = search_subtree(PARAM.tree, PARAM.node)
+    TREE = json.load(open(PARAM.tree, "r"))
+    SUBTREE = search_subtree(TREE, PARAM.node)
+    if not SUBTREE:
+        sys.exit("No subtree found, check the name of the node")
     LIST_LEAVES = search_leaves(SUBTREE, [])
+    with open("genomes_from_node.log", "w") as filout:
+        for leaf in LIST_LEAVES:
+            filout.write(leaf + "\n")
     create_config_file(LIST_LEAVES, PARAM.rfg, PATH_FOLDER)
