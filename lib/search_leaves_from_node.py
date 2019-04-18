@@ -9,6 +9,18 @@ import json
 import argparse
 import shutil
 
+
+def valid_file(parser, filename):
+    """
+    Check if the file exists
+    """
+    # Check if the file exists
+    if not os.path.isfile(filename):
+        parser.error("The file {} does not exist !".format(filename))
+    # If all is good, return the filename
+    return filename
+
+
 def args_gestion():
     """
     Take and treat arguments that user gives in command line
@@ -18,7 +30,7 @@ def args_gestion():
     parser.add_argument("-rfg", metavar="<str>",
                         help="The path to the reference genome folder",
                         required=True)
-    parser.add_argument("-tree", metavar="<str>",
+    parser.add_argument("-tree", metavar="<str>", type=lambda x: valid_file(parser, x),
                         help="The path to the json tree",
                         required=True)
     parser.add_argument("-node", metavar="<str>",
