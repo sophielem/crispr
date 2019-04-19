@@ -1,6 +1,10 @@
 import json
 import os
 import pickle
+import argparse
+import datetime
+import pickle
+import pycouch.wrapper as couchdb
 from ete3 import Tree,NCBITaxa
 
 class MaxiTree(object):
@@ -32,11 +36,14 @@ class MaxiTree(object):
         for node in tree_topo:
             node.add_feature("taxon", node.name)
         # Change name by organism name
+        couchdb.setServerUrl("http://127.0.0.1:5984/taxon_db")
         for node in tree_topo.iter_descendants():
-            attr = " : " + node.taxon if hasattr(node, "taxon") else ""
-            node.name = ncbi.get_taxid_translator([int(node.name)])[int(node.name)] + attr
+            node.name = ncbi.get_taxid_translator([int(node.name)])[int(node.name)]
             node.name = node.name.replace("'", '')
             node.name = node.name.replace("/", '_')
+            if hasattr(node, "taxon"):
+                gcf = couchdb.couchGetRequest(node.taxon)["current"]
+                node.name = "{} {} : {}".format(node.name, gcf, node.taxon)
         tree_topo.name = ncbi.get_taxid_translator([int(tree_topo.name)])[int(tree_topo.name)]
         return tree_topo
 
@@ -44,23 +51,31 @@ class MaxiTree(object):
     def __repr__(self):
         return "Number of leaves : {} from the root \"{}\"".format(len(self.all_spc), self.tree.name)
 
+    def write_json_full(self):
+        json_tree = self.get_json(True)
+        with open("jsontree_full.json", "w") as filout:
+            filout.write(json_tree)
+
     def write_json(self):
-        json_tree = self.get_json()
+        json_tree = self.get_json(False)
         with open("jsontree.json", "w") as filout:
             filout.write(json_tree)
 
-    def get_json(self):
-        return self.__get_json__(self.tree)
+    def get_json(self, full):
+        return str(self.__get_json__(self.tree, full))
 
-    def __get_json__(self, node):
+    def __get_json__(self, node, full):
         """
         Convert the Tree object to Json object
         """
-        json = {"text": ":".join(node.name.split(":")[:-1])} if hasattr(node, "taxon") else {"text": node.name}
+        if full:
+            json = {"text": node.name}
+        else:
+            json = {"text": ":".join(node.name.split(":")[:-1])} if hasattr(node, "taxon") else {"text": node.name}
         if node.children:
             json["children"] = []
             for ch in node.children:
-                json["children"].append(self.__get_json__(ch))
+                json["children"].append(self.__get_json__(ch, full))
         return json
 
     def dump(self, filin):
