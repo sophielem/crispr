@@ -102,3 +102,22 @@ class MaxiTree(object):
 
     def __set_tree__(self):
         self.tree = self.construct_tree(self, self.all_spc)
+
+
+def args_gestion():
+    """
+    Definition
+    """
+    parser = argparse.ArgumentParser(description="Construct the MaxiTree and save it in the database")
+    parser.add_argument("-file", metavar="<str>", required=True, help="The genome_ref_taxid.json file")
+    return parser.parse_args()
+
+if __name__ == '__main__':
+    PARAM = args_gestion()
+    TREE = MaxiTree.from_gen_ref(PARAM.file)
+    JSON_TREE = TREE.get_json(True)
+    DIC_TREE = {}
+    DIC_TREE["maxi_tree"] = {}
+    DIC_TREE["maxi_tree"]["tree"] = JSON_TREE
+    DIC_TREE["maxi_tree"]["date"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    pickle.dump(DIC_TREE, open("jsontree_full.p", "wb"), protocol=3)
