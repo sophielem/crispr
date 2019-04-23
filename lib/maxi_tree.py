@@ -29,8 +29,9 @@ class MaxiTree(object):
     def from_gen_ref(cls, gen_ref_file):
         if not os.path.isfile(gen_ref_file): sys.exit("*** File does not exist ***")
         dic_ref = json.load(open(gen_ref_file))
-        list_taxid = [int(dic_ref[org][1]) for org in dic_ref]
-        tree_topo = cls.construct_tree(cls, list_taxid)
+        all_taxid = [int(dic_ref[org][1]) for org in dic_ref]
+        tree_topo = cls.construct_tree(cls, all_taxid)
+        list_taxid = [int(node.taxon) for node in tree_topo.iter_descendants() if hasattr(node, "taxon")]
         return cls(tree_topo, list_taxid)
 
     @staticmethod
