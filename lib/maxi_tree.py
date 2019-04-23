@@ -4,6 +4,7 @@ Definition
 
 import os
 import sys
+import re
 import json
 import pickle
 import argparse
@@ -12,11 +13,46 @@ import pickle
 import pycouch.wrapper as couchdb
 from ete3 import Tree,NCBITaxa
 
+
 class MaxiTree(object):
     """docstring for MaxiTree."""
     def __init__(self, dt_tree, all_spc):
         self.tree = dt_tree
         self.all_spc = all_spc
+
+    @classmethod
+    def from_database(cls, end_point):
+        couchdb.setServerUrl(end_point)
+        if not couchdb.couchPing():
+            print("Can't connect to the Taxon Tree database")
+            sys.exit()
+        maxi_tree = couchdb.couchGetDoc("", "maxi_tree")
+        try:
+            maxi_tree = json.loads(maxi_tree["tree"].replace("'", '"'))
+        except json.JSONDecodeError:
+            print("Problem with the maxi_tree in the database")
+            sys.exit()
+
+        tree_topo = Tree()
+        cls.convert_json_to_tree(cls, tree_topo, maxi_tree)
+        list_taxid = [int(node.taxon) for node in tree_topo.iter_descendants() if hasattr(node, "taxon")]
+        return cls(tree_topo, list_taxid)
+
+    @staticmethod
+    def convert_json_to_tree(cls, node, dic):
+        if node.is_root() and node.name == '':
+            node.name = dic["text"]
+            new_node = node
+        else:
+            new_node = node.add_child(name=dic["text"])
+        try:
+            taxid = re.search(" : ([0-9]+)", dic["text"]).group(1)
+            new_node.add_feature("taxon", taxid)
+        except:
+            pass
+        if not "children" in dic.keys(): return None
+        for i in dic["children"]:
+            cls.convert_json_to_tree(cls, new_node, i)
 
     @classmethod
     def from_maxitree(cls, maxitree_file):
