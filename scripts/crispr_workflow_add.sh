@@ -67,8 +67,9 @@ else
             echo "{\"emptySearch\": \"There is a problem during the insertion into CRISPR database. Contact us \"}" > fail.log
             cat fail.log
         else
+            echo python create_file_taxondb.py single -user -gcf $GCF -taxid $TAXID -url $URL_TAXON"/"$DB_NAME
             ## Add into taxon database ##
-            echo python couchBuild $DB_NAME --url $URL_TAXON --data $INFO_FILE
+            echo python couchBuild $DB_NAME --url $URL_TAXON --data "./taxonDB_data/taxon_dt.p"
             ## Update the Json_tree ##
             echo python update_tree.py 2> ./update_tree.err 1> ./update_tree.log
 
