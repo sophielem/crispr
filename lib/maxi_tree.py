@@ -148,6 +148,41 @@ class MaxiTree(object):
     def __set_tree__(self):
         self.tree = self.construct_tree(self, self.all_spc)
 
+    def fname():
+        couchdb.setServerUrl("http://127.0.0.1:5984/taxon_db")
+        if not couchdb.couchPing():
+            print("Can't connect to the Taxon database")
+            sys.exit()
+
+        ncbi = NCBITaxa()
+        tree_topo = ncbi.get_topology(self.all_spc)
+        new_node = tree_topo.search_nodes(name=taxid)[0]
+
+        new_node.add_feature("taxon", new_node.name)
+        new_node.name = ncbi.get_taxid_translator([int(new_node.name)])[int(new_node.name)]
+        new_node.name = new_node.name.replace("'", '')
+        new_node.name new_node.name.replace("/", '_')
+        gcf = couchdb.couchGetRequest(new_node.taxon)["current"]
+        new_node.name = "{} {} : {}".format(new_node.name, gcf, new_node.taxon)
+        if new_node.get_sisters():
+            # Le parent est déjà présent dans l'arbre, il ne reste qu'à créer le nouveau noeud,
+            # à trouver le noeud parent sur notre arbre et à l'accorder
+            pass
+            node_added = node.add_child(new_node)
+        else:
+            # Le noeud parent n'existe pas, il faut vérifier que lui ai des frères et soeurs,
+            # créer le sous-arbre et le raccorder à notre arbre
+            pass
+
+
+
+        parent = new_node.up
+        parent_name = ncbi.get_taxid_translator([int(parent.name)])[int(parent.name)]
+        parent_name = parent_name.replace("'", '')
+        parent_name = parent_name.replace("/", '_')
+
+
+
 
 def args_gestion():
     """
