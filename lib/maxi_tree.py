@@ -1,5 +1,10 @@
-import json
+"""
+Definition
+"""
+
 import os
+import sys
+import json
 import pickle
 import argparse
 import datetime
@@ -35,8 +40,11 @@ class MaxiTree(object):
         # add the feature taxID
         for node in tree_topo:
             node.add_feature("taxon", node.name)
-        # Change name by organism name
         couchdb.setServerUrl("http://127.0.0.1:5984/taxon_db")
+        if not couchdb.couchPing():
+            print("Can't connect to the Taxon database")
+            sys.exit()
+        # Change name by organism name
         for node in tree_topo.iter_descendants():
             node.name = ncbi.get_taxid_translator([int(node.name)])[int(node.name)]
             node.name = node.name.replace("'", '')
