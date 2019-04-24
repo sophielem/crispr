@@ -83,9 +83,7 @@ class MaxiTree(object):
             sys.exit()
         # Change name by organism name
         for node in tree_topo.iter_descendants():
-            node.name = ncbi.get_taxid_translator([int(node.name)])[int(node.name)]
-            node.name = node.name.replace("'", '')
-            node.name = node.name.replace("/", '_')
+            node.name = rename_node(node.name, ncbi)
             if hasattr(node, "taxon"):
                 gcf = couchdb.couchGetRequest(node.taxon)["current"]
                 node.name = "{} {} : {}".format(node.name, gcf, node.taxon)
@@ -131,57 +129,98 @@ class MaxiTree(object):
         return taxid in self.all_spc
 
     def insert(self, taxid):
-        if self.is_member(taxid):
-            print("Taxon already into database")
-            return False
-        try:
-            ncbi = NCBITaxa()
-            ncbi.get_lineage(taxid)
-        except Exception as e:
-            print("This taxon does not exist in the NCBI database")
-            return False
-
-        self.all_spc = self.all_spc + [taxid]
-        self.__set_tree__()
-        return True
-
-    def __set_tree__(self):
-        self.tree = self.construct_tree(self, self.all_spc)
-
-    def fname():
+        # Check if can connect to the database
         couchdb.setServerUrl("http://127.0.0.1:5984/taxon_db")
         if not couchdb.couchPing():
-            print("Can't connect to the Taxon database")
+            print("Program terminated&Can't connect to the Taxon database")
             sys.exit()
 
+        # Check if it is just a change of GCF
+        if self.is_member(taxid):
+            node = self.tree.search_nodes(taxon=str(taxid))[0]
+            gcf_old = re.search("GCF_[0-9]+\.?[0-9]*", node.name)[0]
+            gcf_new = couchdb.couchGetRequest(str(taxid))["current"]
+            if gcf_old == gcf_new:
+                print("Program terminated&Error, the new GCF is the same than the old GCF")
+                sys.exit()
+            node.name = node.name.replace(gcf_old, gcf_new)
+            return True
+
+        # Construct the topology tree with taxonID
         ncbi = NCBITaxa()
-        tree_topo = ncbi.get_topology(self.all_spc)
-        new_node = tree_topo.search_nodes(name=taxid)[0]
+        tree_topo = ncbi.get_topology(self.all_spc + [taxid])
+        for node in tree_topo:
+            node.add_feature("taxon", node.name)
+        for node in tree_topo.iter_descendants():
+            node.name = rename_node(node.name, ncbi)
+            if hasattr(node, "taxon"):
+                if node.taxon == str(taxid):
+                    try:
+                        gcf = couchdb.couchGetRequest(node.taxon)["current"]
+                        node.name = "{} {} : {}".format(node.name, gcf, node.taxon)
+                    except:
+                        print("Program terminated&Problem with the taxon {} in the Taxon database".format(taxid))
+                        sys.exit()
+                else:
+                    node.name = self.tree.search_nodes(taxon=node.taxon)[0].name
+        tree_topo.name = ncbi.get_taxid_translator([int(tree_topo.name)])[int(tree_topo.name)]
 
-        new_node.add_feature("taxon", new_node.name)
-        new_node.name = ncbi.get_taxid_translator([int(new_node.name)])[int(new_node.name)]
-        new_node.name = new_node.name.replace("'", '')
-        new_node.name new_node.name.replace("/", '_')
-        gcf = couchdb.couchGetRequest(new_node.taxon)["current"]
-        new_node.name = "{} {} : {}".format(new_node.name, gcf, new_node.taxon)
-        if new_node.get_sisters():
-            # Le parent est déjà présent dans l'arbre, il ne reste qu'à créer le nouveau noeud,
-            # à trouver le noeud parent sur notre arbre et à l'accorder
-            pass
-            node_added = node.add_child(new_node)
-        else:
-            # Le noeud parent n'existe pas, il faut vérifier que lui ai des frères et soeurs,
-            # créer le sous-arbre et le raccorder à notre arbre
-            pass
+        # Rename the new node
+        # try:
+        #     ncbi = NCBITaxa()
+        #     tree_topo = ncbi.get_topology(self.all_spc + [taxid])
+        #     new_node = tree_topo.search_nodes(name=taxid)[0]
+        #     # Rename the new node
+        #     new_node.add_feature("taxon", new_node.name)
+        #     new_node.name = rename_node(taxid, ncbi)
+        #     # gcf = couchdb.couchGetRequest(taxid)["current"]
+        #     gcf = "GCF_1234"
+        #     new_node.name = "{} {} : {}".format(new_node.name, gcf, new_node.taxon)
+        # except ValueError:
+        #     print("Program terminated&This taxon does not exist in the NCBI database")
+        #     sys.exit()
+        # except Exception as e:
+        #     print("Program terminated&Problem with the taxon {} in the Taxon database".format(taxid))
+        #     print(e)
+        #     sys.exit()
+        #
+        # self.__set_tree__(new_node, ncbi)
+        self.tree = tree_topo
+        self.all_spc = self.all_spc + [taxid]
+        return True
+
+    # def __set_tree__(self, new_node, ncbi):
+    #     parent = new_node.up
+    #     if not parent:
+    #
+    #     # The parent is a parent of another leaf, so exists in the original tree
+    #     res = self.tree.search_nodes(name=ncbi.get_taxid_translator([int(parent.name)])[int(parent.name)])
+    #
+    #     if not res:
+    #         # The parent is a leaf from the original tree
+    #         res = self.tree.search_nodes(taxon=parent.name)
+    #         # Remove the taxid and the GCF from the node because now it becomes a parent and not a leaf
+    #         if res:
+    #             remove = re.search("GCF_[0-9]+\.?[0-9]* : [0-9]+", res[0].name)[0]
+    #             res[0].name = res[0].name.replace(remove, "").strip()
+    #             res[0].del_feature("taxon")
+    #
+    #     if res:
+    #          res[0].add_child(new_node)
+    #     else:
+    #         # The parent does not exist in the original tree
+    #         parent.name = rename_node(parent.name, ncbi)
+    #         self.__set_tree__(parent, ncbi)
 
 
-
-        parent = new_node.up
-        parent_name = ncbi.get_taxid_translator([int(parent.name)])[int(parent.name)]
-        parent_name = parent_name.replace("'", '')
-        parent_name = parent_name.replace("/", '_')
-
-
+def rename_node(taxid, ncbi):
+    """
+    Definition
+    """
+    node_name = ncbi.get_taxid_translator([int(taxid)])[int(taxid)]
+    node_name = node_name.replace("'", '')
+    node_name = node_name.replace("/", '_')
+    return node_name
 
 
 def args_gestion():
