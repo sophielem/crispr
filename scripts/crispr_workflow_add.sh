@@ -71,7 +71,7 @@ else
             ## Add into taxon database ##
             echo python couchBuild $DB_TAXON_NAME --url $URL_TAXON --data "./taxonDB_data/taxon_dt.p"
             ## Update the Json_tree ##
-            echo python update_tree.py 2> ./update_tree.err 1> ./update_tree.log
+            echo python update_tree.py -url $URL_TREE"/"$DB_TREE_NAME -taxid $TAXID  2> ./update_tree.err 1> ./update_tree.log
             echo python couchBuild $DB_TREE_NAME --url $URL_TREE --data "./treeDB_data/maxi_tree.p"
 
             if grep "Program terminated" ./update_tree.log > /dev/null;
