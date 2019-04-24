@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""
+Definition
+"""
 
 import argparse
 import word_detect
