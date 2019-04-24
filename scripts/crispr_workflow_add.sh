@@ -30,12 +30,12 @@ elif [ "$CRISPR_TOOL_SCRIPT_PATH" = "" ]; then
 
 elif  [ "$URL_CRISPR" = "" ]; then
     error_json
-elif [ "$DB_NAME" = "" ]; then
+elif [ "$DB_TAXON_NAME" = "" ]; then
     error_json
 else
 
     ### CHECK IF TAXON ID ALREADY PRESENT IN NCBI AND OUR TAXON DATABASE ###
-    echo python check_taxonomy -taxid $TAXID -gcf $GCF -out $INFO_FILE -url $URL_TAXON -dbName $DB_NAME 2> ./check_taxon.err 1> ./check_taxon.log
+    echo python check_taxonomy -taxid $TAXID -gcf $GCF -out $INFO_FILE -url $URL_TAXON -dbName $DB_TAXON_NAME 2> ./check_taxon.err 1> ./check_taxon.log
     if grep "Be careful" ./check_taxon.log > /dev/null;
     then
         perl -ne 'if ($_ =~ /Be careful/){
@@ -67,11 +67,12 @@ else
             echo "{\"emptySearch\": \"There is a problem during the insertion into CRISPR database. Contact us \"}" > fail.log
             cat fail.log
         else
-            echo python create_file_taxondb.py single -user -gcf $GCF -taxid $TAXID -url $URL_TAXON"/"$DB_NAME
+            echo python create_file_taxondb.py single -user -gcf $GCF -taxid $TAXID -url $URL_TAXON"/"$DB_TAXON_NAME
             ## Add into taxon database ##
-            echo python couchBuild $DB_NAME --url $URL_TAXON --data "./taxonDB_data/taxon_dt.p"
+            echo python couchBuild $DB_TAXON_NAME --url $URL_TAXON --data "./taxonDB_data/taxon_dt.p"
             ## Update the Json_tree ##
             echo python update_tree.py 2> ./update_tree.err 1> ./update_tree.log
+            echo python couchBuild $DB_TREE_NAME --url $URL_TREE --data "./treeDB_data/maxi_tree.p"
 
             if grep "Program terminated" ./update_tree.log > /dev/null;
             then
