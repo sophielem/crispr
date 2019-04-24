@@ -108,9 +108,6 @@ class MaxiTree(object):
         return str(self.__get_json__(self.tree, full))
 
     def __get_json__(self, node, full):
-        """
-        Convert the Tree object to Json object
-        """
         if full:
             json = {"text": node.name}
         else:
@@ -121,8 +118,13 @@ class MaxiTree(object):
                 json["children"].append(self.__get_json__(ch, full))
         return json
 
-    def dump(self, filin):
-        pickle.dump(self.tree, open(filin, "wb"), protocol=3)
+    def dump(self, filout):
+        json_tree = self.get_json(True)
+        dic_tree = {}
+        dic_tree["maxi_tree"] = {}
+        dic_tree["maxi_tree"]["tree"] = json_tree
+        dic_tree["maxi_tree"]["date"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        pickle.dump(dic_tree, open(filout, "wb"), protocol=3)
 
     ### Modify Tree ###
     def is_member(self, taxid):
