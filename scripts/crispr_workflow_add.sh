@@ -52,9 +52,7 @@ else
 
     ### CREATE PICKLE AND INDEX METAFILE ###
     if [ $PRG_TERMINATED = 0 ]; then
-        NAME_FILE=$(echo $ORG_NAME $GCF)
-
-        echo python create_metafile.py -file $FASTA_FILE -out $NAME_FILE -rfg $rfg 2> ./create_meta.err 1> ./create_meta.log
+        echo python create_metafile.py -file $FASTA_FILE -taxid $TAXID -gcf $GCF -rfg $rfg 2> ./create_meta.err 1> ./create_meta.log
         echo cp $FASTA_FILE $rfg"/genome_fasta/"$TAXID"_"$GCF".fna"
         # Check if any sgRNA has been found in this genome
         parse_logFile ./create_meta.log
@@ -63,7 +61,8 @@ else
 
     ### ADD INTO DATABASE AND UPDATE JSON_TREE ###
     if [ $PRG_TERMINATED = 0 ]; then
-        echo python couchBuild.py --url $URL_CRISPR --map $MAP_FILE --data $NAME_FILE".p"
+        NAME_FILE=`cat ./create_metafile.log`
+        echo python couchBuild.py --url $URL_CRISPR --map $MAP_FILE --data $rfg"/genome_pickle/"$NAME_FILE".p"
         if [ -f error_add_db.err ]; then
             echo "{\"emptySearch\": \"There is a problem during the insertion into CRISPR database. Contact us \"}" > fail.log
             cat fail.log

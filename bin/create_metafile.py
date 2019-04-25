@@ -6,6 +6,7 @@ Definition
 import argparse
 import word_detect
 import wordIntegerIndexing as decoding
+from ete3 import NCBITaxa
 
 
 def args_gestion():
@@ -14,11 +15,9 @@ def args_gestion():
     """
     parser = argparse.ArgumentParser(description="Create pickleand index metafile")
     parser.add_argument("-file", metavar="<str>",
-                        help="The fasta file to parse",
-                        required=True)
-    parser.add_argument("-out", metavar="<str>",
-                        help="The output path without the extension",
-                        required=True)
+                        help="The fasta file to parse", required=True)
+    parser.add_argument("-taxid", type=int, help="Taxonomy ID", required=True)
+    parser.add_argument("-gcf", metavar="<str>", help="GCF ID", required=True)
     parser.add_argument("-rfg", metavar="<str>",
                         help="The path to the database for index and pickle file",
                         nargs="?", const="")
@@ -26,12 +25,25 @@ def args_gestion():
     return args
 
 
+def name_output(taxid, gcf):
+    """
+    Given a taxid and a gcf, create a name with the organism name and its gcf
+    """
+    ncbi = NCBITaxa()
+    name_org = ncbi.get_taxid_translator([int(taxid)])[int(taxid)]
+    name_org = name_org.replace("'", '')
+    name_org =  name_org.replace("/", '_')
+    return name_org + "_" + gcf
+
+
 if __name__ == '__main__':
     PARAM = args_gestion()
     PATH = PARAM.rfg + "/genome_pickle/" if PARAM.rfg else ""
-    DIC_PICKLE = word_detect.construct_in(PARAM.file, PATH + PARAM.out + ".p")
+    OUTPUT = name_output(PARAM.taxid, PARAM.gcf)
+    DIC_PICKLE = word_detect.construct_in(PARAM.file, PATH + OUTPUT + ".p")
     if DIC_PICKLE:
         PATH = PARAM.rfg + "/genome_index/" if PARAM.rfg else ""
-        decoding.indexAndOccurencePickle(PARAM.out + ".p", PATH + PARAM.out + ".index")
+        decoding.indexAndOccurencePickle(OUTPUT + ".p", PATH + OUTPUT + ".index")
+        print(OUTPUT)
     else:
         print("Program terminated&No sgRNA sequences on the query")
