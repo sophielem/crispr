@@ -55,6 +55,7 @@ else
         NAME_FILE=$(echo $ORG_NAME $GCF)
 
         echo python create_metafile.py -file $FASTA_FILE -out $NAME_FILE -rfg $rfg 2> ./create_meta.err 1> ./create_meta.log
+        echo cp $FASTA_FILE $rfg"/genome_fasta/"$TAXID"_"$GCF".fna"
         # Check if any sgRNA has been found in this genome
         parse_logFile ./create_meta.log
         PRG_TERMINATED=$?
