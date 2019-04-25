@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """
-Add new genomes from a given node in an existing tree in json format
+Add new genomes from a given node in an existing tree saved in json file or in the database
 """
 
 import os
 import sys
+import re
 import json
 import argparse
 import shutil
+import maxi_tree as mt
+import pycouch.wrapper as couchdb
 
 
 def valid_file(parser, filename):
@@ -26,21 +29,47 @@ def args_gestion():
     Take and treat arguments that user gives in command line
     """
     # Argparsing
-    parser = argparse.ArgumentParser(description="Retrieve all children from a given node and create configure file to add them to the database")
-    parser.add_argument("-rfg", metavar="<str>",
-                        help="The path to the reference genome folder",
-                        required=True)
-    parser.add_argument("-tree", metavar="<str>", type=lambda x: valid_file(parser, x),
-                        help="The path to the json tree",
-                        required=True)
-    parser.add_argument("-node", metavar="<str>",
-                        help="The node to search after",
-                        required=True)
-    parser.add_argument("-dir", metavar="<str>",
-                        help="The workdir where configure files will be created",
-                        nargs="?", default="./")
-    args = parser.parse_args()
-    return args
+    command = sys.argv[1] if len(sys.argv) > 1 else None
+    parser = argparse.ArgumentParser(description="Retrieve all children from a given node and\
+                                                 create configure file to add them to the database")
+    subparsers = parser.add_subparsers(help="commands")
+
+    # Parser from json tree file and genome_ref_taxid file
+    parser_scratch = subparsers.add_parser("scratch", help="From the genome_ref file and the\
+                                                           json tree file")
+    parser_scratch.add_argument("-rfg", metavar="<str>",
+                                help="The path to the reference genome folder",
+                                required=True)
+    parser_scratch.add_argument("-tree", metavar="<str>", type=lambda x: valid_file(parser_scratch, x),
+                                help="The path to the json tree",
+                                required=True)
+    parser_scratch.add_argument("-node", metavar="<str>",
+                                help="The node to search after",
+                                required=True)
+    parser_scratch.add_argument("-dir", metavar="<str>",
+                                help="The workdir where configure files will be created",
+                                nargs="?", default="./")
+
+    # Parser from databases
+    parser_db = subparsers.add_parser("db", help="From the genome_ref file and the\
+                                                           json tree file")
+    parser_db.add_argument("-rfg", metavar="<str>",
+                           help="The path to the reference genome folder",
+                           required=True)
+    parser_db.add_argument("-tree", metavar="<str>",
+                           help="End point to the Tree Database",
+                           required=True)
+    parser_db.add_argument("-taxon", metavar="<str>",
+                           help="End point to the Taxon Database",
+                           required=True)
+    parser_db.add_argument("-node", metavar="<str>",
+                           help="The node to search after",
+                           required=True)
+    parser_db.add_argument("-dir", metavar="<str>",
+                           help="The workdir where configure files will be created",
+                           nargs="?", default="./")
+
+    return parser.parse_args(), command
 
 
 def create_folder(path_folder):
@@ -81,7 +110,7 @@ def search_leaves(tree, list_child):
     return list_child
 
 
-def create_config_file(list_leaves, rfg, path_folder):
+def configfile(list_leaves, rfg, path_folder):
     """
     Copy fasta file and create config file for each genome to add
     """
@@ -97,26 +126,64 @@ def create_config_file(list_leaves, rfg, path_folder):
     for leaf in list_leaves:
         try:
             ref = dic_ref[leaf][0]
-            shutil.copy(path_fasta + ref + "_genomic.fna", path_folder)
+            gcf = re.search("GCF_[0-9]+\.[0-9]+", ref)[0]
             taxid = dic_ref[leaf][1]
-            asm = ref.split("_")[-1]
-            gcf = "_".join(ref.split("_")[ :-1])
+            name_fasta = taxid + "_" + gcf + ".fna"
+            shutil.copy(path_fasta + name_fasta, path_folder)
+            asm = ref.replace(gcf, "")
             with open(path_folder + ref, "w") as config_file:
                 config_file.write("GCF\tASM\tTaxon ID\n")
                 config_file.write("{}\t{}\t{}".format(gcf, asm, taxid))
         except KeyError:
             print("The organism {} is not in the genome_ref_taxid file, can't find its reference".format(leaf))
         except FileNotFoundError:
-            print("No fasta file found for {} at {}".format(leaf, path_fasta + ref + "_genomic.fna")
+            print("No fasta file found for {} at {}".format(leaf, path_fasta + name_fasta)
         except:
             print("Problem with the organism {}".format(leaf))
 
 
+def configfile_from_db(list_leaves, rfg, url_taxon, path_folder):
+    """
+    Write a config file with the taxonID and the GCF for each organism to add them in the database
+    """
+    couchdb.setServerUrl(url_taxon)
+    if not couchdb.couchPing():
+        print("Can't connect to the Taxon Database")
+        sys.exit()
+
+    error = []
+    path_fasta = rfg + "/genome_fasta/"
+    for leaf in list_leaves:
+        taxid = leaf.split(":")[-1]
+        doc = couchdb.couchGetDoc("", str(taxid))
+        if not doc:
+            error.append(taxid)
+        else:
+            gcf = doc["current"]
+            with open(path_folder + taxid + "_" + gcf, "w") as config_file:
+                config_file.write("GCF\tTaxonID\n")
+                config_file.write("{}\t{}".format(gcf, taxid))
+            shutil.copy(path_fasta + taxid + "_" + gcf + ".fna", path_folder)
+    if error:
+        with open("config_file.log", "w") as filout:
+            [filout.write(err + "\n") for err in error]
+
+
+def load_tree(url_tree):
+    """
+    Load the tree from the database and return it under a dictionary
+    """
+    MAXITREE = mt.MaxiTree.from_database(PARAM.url)
+    # Get the tree with taxonID to find the GCF in taxon database
+    json_tree = MAXITREE.get_json(True)
+    return json.loads(json_tree)
+
+
 if __name__ == '__main__':
-    PARAM = args_gestion()
+    PARAM, COMMAND= args_gestion()
     PATH_FOLDER = PARAM.dir + "/genomes_add/"
     create_folder(PATH_FOLDER)
-    TREE = json.load(open(PARAM.tree, "r"))
+    TREE = json.load(open(PARAM.tree, "r")) if COMMAND == "scratch" else load_tree(PARAM.tree)
     SUBTREE = search_subtree(TREE, PARAM.node)
     if not SUBTREE:
         sys.exit("No subtree found, check the name of the node")
@@ -124,4 +191,4 @@ if __name__ == '__main__':
     with open("genomes_from_node.log", "w") as filout:
         for leaf in LIST_LEAVES:
             filout.write(leaf + "\n")
-    create_config_file(LIST_LEAVES, PARAM.rfg, PATH_FOLDER)
+    configfile(LIST_LEAVES, PARAM.rfg, PATH_FOLDER) if COMMAND == "scratch" else configfile_from_db(LIST_LEAVES, PARAM.rfg, PARAM.taxon, PATH_FOLDER)
