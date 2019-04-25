@@ -16,8 +16,10 @@ def args_gestion():
     parser = argparse.ArgumentParser(description="Create pickleand index metafile")
     parser.add_argument("-file", metavar="<str>",
                         help="The fasta file to parse", required=True)
-    parser.add_argument("-taxid", type=int, help="Taxonomy ID", required=True)
-    parser.add_argument("-gcf", metavar="<str>", help="GCF ID", required=True)
+    parser.add_argument("-out", metavar="<str>",
+                        help="Path for the output file without extension")
+    parser.add_argument("-taxid", type=int, help="Taxonomy ID")
+    parser.add_argument("-gcf", metavar="<str>", help="GCF ID")
     parser.add_argument("-rfg", metavar="<str>",
                         help="The path to the database for index and pickle file",
                         nargs="?", const="")
@@ -39,7 +41,7 @@ def name_output(taxid, gcf):
 if __name__ == '__main__':
     PARAM = args_gestion()
     PATH = PARAM.rfg + "/genome_pickle/" if PARAM.rfg else ""
-    OUTPUT = name_output(PARAM.taxid, PARAM.gcf)
+    OUTPUT = name_output(PARAM.taxid, PARAM.gcf) if PARAM.taxid else PARAM.out
     DIC_PICKLE = word_detect.construct_in(PARAM.file, PATH + OUTPUT + ".p")
     if DIC_PICKLE:
         PATH = PARAM.rfg + "/genome_index/" if PARAM.rfg else ""
