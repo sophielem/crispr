@@ -98,7 +98,7 @@ if __name__ == '__main__':
         TAXON_DT = {}
         couchdb.setServerUrl(PARAM.url)
         if not couchdb.couchPing():
-            print("Can't connect to the taxon database with the URL : {}".format(PARAM.url))
+            print("Program terminated&Can't connect to the taxon database with the URL : {}".format(PARAM.url))
             sys.exit()
         DOC = couchdb.couchGetDoc("", PARAM.taxid)
         LIST_GCF = PARAM.gcf + DOC["GCF"] if DOC else [PARAM.gcf]
