@@ -35,7 +35,7 @@ elif [ "$DB_TAXON_NAME" = "" ]; then
 else
 
     ### CHECK IF TAXON ID ALREADY PRESENT IN NCBI AND OUR TAXON DATABASE ###
-    echo python check_taxonomy -taxid $TAXID -gcf $GCF -out $INFO_FILE -url $URL_TAXON -dbName $DB_TAXON_NAME 2> ./check_taxon.err 1> ./check_taxon.log
+    echo python -u $CRISPR_TOOL_SCRIPT_PATH/check_taxonomy -taxid $TAXID -gcf $GCF -out $INFO_FILE -url $URL_TAXON -dbName $DB_TAXON_NAME 2> ./check_taxon.err 1> ./check_taxon.log
     if grep "Be careful" ./check_taxon.log > /dev/null;
     then
         perl -ne 'if ($_ =~ /Be careful/){
@@ -52,7 +52,7 @@ else
 
     ### CREATE PICKLE AND INDEX METAFILE ###
     if [ $PRG_TERMINATED = 0 ]; then
-        echo python create_metafile.py -file $FASTA_FILE -taxid $TAXID -gcf $GCF -rfg $rfg 2> ./create_meta.err 1> ./create_meta.log
+        echo -u $CRISPR_TOOL_SCRIPT_PATH/python create_metafile.py -file $FASTA_FILE -taxid $TAXID -gcf $GCF -rfg $rfg 2> ./create_meta.err 1> ./create_meta.log
         echo cp $FASTA_FILE $rfg"/genome_fasta/"$TAXID"_"$GCF".fna"
         # Check if any sgRNA has been found in this genome
         parse_logFile ./create_meta.log
@@ -62,17 +62,17 @@ else
     ### ADD INTO DATABASE AND UPDATE JSON_TREE ###
     if [ $PRG_TERMINATED = 0 ]; then
         NAME_FILE=`cat ./create_metafile.log`
-        echo python couchBuild.py --url $URL_CRISPR --map $MAP_FILE --data $rfg"/genome_pickle/"$NAME_FILE".p"
+        echo python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild.py --url $URL_CRISPR --map $MAP_FILE --data $rfg"/genome_pickle/"$NAME_FILE".p"
         if [ -f error_add_db.err ]; then
             echo "{\"emptySearch\": \"There is a problem during the insertion into CRISPR database. Contact us \"}" > fail.log
             cat fail.log
         else
-            echo python create_file_taxondb.py single -user -gcf $GCF -taxid $TAXID -url $URL_TAXON"/"$DB_TAXON_NAME
+            echo python -u $CRISPR_TOOL_SCRIPT_PATH/create_file_taxondb.py single -user -gcf $GCF -taxid $TAXID -url $URL_TAXON"/"$DB_TAXON_NAME
             ## Add into taxon database ##
-            echo python couchBuild $DB_TAXON_NAME --url $URL_TAXON --data "./taxonDB_data/taxon_dt.p"
+            echo python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild $DB_TAXON_NAME --url $URL_TAXON --data "./taxonDB_data/taxon_dt.p"
             ## Update the Json_tree ##
-            echo python update_tree.py -url $URL_TREE"/"$DB_TREE_NAME -taxid $TAXID  2> ./update_tree.err 1> ./update_tree.log
-            echo python couchBuild $DB_TREE_NAME --url $URL_TREE --data "./treeDB_data/maxi_tree.p"
+            echo python -u $CRISPR_TOOL_SCRIPT_PATH/update_tree.py -url $URL_TREE"/"$DB_TREE_NAME -taxid $TAXID  2> ./update_tree.err 1> ./update_tree.log
+            echo python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild $DB_TREE_NAME --url $URL_TREE --data "./treeDB_data/maxi_tree.p"
 
             if grep "Program terminated" ./update_tree.log > /dev/null;
             then
