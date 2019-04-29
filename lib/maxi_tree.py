@@ -24,13 +24,13 @@ class MaxiTree(object):
     def from_database(cls, end_point):
         couchdb.setServerUrl(end_point)
         if not couchdb.couchPing():
-            print("Can't connect to the Taxon Tree database")
+            print("Program terminated&Can't connect to the Taxon Tree database")
             sys.exit()
         maxi_tree = couchdb.couchGetDoc("", "maxi_tree")
         try:
             maxi_tree = json.loads(maxi_tree["tree"].replace("'", '"'))
         except json.JSONDecodeError:
-            print("Problem with the maxi_tree in the database")
+            print("Program terminated&Problem with the maxi_tree in the database")
             sys.exit()
 
         tree_topo = Tree()
@@ -79,7 +79,7 @@ class MaxiTree(object):
             node.add_feature("taxon", node.name)
         couchdb.setServerUrl("http://127.0.0.1:5984/taxon_db")
         if not couchdb.couchPing():
-            print("Can't connect to the Taxon database")
+            print("Program terminated&Can't connect to the Taxon database")
             sys.exit()
         # Change name by organism name
         for node in tree_topo.iter_descendants():
@@ -161,7 +161,8 @@ class MaxiTree(object):
                         gcf = couchdb.couchGetRequest(node.taxon)["current"]
                         node.name = "{} {} : {}".format(node.name, gcf, node.taxon)
                     except:
-                        print("Program terminated&Problem with the taxon {} in the Taxon database".format(taxid))
+                        print("Program terminated&Problem with the taxon {} in the Taxon database \
+(WiP : insert a new member in the Tree)".format(taxid))
                         sys.exit()
                 else:
                     node.name = self.tree.search_nodes(taxon=node.taxon)[0].name

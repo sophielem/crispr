@@ -34,30 +34,12 @@ elif [ "$DB_TAXON_NAME" = "" ]; then
     error_json
 else
 
-    ### CHECK IF TAXON ID ALREADY PRESENT IN NCBI AND OUR TAXON DATABASE ###
-    echo python -u $CRISPR_TOOL_SCRIPT_PATH/check_taxonomy -taxid $TAXID -gcf $GCF -out $INFO_FILE -url $URL_TAXON -dbName $DB_TAXON_NAME 2> ./check_taxon.err 1> ./check_taxon.log
-    if grep "Be careful" ./check_taxon.log > /dev/null;
-    then
-        perl -ne 'if ($_ =~ /Be careful/){
-            @error_split=split(/&/);
-            $msg = $error_split[1];
-            $msg =~ s/\n$//;
-            print "{\"BeCareful\" :  \"$msg\" }";
-        }' ./check_taxon.log > ./careful.log;
-        cat ./careful.log;
-    fi
-    # Check if the taxonomy id given is present into NCBI database
-    parse_logFile ./check_taxon.log
-    PRG_TERMINATED=$?
-
     ### CREATE PICKLE AND INDEX METAFILE ###
-    if [ $PRG_TERMINATED = 0 ]; then
-        echo -u $CRISPR_TOOL_SCRIPT_PATH/python create_metafile.py -file $FASTA_FILE -taxid $TAXID -gcf $GCF -rfg $rfg 2> ./create_meta.err 1> ./create_meta.log
-        echo cp $FASTA_FILE $rfg"/genome_fasta/"$TAXID"_"$GCF".fna"
-        # Check if any sgRNA has been found in this genome
-        parse_logFile ./create_meta.log
-        PRG_TERMINATED=$?
-    fi
+    echo -u $CRISPR_TOOL_SCRIPT_PATH/python create_metafile.py -file $FASTA_FILE -taxid $TAXID -gcf $GCF -rfg $rfg 2> ./create_meta.err 1> ./create_meta.log
+    echo cp $FASTA_FILE $rfg"/genome_fasta/"$TAXID"_"$GCF".fna"
+    # Check if any sgRNA has been found in this genome
+    parse_logFile ./create_meta.log
+    PRG_TERMINATED=$?
 
     ### ADD INTO DATABASE AND UPDATE JSON_TREE ###
     if [ $PRG_TERMINATED = 0 ]; then
@@ -67,31 +49,20 @@ else
             echo "{\"emptySearch\": \"There is a problem during the insertion into CRISPR database. Contact us \"}" > fail.log
             cat fail.log
         else
-            echo python -u $CRISPR_TOOL_SCRIPT_PATH/create_file_taxondb.py single -user -gcf $GCF -taxid $TAXID -url $URL_TAXON"/"$DB_TAXON_NAME
-            ## Add into taxon database ##
-            echo python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild $DB_TAXON_NAME --url $URL_TAXON --data "./taxonDB_data/taxon_dt.p"
-            ## Update the Json_tree ##
-            echo python -u $CRISPR_TOOL_SCRIPT_PATH/update_tree.py -url $URL_TREE"/"$DB_TREE_NAME -taxid $TAXID  2> ./update_tree.err 1> ./update_tree.log
-            echo python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild $DB_TREE_NAME --url $URL_TREE --data "./treeDB_data/maxi_tree.p"
-
-            if grep "Program terminated" ./update_tree.log > /dev/null;
-            then
-            perl -ne 'if ($_ =~ /Program terminated/){
-                @error_split=split(/&/);
-                $msg = $error_split[1];
-                $msg =~ s/\n$//;
-                print "{\"emptySearch\" :  \"$msg\" }";
-            }' ./update_tree.log > ./fail.log;
-            cat ./fail.log;
-            else
-                perl -ne 'if ($_ =~ /SUCCESS/){
-                    @success_split=split(/&/);
-                    $msg = $success_split[1];
-                    $msg =~ s/\n$//;
-                    print "{\"Success\" :  \"$msg\" }";
-                };
-                ' ./update_tree.log > ./success.log;
-                cat ./success.log
+            echo python -u $CRISPR_TOOL_SCRIPT_PATH/create_file_taxondb.py single -user -gcf $GCF -taxid $TAXID -url $URL_TAXON"/"$DB_TAXON_NAME 2> ./taxondb_file.err 1> ./taxondb_file.log
+            parse_logFile ./taxondb_file.log
+            PRG_TERMINATED=$?
+            if [ $PRG_TERMINATED = 0 ]; then
+              ## Add into taxon database ##
+              echo python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild $DB_TAXON_NAME --url $URL_TAXON --data "./taxonDB_data/taxon_dt.p"
+              ## Update the Json_tree ##
+              echo python -u $CRISPR_TOOL_SCRIPT_PATH/update_tree.py -url $URL_TREE"/"$DB_TREE_NAME -taxid $TAXID  2> ./update_tree.err 1> ./update_tree.log
+              # Check if no problem to connect to the database (taxon_db and taxon_tree_db), to access to GCF
+              parse_logFile ./update_tree.log
+              PRG_TERMINATED=$?
+            fi
+            if [ $PRG_TERMINATED = 0 ]; then
+              echo python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild $DB_TREE_NAME --url $URL_TREE --data "./treeDB_data/maxi_tree.p"
             fi
         fi
     fi
