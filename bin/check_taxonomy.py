@@ -39,8 +39,8 @@ def valid_taxid(taxid):
         ncbi.get_lineage(taxid)
         return taxid
     except Exception as err:
-        print("Program terminated&The taxon id given ({})\
-               is not in the NCBI taxonomy database !".format(taxid))
+        print("Program terminated&The taxon id given ({}) \
+is not in the NCBI taxonomy database !".format(taxid))
         sys.exit()
 
 
@@ -49,10 +49,10 @@ def check_taxid_exists(taxid, db_name):
     Definition
     """
     req = wrapper.couchGetRequest(db_name + "/" + taxid)
-    if wrapper.docNotFound(req):
-        print("Be careful&Taxon ID ({}) already exists".format(taxid))
+    if not wrapper.docNotFound(req):
+        print("Be careful&Taxon ID ({}) already exists : ".format(taxid), end=" ")
         return req
-    return False
+    return None
 
 
 def check_gcf(gcf, list_gcf):
@@ -61,10 +61,10 @@ def check_gcf(gcf, list_gcf):
     """
     if gcf in list_gcf:
         if gcf == list_gcf[0]:
-            print("Be careful&The given GCF is the current GCF")
+            print("The given GCF is the current GCF")
         else:
-            print("Be careful&The given GCF is older than the current GCF")
-    print("Be careful&Unknow GCF for this taxonomy ID")
+            print("The given GCF is older than the current GCF")
+    print("Unknow GCF for this taxonomy ID")
 
 
 if __name__ == '__main__':
