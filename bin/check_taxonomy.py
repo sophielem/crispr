@@ -20,8 +20,6 @@ def args_gestion():
                         help="The taxonomy ID", required=True)
     parser.add_argument("-gcf", metavar="<str>",
                         help="The GCF associated to the taxonomy ID", required=True)
-    parser.add_argument("-out", metavar="<str>",
-                        help="The path to the pickle file to fill the taxon database", required=True)
     parser.add_argument("-url", metavar="<str>",
                         help="End point of the taxon database", required=True)
     parser.add_argument("-dbName", metavar="<str>",
@@ -50,21 +48,22 @@ def check_taxid_exists(taxid, db_name):
     """
     req = wrapper.couchGetRequest(db_name + "/" + taxid)
     if not wrapper.docNotFound(req):
-        print("Be careful&Taxon ID ({}) already exists : ".format(taxid), end=" ")
-        return req
-    return None
+        print("OKK")
+        msg = "Be careful&Taxon ID ({}) already exists : ".format(taxid)
+        return req, msg
+    return None, None
 
 
-def check_gcf(gcf, list_gcf):
+def check_gcf(gcf, list_gcf, msg):
     """
     Definition
     """
     if gcf in list_gcf:
         if gcf == list_gcf[0]:
-            print("The given GCF is the current GCF")
+            print("Program terminated&The given GCF is the current GCF for the taxon ID")
         else:
-            print("The given GCF is older than the current GCF")
-    print("Unknow GCF for this taxonomy ID")
+            print("{} The given GCF is older than the current GCF".format(msg))
+    print("{} Unknow GCF for this taxonomy ID".format(msg))
 
 
 if __name__ == '__main__':
@@ -72,8 +71,8 @@ if __name__ == '__main__':
     wrapper.setServerUrl(PARAM.url)
     # Taxonomy ID
     valid_taxid(PARAM.taxid)
-    TAXID_EXIST = check_taxid_exists(PARAM.taxid, PARAM.dbName)
-
+    TAXID_EXIST, MSG = check_taxid_exists(PARAM.taxid, PARAM.dbName)
+    print(TAXID_EXIST)
     # GCF
     if TAXID_EXIST:
-        check_gcf(PARAM.gcf, TAXID_EXIST["GCF"])
+        check_gcf(PARAM.gcf, TAXID_EXIST["GCF"], MSG)
