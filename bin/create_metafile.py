@@ -48,4 +48,4 @@ if __name__ == '__main__':
         decoding.indexAndOccurencePickle(OUTPUT + ".p", PATH + OUTPUT + ".index")
         print(OUTPUT)
     else:
-        print("Program terminated&No sgRNA sequences on the query")
+        print("Program terminated&No sgRNA sequences in the fasta")
