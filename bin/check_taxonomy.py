@@ -77,12 +77,3 @@ if __name__ == '__main__':
     # GCF
     if TAXID_EXIST:
         check_gcf(PARAM.gcf, TAXID_EXIST["GCF"])
-    LIST_GCF = [PARAM.gcf] + TAXID_EXIST["GCF"] if TAXID_EXIST else [PARAM.gcf]
-
-    # Fasta file
-
-    # Write info_file
-    JSON_DATA = {PARAM.taxid: {"GCF": LIST_GCF, "Date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
-                               "User": getpass.getuser(), "current": PARAM.gcf}
-                }
-    pickle.dump(JSON_DATA, open(PARAM.out, "wb"), protocol=3)
