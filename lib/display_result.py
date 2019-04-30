@@ -1,6 +1,29 @@
 #!/usr/bin/env python3
 """
-Display results
+Display results:
+Contain object Hit, which contains the sgRNA, its score and the dictionary containing
+genomes and references where it is present and its coordinates
+
+Write json and text files with results from the intersection of genomes
+
+****** Format of the json file ******
+{'sequence' : word, 'occurences' :
+                                    {'org' : genome, 'all_ref' :
+                                                                {'ref' : ref, 'coords' : [coordinates]
+                                                               }
+                                    }
+}
+
+****** Format of the text file ******
+#ALL GENOMES
+#Genomes included : *list of genomes*  ; Genomes excluded : *list of genomes*
+#Parameters: pam: *PAM* ; sgrna size: *size*
+        genome_in_1     genome_in_2     genomes_in_3...
+word    ref : coordinates   ref : coordinates   ref : coordinates...
+.
+.
+.
+
 """
 
 import sys
@@ -14,9 +37,6 @@ class Hit():
     """
 
     def set_genomes_dict(self, dic_seq):
-        """
-        Set the dictionary containing coordinates
-        """
         self.genomes_dict = dic_seq
 
     def __init__(self, sequence, score):
