@@ -7,7 +7,7 @@ import requests
 import pickle
 import datetime
 import getpass
-import pycouch.wrapper as wrapper
+import pycouch.wrapper as couchdb
 from ete3 import NCBITaxa
 
 def args_gestion():
@@ -46,9 +46,8 @@ def check_taxid_exists(taxid, db_name):
     """
     Definition
     """
-    req = wrapper.couchGetRequest(db_name + "/" + taxid)
-    if not wrapper.docNotFound(req):
-        print("OKK")
+    req = couchdb.couchGetRequest(db_name + "/" + taxid)
+    if not couchdb.docNotFound(req):
         msg = "Be careful&Taxon ID ({}) already exists : ".format(taxid)
         return req, msg
     return None, None
@@ -68,7 +67,10 @@ def check_gcf(gcf, list_gcf, msg):
 
 if __name__ == '__main__':
     PARAM = args_gestion()
-    wrapper.setServerUrl(PARAM.url)
+    couchdb.setServerUrl(PARAM.url)
+    if not couchdb.couchPing():
+        print("Program terminated&Can't connect to the database with URL {}".format(PARAM.url))
+        sys.exit()
     # Taxonomy ID
     valid_taxid(PARAM.taxid)
     TAXID_EXIST, MSG = check_taxid_exists(PARAM.taxid, PARAM.dbName)
