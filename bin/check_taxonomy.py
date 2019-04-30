@@ -57,12 +57,17 @@ def check_gcf(gcf, list_gcf, msg):
     """
     Definition
     """
+    print(gcf)
+    print(list_gcf[0])
     if gcf in list_gcf:
         if gcf == list_gcf[0]:
-            print("Program terminated&The given GCF is the current GCF for the taxon ID")
+            print("Program terminated&The given GCF is the current GCF for the taxon ID. \
+Please contact the support if you really really really want to change this genome")
+            return False
         else:
             print("{} The given GCF is older than the current GCF".format(msg))
     print("{} Unknow GCF for this taxonomy ID".format(msg))
+    return True
 
 
 if __name__ == '__main__':
