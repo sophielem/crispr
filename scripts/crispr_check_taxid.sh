@@ -1,9 +1,5 @@
 #!/bin/bash
-CRISPR_TOOL_SCRIPT_PATH="./bin/"
-TAXID="100226"
-GCF="GCF_000203835.1"
-URL_TAXON="http://127.0.0.1:5984/"
-DB_TAXON_NAME="taxon_db"
+
 echo python -u $CRISPR_TOOL_SCRIPT_PATH/check_taxonomy.py -taxid $TAXID -gcf $GCF -url $URL_TAXON -dbName $DB_TAXON_NAME 2> ./check_taxon.err 1> ./check_taxon.log
 python -u $CRISPR_TOOL_SCRIPT_PATH/check_taxonomy.py -taxid $TAXID -gcf $GCF -url $URL_TAXON -dbName $DB_TAXON_NAME 2> ./check_taxon.err 1> ./check_taxon.log
 
