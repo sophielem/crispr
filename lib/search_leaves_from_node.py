@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
-Add new genomes from a given node in an existing tree saved in json file or in the database
+Create a folder with fasta files and necessary informations to add them into the database
+It can do it from scratch with the json tree file and the name of the node or with the
+MaxiTree from the database and the name of the node
 """
 
 import os
@@ -128,12 +130,13 @@ def configfile(list_leaves, rfg, path_folder):
             ref = dic_ref[leaf][0]
             gcf = re.search("GCF_[0-9]+\.[0-9]+", ref)[0]
             taxid = dic_ref[leaf][1]
+            # Copy the fasta file into the tmp folder
             name_fasta = taxid + "_" + gcf + ".fna"
             shutil.copy(path_fasta + name_fasta, path_folder)
-            asm = ref.replace(gcf, "")
-            with open(path_folder + ref, "w") as config_file:
-                config_file.write("GCF\tASM\tTaxon ID\n")
-                config_file.write("{}\t{}\t{}".format(gcf, asm, taxid))
+            # Write it into config_file
+            with open(path_folder + taxid + "_" + gcf, "w") as config_file:
+                config_file.write("GCF\tTaxon ID\n")
+                config_file.write("{}\t{}".format(gcf, taxid))
         except KeyError:
             print("The organism {} is not in the genome_ref_taxid file, can't find its reference".format(leaf))
         except FileNotFoundError:
