@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Definition
+Create pickle and index file from a fasta file name by its taxonomy ID and GCF ID
 """
 
 import argparse

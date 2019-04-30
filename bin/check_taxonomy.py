@@ -1,5 +1,7 @@
 """
-Definition
+Check if a taxonomy ID given exists in the NCBI database. Then, check if this taxonomy ID is
+present in a Taxonomy database than you can request with the package pyCouch and check
+if the GCF given for this taxonomy ID already exists in the Taxonomy database
 """
 
 import argparse
@@ -9,6 +11,7 @@ import datetime
 import getpass
 import pycouch.wrapper as couchdb
 from ete3 import NCBITaxa
+
 
 def args_gestion():
     """
@@ -44,7 +47,8 @@ is not in the NCBI taxonomy database !".format(taxid))
 
 def check_taxid_exists(taxid, db_name):
     """
-    Definition
+    Check if taxon ID exists in the database
+    If yes, return the content else return None
     """
     req = couchdb.couchGetRequest(db_name + "/" + taxid)
     if not couchdb.docNotFound(req):
@@ -55,10 +59,9 @@ def check_taxid_exists(taxid, db_name):
 
 def check_gcf(gcf, list_gcf, msg):
     """
-    Definition
+    Check if the given GCF is in the database and print a message
+    Return True if the GCF is different from the current GCF 
     """
-    print(gcf)
-    print(list_gcf[0])
     if gcf in list_gcf:
         if gcf == list_gcf[0]:
             print("Program terminated&The given GCF is the current GCF for the taxon ID. \

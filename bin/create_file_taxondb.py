@@ -1,5 +1,6 @@
 """
-Definition
+Create pickle file to inset into Taxonomy database
+It can create from a GCF and Taxonomy ID given or from the json file genome_ref_taxid.json file 
 
 OUTUPUT:
 taxon_dt={"1234": {"GCF": ["GCF_111", "GCF_112", "GCF_113"], "date": "19-04-2019", "User": "Queen"},
@@ -49,7 +50,7 @@ def args_gestion():
 
 def set_env(json_file=None):
     """
-    Definition
+    Create a folder taxonDB_data and check if the json_file given exists
     """
     try:
         os.mkdir("./taxonDB_data/")
@@ -62,7 +63,7 @@ def set_env(json_file=None):
 
 def init_taxondt(gcfs, user):
     """
-    Definition
+    Initialize the dictionary of taxon and return it
     """
     tmp_dic = {}
     tmp_dic["GCF"] = gcfs

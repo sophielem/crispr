@@ -235,7 +235,7 @@ def parse_setcompare_out(output_c, nb_top):
 
 def create_dic_hits(param, genomes_in):
     """
-    Definition
+    Treat the search into database and return a dictionary of hits
     """
     dic_index, nb_hits = parse_setcompare_out(param.f, int(param.nb_top)) if int(param.sl) == 20 else parse_setcompare_other(param.f, int(param.nb_top))
     dspl.eprint("NB_HITS  ==>  {}     Length DIC_INDEX  ==>  {}".format(nb_hits, len(dic_index)))

@@ -69,7 +69,7 @@ def write_to_file(genomes_in, genomes_not_in, dic_hits, pam, non_pam_motif_lengt
 
 def create_list_ref(dic_ref):
     """
-    Definition
+    Create a list of references
     """
     list_ref = []
     for ref in dic_ref:
@@ -80,7 +80,7 @@ def create_list_ref(dic_ref):
 
 def create_list_occurences(dic_occurences):
     """
-    Definition
+    Create a list of occurences
     """
     list_occurences = []
     for genome in dic_occurences:

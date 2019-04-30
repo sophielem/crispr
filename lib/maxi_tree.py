@@ -1,5 +1,20 @@
 """
-Definition
+Class MaxiTree object. This tree contains: a tree object from the package ete3 with the name
+of the organism, the current GCF and its taxonomy Id if it's present into the CRISPR database. This taxon ID is
+referenced in the name separate by a ':' and in a node's feature 'taxon'.
+The name of a node is composed like this:
+    name (without ' and /) GCF_ID : taxon_ID
+
+Several constructor:
+    1. from the database
+    2. from the genomre_ref_taxid.json file
+    3. from a MaxiTree pickle file
+
+Several methods are implemented to insert a new node, to write a json file of the tree
+full (with taxonID) or not, to get the json string full or not...
+
+The main function allow to create this Tree from the genomre_ref_taxid.json file and to create a
+pickle MaxiTree file to insert into the taxon_tree_db
 """
 
 import os
@@ -218,7 +233,8 @@ class MaxiTree(object):
 
 def rename_node(taxid, ncbi):
     """
-    Definition
+    Rename node by searching the organism name from its taxonomy ID and
+    replacing single quote by space and slash by underscore
     """
     node_name = ncbi.get_taxid_translator([int(taxid)])[int(taxid)]
     node_name = node_name.replace("'", '')
@@ -228,7 +244,7 @@ def rename_node(taxid, ncbi):
 
 def args_gestion():
     """
-    Definition
+    Takes and treat arguments given
     """
     parser = argparse.ArgumentParser(description="Construct the MaxiTree and save it in the database")
     parser.add_argument("-file", metavar="<str>", required=True, help="The genome_ref_taxid.json file")
