@@ -38,70 +38,94 @@ class MaxiTree(object):
     @classmethod
     def from_database(cls, end_point):
         couchdb.setServerUrl(end_point)
+        # Check if it can connect to the database
         if not couchdb.couchPing():
             print("Program terminated&Can't connect to the Taxon Tree database")
             sys.exit()
+        # Try to get the MaxiTree object by the key maxi_tree
         maxi_tree = couchdb.couchGetDoc("", "maxi_tree")
         try:
             maxi_tree = json.loads(maxi_tree["tree"].replace("'", '"'))
         except json.JSONDecodeError:
             print("Program terminated&Problem with the maxi_tree in the database")
             sys.exit()
-
+        # Convert the json string into a Tree object
         tree_topo = Tree()
         cls.convert_json_to_tree(cls, tree_topo, maxi_tree)
+        # List all taxon ID from leaves
         list_taxid = [int(node.taxon) for node in tree_topo.iter_descendants() if hasattr(node, "taxon")]
         return cls(tree_topo, list_taxid)
 
     @staticmethod
     def convert_json_to_tree(cls, node, dic):
+        # Give the name to the root
         if node.is_root() and node.name == '':
             node.name = dic["text"]
             new_node = node
         else:
+        # Give the name to the node
             new_node = node.add_child(name=dic["text"])
         try:
+        # Try to retrieve the taxon ID if it exists
             taxid = re.search(" : ([0-9]+)", dic["text"]).group(1)
             new_node.add_feature("taxon", taxid)
         except:
             pass
+        # The current node is a leaf, so it is the end of the process for this subtree
         if not "children" in dic.keys(): return None
+        # For each child, traverse it
         for i in dic["children"]:
             cls.convert_json_to_tree(cls, new_node, i)
 
     @classmethod
     def from_maxitree(cls, maxitree_file):
+        # Check if the pickle file exists
         if not os.path.isfile(maxitree_file): sys.exit("*** File does not exist ***")
-        tree_topo = pickle.load(open(maxitree_file, "rb"))
+        try:
+            tree_topo = pickle.load(open(maxitree_file, "rb"))
+        except:
+            sys.exit("Problem to open the pickle file {}".format(maxitree_file))
+        # Generate the list of taxonID from leaves
         list_taxid = [int(node.taxon) for node in tree_topo.iter_descendants() if hasattr(node, "taxon")]
         return cls(tree_topo, list_taxid)
 
     @classmethod
     def from_gen_ref(cls, gen_ref_file):
+        # Check if the genome_ref_taxid.json file exists
         if not os.path.isfile(gen_ref_file): sys.exit("*** File does not exist ***")
-        dic_ref = json.load(open(gen_ref_file))
-        all_taxid = [int(dic_ref[org][1]) for org in dic_ref]
+        try:
+            dic_ref = json.load(open(gen_ref_file))
+            all_taxid = [int(dic_ref[org][1]) for org in dic_ref]
+        except:
+            sys.exit("Problem with the format of the file {}".format(gen_ref_file))
+        # Construct the Tree object
         tree_topo = cls.construct_tree(cls, all_taxid)
+        # Generate the list of TaxonID from leaves
         list_taxid = [int(node.taxon) for node in tree_topo.iter_descendants() if hasattr(node, "taxon")]
         return cls(tree_topo, list_taxid)
 
     @staticmethod
     def construct_tree(cls, list_taxid):
-        ncbi = NCBITaxa()
-        tree_topo = ncbi.get_topology(list_taxid)
-        # add the feature taxID
-        for node in tree_topo:
-            node.add_feature("taxon", node.name)
+        # Check if it can connect to the database
         couchdb.setServerUrl("http://127.0.0.1:5984/taxon_db")
         if not couchdb.couchPing():
             print("Program terminated&Can't connect to the Taxon database")
             sys.exit()
+
+        ncbi = NCBITaxa()
+        # Create the topology Tree with taxon ID
+        tree_topo = ncbi.get_topology(list_taxid)
+        # Add the feature taxon for leaves
+        for node in tree_topo:
+            node.add_feature("taxon", node.name)
         # Change name by organism name
         for node in tree_topo.iter_descendants():
             node.name = rename_node(node.name, ncbi)
             if hasattr(node, "taxon"):
+                # Add the GCF and taxon ID to the name
                 gcf = couchdb.couchGetRequest(node.taxon)["current"]
                 node.name = "{} {} : {}".format(node.name, gcf, node.taxon)
+        # Name for the root
         tree_topo.name = ncbi.get_taxid_translator([int(tree_topo.name)])[int(tree_topo.name)]
         return tree_topo
 
@@ -126,7 +150,10 @@ class MaxiTree(object):
         if full:
             json = {"text": node.name}
         else:
+            # Remove the taxon ID if it is present
             json = {"text": ":".join(node.name.split(":")[:-1])} if hasattr(node, "taxon") else {"text": node.name}
+        # If node has children, create a list of it and traverse it, else do not create attribute
+        # children and return the json string
         if node.children:
             json["children"] = []
             for ch in node.children:
@@ -134,7 +161,9 @@ class MaxiTree(object):
         return json
 
     def dump(self, filout):
+        # Get the Tree in json string with taxonID
         json_tree = self.get_json(True)
+        # Create a dictionary with the MaxiTree json and the date
         dic_tree = {}
         dic_tree["maxi_tree"] = {}
         dic_tree["maxi_tree"]["tree"] = json_tree
@@ -152,24 +181,31 @@ class MaxiTree(object):
             print("Program terminated&Can't connect to the Taxon database")
             sys.exit()
 
-        # Check if it is just a change of GCF
+        # If the taxonID is already present, it is just a change of the GCF
         if self.is_member(taxid):
+            # search the node in the original tree
             node = self.tree.search_nodes(taxon=str(taxid))[0]
+            # Retrieve the GCF and compare it to the GCF given by the user
             gcf_old = re.search("GCF_[0-9]+\.?[0-9]*", node.name)[0]
             gcf_new = couchdb.couchGetRequest(str(taxid))["current"]
             if gcf_old == gcf_new:
                 print("Program terminated&Error, the new GCF is the same than the old GCF")
                 sys.exit()
+            # Replace GCF
             node.name = node.name.replace(gcf_old, gcf_new)
             return True
 
         # Construct the topology tree with taxonID
         ncbi = NCBITaxa()
         tree_topo = ncbi.get_topology(self.all_spc + [taxid])
+        # Add the feature taxon to leaves
         for node in tree_topo:
             node.add_feature("taxon", node.name)
+        # Rename node
         for node in tree_topo.iter_descendants():
             node.name = rename_node(node.name, ncbi)
+            # Retrieve name from the original tree, faster than create it, just replace the GCF id
+            # by the one given by the user which is already is the taxon_db
             if hasattr(node, "taxon"):
                 if node.taxon == str(taxid):
                     try:
@@ -181,8 +217,13 @@ class MaxiTree(object):
                         sys.exit()
                 else:
                     node.name = self.tree.search_nodes(taxon=node.taxon)[0].name
+        # Name for the root
         tree_topo.name = ncbi.get_taxid_translator([int(tree_topo.name)])[int(tree_topo.name)]
-
+        self.tree = tree_topo
+        self.all_spc = self.all_spc + [taxid]
+        return True
+        
+        ### WiP : keep the original Tree and just insert necessary nodes ###
         # Rename the new node
         # try:
         #     ncbi = NCBITaxa()
@@ -203,9 +244,9 @@ class MaxiTree(object):
         #     sys.exit()
         #
         # self.__set_tree__(new_node, ncbi)
-        self.tree = tree_topo
-        self.all_spc = self.all_spc + [taxid]
-        return True
+        # self.tree = tree_topo
+        # self.all_spc = self.all_spc + [taxid]
+        # return True
 
     # def __set_tree__(self, new_node, ncbi):
     #     parent = new_node.up
