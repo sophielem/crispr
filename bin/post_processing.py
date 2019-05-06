@@ -93,7 +93,7 @@ def couchdb_search(sgrna_list, end_point, len_slice, no_poxy_bool):
             dspl.eprint("Something wrong append, retrying time", str(joker))
             dspl.eprint("Error LOG is ", str(e))
             joker += 1
-            if joker > 50:
+            if joker > 3:
                 print("Program terminated&after 50 tries to access to the database")
                 sys.exit(1)
             time.sleep(5)

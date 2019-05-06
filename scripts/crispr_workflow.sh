@@ -1,5 +1,9 @@
 #!/bin/bash
-
+source activate crispr
+source ../setenv
+unset HTTPS_PROXY
+unset HTTP_PROXY
+CRISPR_TOOL_SCRIPT_PATH="/Users/slematre/Documents/crisprs/crispr/bin/"
 error_json () {
     echo "{\"emptySearch\": \"There is a problem, impossible to finish the program\"}" > fail.log
     cat fail.log
@@ -39,8 +43,8 @@ else
     gni=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gni")
 
     echo $gi > f.gi
-    fileSet="set_index.txt"
-    setCompare $slFlag -i "$gi" -o "$gni" -l $rfg -e index -f $fileSet 2>> ./setCompare.err 1> ./setCompare.log
+    fileSet="/Users/slematre/Documents/crisprs/set_index.txt"
+    # setCompare $slFlag -i "$gi" -o "$gni" -l $rfg -e index -f $fileSet 2>> ./setCompare.err 1> ./setCompare.log
 
     echo python -u $CRISPR_TOOL_SCRIPT_PATH/post_processing.py -f $fileSet -sl $sl -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR"  -c 2000 --no-proxy > pp.cmd
     python -u $CRISPR_TOOL_SCRIPT_PATH/post_processing.py -f $fileSet -sl $sl -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR"  -c 2000 --no-proxy 2>> ./post_processing.err 1> ./post_processing.log
