@@ -40,12 +40,12 @@ def name_output(taxid, gcf):
 
 if __name__ == '__main__':
     PARAM = args_gestion()
-    PATH = PARAM.rfg + "/genome_pickle/" if PARAM.rfg else ""
+    PATH_P = PARAM.rfg + "/genome_pickle/" if PARAM.rfg else ""
     OUTPUT = name_output(PARAM.taxid, PARAM.gcf) if PARAM.taxid else PARAM.out
-    DIC_PICKLE = word_detect.construct_in(PARAM.file, PATH + OUTPUT + ".p")
+    DIC_PICKLE = word_detect.construct_in(PARAM.file, PATH_P + OUTPUT + ".p")
     if DIC_PICKLE:
         PATH = PARAM.rfg + "/genome_index/" if PARAM.rfg else ""
-        decoding.indexAndOccurencePickle(OUTPUT + ".p", PATH + OUTPUT + ".index")
+        decoding.indexAndOccurencePickle(PATH_P + OUTPUT + ".p", PATH + OUTPUT + ".index")
         print(OUTPUT)
     else:
         print("Program terminated&No sgRNA sequences in the fasta")
