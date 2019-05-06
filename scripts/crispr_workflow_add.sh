@@ -35,7 +35,7 @@ elif [ "$DB_TAXON_NAME" = "" ]; then
 else
 
     ### CREATE PICKLE AND INDEX METAFILE ###
-    echo -u $CRISPR_TOOL_SCRIPT_PATH/python create_metafile.py -file $FASTA_FILE -taxid $TAXID -gcf $GCF -rfg $rfg 2> ./create_meta.err 1> ./create_meta.log
+    echo python -u $CRISPR_TOOL_SCRIPT_PATH/create_metafile.py -file $FASTA_FILE -taxid $TAXID -gcf $GCF -rfg $rfg 2> ./create_meta.err 1> ./create_meta.log
     echo cp $FASTA_FILE $rfg"/genome_fasta/"$TAXID"_"$GCF".fna"
     # Check if any sgRNA has been found in this genome
     parse_logFile ./create_meta.log
