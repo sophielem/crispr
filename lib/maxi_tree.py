@@ -99,7 +99,8 @@ class MaxiTree(object):
         except:
             sys.exit("Problem with the format of the file {}".format(gen_ref_file))
         # Construct the Tree object
-        tree_topo = cls.construct_tree(cls, all_taxid)
+        # Add the taxonID of plasmid
+        tree_topo = cls.construct_tree(cls, all_taxid + [36549])
         # Generate the list of TaxonID from leaves
         list_taxid = [int(node.taxon) for node in tree_topo.iter_descendants() if hasattr(node, "taxon")]
         return cls(tree_topo, list_taxid)
@@ -234,6 +235,9 @@ class MaxiTree(object):
         self.tree = tree_topo
         self.all_spc = [int(node.taxon) for node in tree_topo.iter_descendants() if hasattr(node, "taxon")]
         return True
+
+        def insert_plasmid(self, name):
+            pass
 
         ### WiP : keep the original Tree and just insert necessary nodes ###
         # Rename the new node
