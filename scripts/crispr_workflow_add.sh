@@ -56,7 +56,7 @@ else
             PRG_TERMINATED=$?
             if [ $PRG_TERMINATED = 0 ]; then
               ## Add into taxon database ##
-              echo python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild $DB_TAXON_NAME --url $URL_TAXON --data "./taxonDB_data/taxon_dt.p"
+              echo python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild.py $DB_TAXON_NAME --url $URL_TAXON --data "./taxonDB_data/"
               ## Update the Json_tree ##
               echo python -u $CRISPR_TOOL_SCRIPT_PATH/update_tree.py -url $URL_TREE"/"$DB_TREE_NAME -taxid $TAXID  2> ./update_tree.err 1> ./update_tree.log
               # Check if no problem to connect to the database (taxon_db and taxon_tree_db), to access to GCF
@@ -64,7 +64,7 @@ else
               PRG_TERMINATED=$?
             fi
             if [ $PRG_TERMINATED = 0 ]; then
-              echo python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild $DB_TREE_NAME --url $URL_TREE --data "./treeDB_data/maxi_tree.p"
+              echo python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild.py $DB_TREE_NAME --url $URL_TREE --data "./treeDB_data/"
             fi
         fi
     fi
