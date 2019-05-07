@@ -1,6 +1,6 @@
 """
 Create pickle file to inset into Taxonomy database
-It can create from a GCF and Taxonomy ID given or from the json file genome_ref_taxid.json file 
+It can create from a GCF and Taxonomy ID given or from the json file genome_ref_taxid.json file
 
 OUTUPUT:
 taxon_dt={"1234": {"GCF": ["GCF_111", "GCF_112", "GCF_113"], "date": "19-04-2019", "User": "Queen"},
@@ -37,7 +37,7 @@ def args_gestion():
 
     # Parser for a SINGLE genome
     single_parser = subparsers.add_parser("single", help="Create file to insert")
-    single_parser.add_argument("-user", metavar="<str>", help="The user", nagrs="?", default="MMSB")
+    single_parser.add_argument("-user", metavar="<str>", help="The user", nargs="?", default="MMSB")
     single_parser.add_argument("-gcf", metavar="<str>", required=True, help="GCF id")
     single_parser.add_argument("-taxid", metavar="<str>", required=True, help="Taxonomy id")
     single_parser.add_argument("-url", metavar="<str>", required=True,
