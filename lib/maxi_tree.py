@@ -116,10 +116,13 @@ class MaxiTree(object):
         # Create the topology Tree with taxon ID
         tree_topo = ncbi.get_topology(list_taxid)
         # Add the feature taxon for leaves
-        for node in tree_topo:
-            node.add_feature("taxon", node.name)
-        # Change name by organism name
         for node in tree_topo.iter_descendants():
+            if int(node.name) in list_taxid:
+                if node.children:
+                    node.add_child(name=node.name)
+                else:
+                    node.add_feature("taxon", node.name)
+
             node.name = rename_node(node.name, ncbi)
             if hasattr(node, "taxon"):
                 # Add the GCF and taxon ID to the name
@@ -198,31 +201,40 @@ class MaxiTree(object):
         # Construct the topology tree with taxonID
         ncbi = NCBITaxa()
         tree_topo = ncbi.get_topology(self.all_spc + [taxid])
-        # Add the feature taxon to leaves
-        for node in tree_topo:
-            node.add_feature("taxon", node.name)
         # Rename node
         for node in tree_topo.iter_descendants():
-            node.name = rename_node(node.name, ncbi)
-            # Retrieve name from the original tree, faster than create it, just replace the GCF id
-            # by the one given by the user which is already is the taxon_db
-            if hasattr(node, "taxon"):
-                if node.taxon == str(taxid):
-                    try:
-                        gcf = couchdb.couchGetRequest(node.taxon)["current"]
-                        node.name = "{} {} : {}".format(node.name, gcf, node.taxon)
-                    except:
-                        print("Program terminated&Problem with the taxon {} in the Taxon database \
-(WiP : insert a new member in the Tree)".format(taxid))
-                        sys.exit()
+        # Retrieve name from the original tree, faster than create it, just replace the GCF id
+        # by the one given by the user which is already is the taxon_db
+            if int(node.name) in self.all_spc:
+                if node.children:
+                    node.add_child(name=node.name)
+                    node.name = rename_node(node.name, ncbi)
                 else:
-                    node.name = self.tree.search_nodes(taxon=node.taxon)[0].name
+                    node.add_feature("taxon", node.name)
+                    node.name = self.tree.search_nodes(taxon=node.name)[0].name
+            elif node.name == str(taxid):
+                if node.children:
+                    node.add_child(name=node.name)
+                    node.name = rename_node(node.name, ncbi)
+                else:
+                     try:
+                         node.add_feature("taxon", node.name)
+                         node.name = rename_node(node.name, ncbi)
+                         gcf = couchdb.couchGetRequest(node.taxon)["current"]
+                         node.name = "{} {} : {}".format(node.name, gcf, node.taxon)
+                     except:
+                         print("Program terminated&Problem with the taxon {} in the Taxon database \
+    (WiP : insert a new member in the Tree)".format(taxid))
+                         sys.exit()
+            else:
+                node.name = rename_node(node.name, ncbi)
+
         # Name for the root
         tree_topo.name = ncbi.get_taxid_translator([int(tree_topo.name)])[int(tree_topo.name)]
         self.tree = tree_topo
-        self.all_spc = self.all_spc + [taxid]
+        self.all_spc = [int(node.taxon) for node in tree_topo.iter_descendants() if hasattr(node, "taxon")]
         return True
-        
+
         ### WiP : keep the original Tree and just insert necessary nodes ###
         # Rename the new node
         # try:
