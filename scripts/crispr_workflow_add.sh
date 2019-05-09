@@ -53,8 +53,8 @@ else
 
     ### ADD INTO DATABASE AND UPDATE JSON_TREE ###
     if [ $PRG_TERMINATED = 0 ]; then
-        NAME_FILE=`cat ./create_metafile.log`
-        ## Add the new genome intot the CRISPR database
+        NAME_FILE=`cat ./create_meta.log`
+        ## Add the new genome into the CRISPR database
         echo python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild.py --url $URL_CRISPR --map $MAP_FILE --data $rfg"/genome_pickle/"$NAME_FILE".p" > cmd.log
         python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild.py --url $URL_CRISPR --map $MAP_FILE --data $rfg"/genome_pickle/"$NAME_FILE".p"
         if [ -f error_add_db.err ]; then
@@ -62,8 +62,8 @@ else
             cat fail.log
         else
             ## Create pickle file to insert into taxon_db ##
-            echo python -u $CRISPR_TOOL_SCRIPT_PATH/create_file_taxondb.py single -user -gcf $GCF -taxid $TAXID -url $URL_TAXON"/"$DB_TAXON_NAME > cmd.log
-            python -u $CRISPR_TOOL_SCRIPT_PATH/create_file_taxondb.py single -user -gcf $GCF -taxid $TAXID -url $URL_TAXON"/"$DB_TAXON_NAME 2> ./taxondb_file.err 1> ./taxondb_file.log
+            echo python -u $CRISPR_TOOL_SCRIPT_PATH/create_file_taxondb.py single -gcf $GCF -taxid $TAXID -url $URL_TAXON"/"$DB_TAXON_NAME > cmd.log
+            python -u $CRISPR_TOOL_SCRIPT_PATH/create_file_taxondb.py single -gcf $GCF -taxid $TAXID -url $URL_TAXON"/"$DB_TAXON_NAME 2> ./taxondb_file.err 1> ./taxondb_file.log
 
             parse_logFile ./taxondb_file.log
             PRG_TERMINATED=$?
