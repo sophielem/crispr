@@ -244,6 +244,13 @@ class MaxiTree(object):
         return True
 
     def insert_plasmid(self, name):
+        # Check if can connect to the database
+        couchdb.setServerUrl("http://127.0.0.1:5984/taxon_db")
+        if not couchdb.couchPing():
+            print("Program terminated&Can't connect to the Taxon database")
+            sys.exit()
+        gcf = couchdb.couchGetRequest(name)["current"]
+        name = "{} {}".format(name, gcf)
         plasmid_node = self.tree.search_nodes(taxon="36549")[0]
         plasmid_node.add_child(name=name)
         new_plasmid = plasmid_node.search_nodes(name=name)[0]
