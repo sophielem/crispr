@@ -17,16 +17,18 @@ def args_gestion():
     parser.add_argument("-url", metavar="<str>", required=True,
                         help="The endpoint with the name of the database where\
                               the MaxiTree object is saved")
-    parser.add_argument("-taxid", metavar="<str>", required=True,
+    parser.add_argument("-taxid", metavar="<str>",
                         help="Taxonomy ID to update or to add")
-
+    parser.add_argument("-name", metavar="<str>",
+                        help="Name of plasmid to add")
     return parser.parse_args()
 
 
 if __name__ == '__main__':
     PARAM = args_gestion()
     MAXITREE = mt.MaxiTree.from_database(PARAM.url)
-    MAXITREE.insert(PARAM.taxid)
+    MAXITREE.insert(PARAM.taxid) if PARAM.taxid else MAXITREE.insert_plasmid(PARAM.name)
+
     try:
         os.mkdir("./treeDB_data/")
     except OSError:
