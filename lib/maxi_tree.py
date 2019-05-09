@@ -235,7 +235,10 @@ class MaxiTree(object):
         plasmid_origin = self.tree.search_nodes(taxon="36549")[0]
         plasmid_new = tree_topo.search_nodes(taxon="36549")[0]
         plasmid_new.detach()
-        tree_topo.add_child(plasmid_origin)
+        try:
+            tree_topo.add_child(plasmid_origin)
+        except:
+            pass
 
         # Name for the root
         tree_topo.name = ncbi.get_taxid_translator([int(tree_topo.name)])[int(tree_topo.name)]
