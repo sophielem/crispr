@@ -37,8 +37,13 @@ elif [ "$PLASMID" = "" ]; then
 else
 
     ### CREATE PICKLE AND INDEX METAFILE ###
-    echo python -u $CRISPR_TOOL_SCRIPT_PATH/create_metafile.py -file $FASTA_FILE -taxid $TAXID -gcf $GCF -rfg $rfg > cmd.log 2> ./create_meta.err 1> ./create_meta.log
-    python -u $CRISPR_TOOL_SCRIPT_PATH/create_metafile.py -file $FASTA_FILE -taxid $TAXID -gcf $GCF -rfg $rfg 2> ./create_meta.err 1> ./create_meta.log
+    if [ $PLASMID = 0 ]; then
+      argPlas="-plasmid"
+    else
+      argPlas=""
+    fi
+    echo python -u $CRISPR_TOOL_SCRIPT_PATH/create_metafile.py -file $FASTA_FILE -taxid $TAXID -gcf $GCF -rfg $rfg $argPlas > cmd.log
+    python -u $CRISPR_TOOL_SCRIPT_PATH/create_metafile.py -file $FASTA_FILE -taxid $TAXID -gcf $GCF -rfg $rfg $argPlas 2> ./create_meta.err 1> ./create_meta.log
     echo cp $FASTA_FILE $rfg"/genome_fasta/"$TAXID"_"$GCF".fna" > cmd.log
     cp $FASTA_FILE $rfg"/genome_fasta/"$TAXID"_"$GCF".fna"
 

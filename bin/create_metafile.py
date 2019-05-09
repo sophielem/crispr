@@ -18,11 +18,13 @@ def args_gestion():
                         help="The fasta file to parse", required=True)
     parser.add_argument("-out", metavar="<str>",
                         help="Path for the output file without extension")
-    parser.add_argument("-taxid", type=int, help="Taxonomy ID")
+    parser.add_argument("-taxid", metavar="<str>", help="Taxonomy ID")
     parser.add_argument("-gcf", metavar="<str>", help="GCF ID")
     parser.add_argument("-rfg", metavar="<str>",
                         help="The path to the database for index and pickle file",
                         nargs="?", const="")
+    parser.add_argument("-plasmid", action="store_true",
+                        help="If present, indicates the genome is a plasmid")
     args = parser.parse_args()
     return args
 
@@ -41,7 +43,14 @@ def name_output(taxid, gcf):
 if __name__ == '__main__':
     PARAM = args_gestion()
     PATH_P = PARAM.rfg + "/genome_pickle/" if PARAM.rfg else ""
-    OUTPUT = name_output(PARAM.taxid, PARAM.gcf) if PARAM.taxid else PARAM.out
+
+    if PARAM.taxid and PARAM.plasmid:
+        OUTPUT = "{} {}".format(PARAM.taxid, PARAM.gcf)
+    elif PARAM.taxid:
+        OUTPUT = name_output(PARAM.taxid, PARAM.gcf)
+    else:
+        OUTPUT = PARAM.out
+
     DIC_PICKLE = word_detect.construct_in(PARAM.file, PATH_P + OUTPUT + ".p")
     if DIC_PICKLE:
         PATH = PARAM.rfg + "/genome_index/" if PARAM.rfg else ""
