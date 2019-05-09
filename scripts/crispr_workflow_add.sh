@@ -23,11 +23,10 @@ parse_logFile () {
 }
 
 
-if [ "$URL_TAXON" != "" ]; then
+if [ "$URL_TAXON" = "" ]; then
     error_json
 elif [ "$CRISPR_TOOL_SCRIPT_PATH" = "" ]; then
     error_json
-
 elif  [ "$URL_CRISPR" = "" ]; then
     error_json
 elif [ "$DB_TAXON_NAME" = "" ]; then
@@ -43,9 +42,9 @@ else
       argPlas=""
     fi
     echo python -u $CRISPR_TOOL_SCRIPT_PATH/create_metafile.py -file $FASTA_FILE -taxid $TAXID -gcf $GCF -rfg $rfg $argPlas > cmd.log
-    python -u $CRISPR_TOOL_SCRIPT_PATH/create_metafile.py -file $FASTA_FILE -taxid $TAXID -gcf $GCF -rfg $rfg $argPlas 2> ./create_meta.err 1> ./create_meta.log
-    echo cp $FASTA_FILE $rfg"/genome_fasta/"$TAXID"_"$GCF".fna" > cmd.log
-    cp $FASTA_FILE $rfg"/genome_fasta/"$TAXID"_"$GCF".fna"
+    python -u $CRISPR_TOOL_SCRIPT_PATH/create_metafile.py -file $FASTA_FILE -taxid "$TAXID" -gcf $GCF -rfg $rfg $argPlas 2> ./create_meta.err 1> ./create_meta.log
+    echo cp $FASTA_FILE $rfg"/genome_fasta/"$TAXID"_"$GCF".fna" >> cmd.log
+    cp "$FASTA_FILE" "$rfg/genome_fasta/$TAXID""_""$GCF.fna"
 
     # Check if any sgRNA has been found in this genome
     parse_logFile ./create_meta.log
@@ -54,41 +53,41 @@ else
     ### ADD INTO DATABASE AND UPDATE JSON_TREE ###
     if [ $PRG_TERMINATED = 0 ]; then
         NAME_FILE=`cat ./create_meta.log`
-        ## Add the new genome into the CRISPR database
-        echo python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild.py --url $URL_CRISPR --map $MAP_FILE --data $rfg"/genome_pickle/"$NAME_FILE".p" > cmd.log
-        python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild.py --url $URL_CRISPR --map $MAP_FILE --data $rfg"/genome_pickle/"$NAME_FILE".p"
-        if [ -f error_add_db.err ]; then
-            echo "{\"emptySearch\": \"There is a problem during the insertion into CRISPR database. Contact us \"}" > fail.log
-            cat fail.log
-        else
+        # ## Add the new genome into the CRISPR database
+        # echo python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild.py --url $URL_CRISPR --map $MAP_FILE --data $rfg"/genome_pickle/"$NAME_FILE".p" > cmd.log
+        # python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild.py --url $URL_CRISPR --map $MAP_FILE --data $rfg"/genome_pickle/"$NAME_FILE".p"
+        # if [ -f error_add_db.err ]; then
+        #     echo "{\"emptySearch\": \"There is a problem during the insertion into CRISPR database. Contact us \"}" > fail.log
+        #     cat fail.log
+        # else
             ## Create pickle file to insert into taxon_db ##
-            echo python -u $CRISPR_TOOL_SCRIPT_PATH/create_file_taxondb.py single -gcf $GCF -taxid $TAXID -url $URL_TAXON"/"$DB_TAXON_NAME > cmd.log
-            python -u $CRISPR_TOOL_SCRIPT_PATH/create_file_taxondb.py single -gcf $GCF -taxid $TAXID -url $URL_TAXON"/"$DB_TAXON_NAME 2> ./taxondb_file.err 1> ./taxondb_file.log
+            echo python -u $CRISPR_TOOL_SCRIPT_PATH/create_file_taxondb.py single -gcf $GCF -taxid $TAXID -url $URL_TAXON"/"$DB_TAXON_NAME >> cmd.log
+            python -u $CRISPR_TOOL_SCRIPT_PATH/create_file_taxondb.py single -gcf $GCF -taxid "$TAXID" -url $URL_TAXON"/"$DB_TAXON_NAME 2> ./taxondb_file.err 1> ./taxondb_file.log
 
             parse_logFile ./taxondb_file.log
             PRG_TERMINATED=$?
             if [ $PRG_TERMINATED = 0 ]; then
               ## Add into taxon database ##
-              echo python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild.py $DB_TAXON_NAME --url $URL_TAXON --data "./taxonDB_data/" > cmd.log
+              echo python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild.py $DB_TAXON_NAME --url $URL_TAXON --data "./taxonDB_data/" >> cmd.log
               python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild.py $DB_TAXON_NAME --url $URL_TAXON --data "./taxonDB_data/"
 
               ## Update the Json_tree ##
               if [ $PLASMID = 0 ]; then
-                argPlas="-taxid $TAXID"
+                argPlas="-name"
               else
-                argPlas="-name $TAXID"
+                argPlas="-taxid"
               fi
-              echo python -u $CRISPR_TOOL_SCRIPT_PATH/update_tree.py -url $URL_TREE"/"$DB_TREE_NAME $argPlas  > cmd.log
-              python -u $CRISPR_TOOL_SCRIPT_PATH/update_tree.py -url $URL_TREE"/"$DB_TREE_NAME $argPlas  2> ./update_tree.err 1> ./update_tree.log
+              echo python -u $CRISPR_TOOL_SCRIPT_PATH/update_tree.py -url $URL_TREE"/"$DB_TREE_NAME $argPlas "$TAXID" >> cmd.log
+              python -u $CRISPR_TOOL_SCRIPT_PATH/update_tree.py -url $URL_TREE"/"$DB_TREE_NAME $argPlas "$TAXID"  2> ./update_tree.err 1> ./update_tree.log
 
               # Check if no problem to connect to the database (taxon_db and taxon_tree_db), to access to GCF
               parse_logFile ./update_tree.log
               PRG_TERMINATED=$?
             fi
             if [ $PRG_TERMINATED = 0 ]; then
-              echo python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild.py $DB_TREE_NAME --url $URL_TREE --data "./treeDB_data/" > cmd.log
+              echo python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild.py $DB_TREE_NAME --url $URL_TREE --data "./treeDB_data/" >> cmd.log
               python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild.py $DB_TREE_NAME --url $URL_TREE --data "./treeDB_data/"
             fi
-        fi
+        # fi
     fi
 fi
