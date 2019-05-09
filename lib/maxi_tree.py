@@ -230,14 +230,25 @@ class MaxiTree(object):
             else:
                 node.name = rename_node(node.name, ncbi)
 
+        # Search for the node plasmid and replace it in the new tree by detaching the old plasmid
+        # node without children
+        plasmid_origin = self.tree.search_nodes(taxon="36549")[0]
+        plasmid_new = tree_topo.search_nodes(taxon="36549")[0]
+        plasmid_new.detach()
+        tree_topo.add_child(plasmid_origin)
+
         # Name for the root
         tree_topo.name = ncbi.get_taxid_translator([int(tree_topo.name)])[int(tree_topo.name)]
         self.tree = tree_topo
         self.all_spc = [int(node.taxon) for node in tree_topo.iter_descendants() if hasattr(node, "taxon")]
         return True
 
-        def insert_plasmid(self, name):
-            pass
+    def insert_plasmid(self, name):
+        plasmid_node = self.tree.search_nodes(taxon="36549")[0]
+        plasmid_node.add_child(name=name)
+        new_plasmid = plasmid_node.search_nodes(name=name)[0]
+        new_plasmid.add_feature("plasmid", name)
+        return True
 
         ### WiP : keep the original Tree and just insert necessary nodes ###
         # Rename the new node
