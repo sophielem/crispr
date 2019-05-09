@@ -32,6 +32,8 @@ elif  [ "$URL_CRISPR" = "" ]; then
     error_json
 elif [ "$DB_TAXON_NAME" = "" ]; then
     error_json
+elif [ "$PLASMID" = "" ]; then
+    error_json
 else
 
     ### CREATE PICKLE AND INDEX METAFILE ###
@@ -66,8 +68,13 @@ else
               python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild.py $DB_TAXON_NAME --url $URL_TAXON --data "./taxonDB_data/"
 
               ## Update the Json_tree ##
-              echo python -u $CRISPR_TOOL_SCRIPT_PATH/update_tree.py -url $URL_TREE"/"$DB_TREE_NAME -taxid $TAXID  > cmd.log
-              python -u $CRISPR_TOOL_SCRIPT_PATH/update_tree.py -url $URL_TREE"/"$DB_TREE_NAME -taxid $TAXID  2> ./update_tree.err 1> ./update_tree.log
+              if [ $PLASMID = 0 ]; then
+                argPlas="-taxid $TAXID"
+              else
+                argPlas="-name $TAXID"
+              fi
+              echo python -u $CRISPR_TOOL_SCRIPT_PATH/update_tree.py -url $URL_TREE"/"$DB_TREE_NAME $argPlas  > cmd.log
+              python -u $CRISPR_TOOL_SCRIPT_PATH/update_tree.py -url $URL_TREE"/"$DB_TREE_NAME $argPlas  2> ./update_tree.err 1> ./update_tree.log
 
               # Check if no problem to connect to the database (taxon_db and taxon_tree_db), to access to GCF
               parse_logFile ./update_tree.log
