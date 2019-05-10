@@ -13,6 +13,15 @@ import pycouch.wrapper as couchdb
 from ete3 import NCBITaxa
 
 
+def str2bool(v):
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
+
 def args_gestion():
     """
     Take and treat arguments that user gives in command line
@@ -27,6 +36,8 @@ def args_gestion():
                         help="End point of the taxon database", required=True)
     parser.add_argument("-dbName", metavar="<str>",
                         help="Name of the taxon database", required=True)
+    parser.add_argument("-plasmid", type=str2bool,
+                        help="The genome is a plasmid", required=True)
     return parser.parse_args()
 
 
@@ -60,7 +71,7 @@ def check_taxid_exists(taxid, db_name):
 def check_gcf(gcf, list_gcf, msg):
     """
     Check if the given GCF is in the database and print a message
-    Return True if the GCF is different from the current GCF 
+    Return True if the GCF is different from the current GCF
     """
     if gcf in list_gcf:
         if gcf == list_gcf[0]:
@@ -80,9 +91,9 @@ if __name__ == '__main__':
         print("Program terminated&Can't connect to the database with URL {}".format(PARAM.url))
         sys.exit()
     # Taxonomy ID
-    valid_taxid(PARAM.taxid)
+    if not PARAM.plasmid:
+        valid_taxid(PARAM.taxid)
     TAXID_EXIST, MSG = check_taxid_exists(PARAM.taxid, PARAM.dbName)
-    print(TAXID_EXIST)
     # GCF
     if TAXID_EXIST:
         check_gcf(PARAM.gcf, TAXID_EXIST["GCF"], MSG)
