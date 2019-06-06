@@ -2,9 +2,9 @@
 This script is a part of a pipeline which allows to find common sgrna from a set of genomes of bacteria which cannot match with a set of other genomes.
 
 With this, it is possible to select an heterogeneous population of bacteria and to kill a second population.
-
+![alt text](https://github.com/sophielem/crispr/blob/dev_add_genome/schema_crispr_service.png)
 ## Implemented functions
-This python script decode the plain text given in argument with the alphabet ["A", "T", "C", "G"].<br>
+post-processing.py script decode the plain text given in argument with the alphabet ["A", "T", "C", "G"].<br>
 Then, it does a research in the crispr database with the decoded sequences and retrieves all organism containing the sequence for each sequence with their coordinates in each organism. Only genomes selected by user are conserved and results are displayed by a *json* file containing the first 100 hits and a *text* file containing the first 10,000 hits.
 
 ##### Format of the *json* file :
