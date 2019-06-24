@@ -82,16 +82,23 @@ Check if a taxonomy ID given exists in the NCBI database. Then, check if this ta
 present in a Taxonomy database than you can request with the package pyCouch and check
 if the GCF given for this taxonomy ID already exists in the Taxonomy database.
 
-### Create file for taxon database
-Create pickle file to inset into Taxonomy database
-It can create from a GCF and Taxonomy ID given or from the json file genome_ref_taxid.json file
-
-
 
 ### Update tree
 Load the MaxiTree object from the taxon_tree_db and insert a new member.
 Then, create a pickle file to insert it into the database.
 
+```sh
+usage: update_tree.py [-h] -url <str> [-taxid <str>] [-name <str>]
+
+Update the MaxiTree object from the database
+
+optional arguments:
+  -h, --help    show this help message and exit
+  -url <str>    The endpoint with the name of the database where the MaxiTree
+                object is saved
+  -taxid <str>  Taxonomy ID to update or to add
+  -name <str>   Name of plasmid to add
+```
 
 ## Date
 June 24 2019
