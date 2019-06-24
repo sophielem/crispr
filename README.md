@@ -2,7 +2,7 @@
 This script is a part of a pipeline which allows to find common sgrna from a set of genomes of bacteria which cannot match with a set of other genomes.
 
 With this, it is possible to select an heterogeneous population of bacteria and to kill a second population.
-![alt text](https://github.com/sophielem/crispr/blob/dev_add_genome/schema_crispr_service.png)
+![Schema CRISPR service](https://github.com/sophielem/crispr/blob/dev_add_genome/doc/schema_crispr_service.png)
 
 ## Dependencies
 To execute this script, you need few dependencies :
@@ -38,15 +38,33 @@ word    ref : coordinates   ref : coordinates   ref : coordinates...
 ```
 
 
-
-
 ## Usage
-### Normal mode
+![Worklofw script](https://github.com/sophielem/crispr/blob/dev_add_genome/doc/workflow_script.png)
+
+## Maxi Tree object
+Class MaxiTree object. This tree contains: a tree object from the package ete3 with the name
+of the organism, the current GCF and its taxonomy Id if it's present into the CRISPR database. This taxon ID is
+referenced in the name separate by a ':' and in a node's feature 'taxon'.
+The name of a node is composed like this:
+    name (without ' and /) GCF_ID : taxon_ID
+
+Several constructor:
+    1. from the database
+    2. from the genomre_ref_taxid.json file
+    3. from a MaxiTree pickle file
+
+Several methods are implemented to insert a new node, to write a json file of the tree
+full (with taxonID) or not, to get the json string full or not...
+
+The main function allows to create this Tree from the genomre_ref_taxid.json file and to create a
+pickle MaxiTree file to insert into the taxon_tree_db
+
+
+## Normal mode
 
 ```sh
 usage: post_processing.py [-h] [-sl <int>] -pam <str> -gi <str> -gni <str> -r
-                          <str> -c <int> -f <str> [--no-proxy] [-n
-b_top <int>]
+                          <str> -c <int> -f <str> [--no-proxy] [-nb_top <int>]
 
 Post-processing results
 
@@ -69,7 +87,7 @@ python bin/post_processing.py -sl 20 -pam "NGG"\
 -r "http://localhost:1234" -c 1000 -f "data/example_outputC.txt"
 ```
 
-### Specific gene
+## Specific gene
 Retrieve sgRNA on a specific gene given by user. Retrieve result from SetCompare script and
 create files for displaying on webservice.
 
@@ -93,42 +111,6 @@ optional arguments:
   -r <str>       The end point
   -c <int>       The length of the slice for the request
 ```
-### Check taxonomy
-Check if a taxonomy ID given exists in the NCBI database. Then, check if this taxonomy ID is
-present in a Taxonomy database than you can request with the package pyCouch and check
-if the GCF given for this taxonomy ID already exists in the Taxonomy database.
-
-### Create file for taxon database
-Create pickle file to inset into Taxonomy database
-It can create from a GCF and Taxonomy ID given or from the json file genome_ref_taxid.json file
-
-OUTUPUT:
-taxon_dt={"1234": {"GCF": ["GCF_111", "GCF_112", "GCF_113"], "date": "19-04-2019", "User": "Queen"},
-          "2345": {"GCF": ["GCF_211", "GCF_212", "GCF_213"], "date": "19-04-2019", "User": "Queen"}}
-
-### Update tree
-Load the MaxiTree object from the taxon_tree_db and insert a new member.
-Then, create a pickle file to insert it into the database.
-
-### Maxi Tree object
-Class MaxiTree object. This tree contains: a tree object from the package ete3 with the name
-of the organism, the current GCF and its taxonomy Id if it's present into the CRISPR database. This taxon ID is
-referenced in the name separate by a ':' and in a node's feature 'taxon'.
-The name of a node is composed like this:
-    name (without ' and /) GCF_ID : taxon_ID
-
-Several constructor:
-    1. from the database
-    2. from the genomre_ref_taxid.json file
-    3. from a MaxiTree pickle file
-
-Several methods are implemented to insert a new node, to write a json file of the tree
-full (with taxonID) or not, to get the json string full or not...
-
-The main function allow to create this Tree from the genomre_ref_taxid.json file and to create a
-pickle MaxiTree file to insert into the taxon_tree_db
-
-
 
 ### Create Metafile (*pickle* and *index*)
 ```sh
@@ -158,7 +140,7 @@ python wordIntegerIndexing.py data/example.pickle --out /any/folder/toto.index
 
 will produce `/any/folder/toto.index`
 
-###### Otherwise output file name is guessed from input and wrote locally
+!!! **Otherwise output file name is guessed from input and wrote locally**
 
 ```sh
 python wordIntegerIndexing.py data/example.pickle
@@ -191,6 +173,24 @@ optional arguments:
                 using blastn (default:70)
   -gi <str>     The organisms to search inclusion in
  ```
+
+## Add genome
+### Check taxonomy
+Check if a taxonomy ID given exists in the NCBI database. Then, check if this taxonomy ID is
+present in a Taxonomy database than you can request with the package pyCouch and check
+if the GCF given for this taxonomy ID already exists in the Taxonomy database.
+
+### Create file for taxon database
+Create pickle file to inset into Taxonomy database
+It can create from a GCF and Taxonomy ID given or from the json file genome_ref_taxid.json file
+
+OUTUPUT:
+taxon_dt={"1234": {"GCF": ["GCF_111", "GCF_112", "GCF_113"], "date": "19-04-2019", "User": "Queen"},
+          "2345": {"GCF": ["GCF_211", "GCF_212", "GCF_213"], "date": "19-04-2019", "User": "Queen"}}
+
+### Update tree
+Load the MaxiTree object from the taxon_tree_db and insert a new member.
+Then, create a pickle file to insert it into the database.
 
 ## Date
 June 21 2019
