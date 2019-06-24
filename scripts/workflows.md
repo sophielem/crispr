@@ -1,5 +1,15 @@
 # CRISPR workflow
 ![Worklofw script](https://github.com/sophielem/crispr/blob/dev_add_genome/doc/workflow_script.png)
+
+To filter and retrieve only bacterial name use *filter_specie.py*.
+```sh
+Filter out passed specie which are not found in ref dictionnary
+Usage:
+    filter_specie.py --ref=<specieDictionary.json> --query=<specie1&specie2>
+```
+
+Then, use *setCompare.c* script to make a dichotomous search from index files. 
+
 ## crispr workflow
 
 ```sh
