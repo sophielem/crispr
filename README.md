@@ -49,9 +49,9 @@ The name of a node is composed like this:
     name (without ' and /) GCF_ID : taxon_ID
 
 Several constructor:
-    1. from the database
-    2. from the genomre_ref_taxid.json file
-    3. from a MaxiTree pickle file
+* from the database
+* from the genomre_ref_taxid.json file
+* from a MaxiTree pickle file
 
 Several methods are implemented to insert a new node, to write a json file of the tree
 full (with taxonID) or not, to get the json string full or not...
