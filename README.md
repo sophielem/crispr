@@ -39,7 +39,7 @@ word    ref : coordinates   ref : coordinates   ref : coordinates...
 
 ## Databases
 ### Plain text
-In a folder *crispr_clean*, index files are saved in *genome_index* folder on arwen-dev cluster and fasta files are saved in *genome_fasta* folder. Pickle files are saved in *genome_pickle* in the folder *crispr_clean* on arwen. These files are not needed for scripts, they are just a backup of the CRISPR database. 
+In a folder *crispr_clean*, index files are saved in *genome_index* folder on arwen-dev cluster and fasta files are saved in *genome_fasta* folder. Pickle files are saved in *genome_pickle* in the folder *crispr_clean* on arwen. These files are not needed for scripts, they are just a backup of the CRISPR database.
 The database for BLAST is in *crispr_clean* on arwen-dev.
 
 ### CRISPR database
@@ -108,7 +108,7 @@ database
 
 positional arguments:
   {scratch,single}  commands
-    scratch         Create files to insert from the genomre_ref_taxid.json
+    scratch         Create files to insert from the genome_ref_taxid.json
                     file
     single          Create file to insert
 ```
@@ -143,6 +143,7 @@ optional arguments:
 The output will be :</br>
 taxon_dt={"1234": {"GCF": ["GCF_111", "GCF_112", "GCF_113"], "date": "19-04-2019", "User": "Queen"},</br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"2345": {"GCF": ["GCF_211", "GCF_212", "GCF_213"], "date": "19-04-2019", "User": "Queen"}}
+
 ### Tree database
 It contains only one entry, **maxi_tree**. This document contains a key **tree** with the tree in JSON format ({'text' : blabla, 'children': ['text': blabla....]}) and the date of the update under key **date**.  
 
@@ -164,7 +165,7 @@ The name of a node is composed like this:
 
 Several constructor:
 * from the database
-* from the genomre_ref_taxid.json file
+* from the genome_ref_taxid.json file
 * from a MaxiTree pickle file
 
 Several methods are implemented to insert a new node, to write a json file of the tree
