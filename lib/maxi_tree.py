@@ -9,6 +9,7 @@ Several constructor:
     1. from the database
     2. from the genomre_ref_taxid.json file
     3. from a MaxiTree pickle file
+    4. from the taxonomy database
 
 Several methods are implemented to insert a new node, to write a json file of the tree
 full (with taxonID) or not, to get the json string full or not...

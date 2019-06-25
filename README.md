@@ -167,6 +167,7 @@ Several constructor:
 * from the database
 * from the genome_ref_taxid.json file
 * from a MaxiTree pickle file
+* from the taxon database
 
 Several methods are implemented to insert a new node, to write a json file of the tree
 full (with taxonID) or not, to get the json string full or not...
