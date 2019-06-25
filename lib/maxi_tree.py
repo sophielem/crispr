@@ -347,19 +347,16 @@ def args_gestion():
     Takes and treat arguments given
     """
     parser = argparse.ArgumentParser(description="Construct the MaxiTree and save it in the database")
-    parser.add_argument("-file", metavar="<str>", required=True, help="The genome_ref_taxid.json file")
+    parser.add_argument("-file", metavar="<str>", required=False, help="The genome_ref_taxid.json file")
+    parser.add_argument("-url", metavar="<str>", required=False, help="Whole end_point for taxon_database")
     return parser.parse_args()
 
 if __name__ == '__main__':
-    # PARAM = args_gestion()
-    # TREE = MaxiTree.from_gen_ref(PARAM.file)
-    # JSON_TREE = TREE.get_json(True)
-    # DIC_TREE = {}
-    # DIC_TREE["maxi_tree"] = {}
-    # DIC_TREE["maxi_tree"]["tree"] = JSON_TREE
-    # DIC_TREE["maxi_tree"]["date"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    # pickle.dump(DIC_TREE, open("jsontree_full.p", "wb"), protocol=3)
-    TREE = MaxiTree.from_taxon_database("http://localhost:5984/taxon_db")
+    PARAM = args_gestion()
+    if len(sys.argv) < 2 or len(sys.argv) > 3:
+        sys.exit("Give a file or the end point for the taxon database")
+
+    TREE = MaxiTree.from_gen_ref(PARAM.file) if PARAM.file else MaxiTree.from_taxon_database(PARAM.url)
     JSON_TREE = TREE.get_json(True)
     DIC_TREE = {}
     DIC_TREE["maxi_tree"] = {}
