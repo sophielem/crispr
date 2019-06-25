@@ -90,7 +90,7 @@ class MaxiTree(object):
         return cls(tree_topo, list_taxid)
 
     @classmethod
-    def from_gen_ref(cls, gen_ref_file):
+    def from_gen_ref(cls, gen_ref_file, end_point):
         # Check if the genome_ref_taxid.json file exists
         if not os.path.isfile(gen_ref_file): sys.exit("*** File does not exist ***")
         try:
@@ -100,15 +100,15 @@ class MaxiTree(object):
             sys.exit("Problem with the format of the file {}".format(gen_ref_file))
         # Construct the Tree object
         # Add the taxonID of plasmid
-        tree_topo = cls.construct_tree(cls, all_taxid + [36549])
+        tree_topo = cls.construct_tree(cls, all_taxid + [36549], end_point)
         # Generate the list of TaxonID from leaves
         list_taxid = [int(node.taxon) for node in tree_topo.iter_descendants() if hasattr(node, "taxon")]
         return cls(tree_topo, list_taxid)
 
     @staticmethod
-    def construct_tree(cls, list_taxid):
+    def construct_tree(cls, list_taxid, end_point):
         # Check if it can connect to the database
-        couchdb.setServerUrl("http://127.0.0.1:5984/taxon_db")
+        couchdb.setServerUrl(end_point)
         if not couchdb.couchPing():
             print("Program terminated&Can't connect to the Taxon database")
             sys.exit()
@@ -147,7 +147,7 @@ class MaxiTree(object):
         # Only keep plasmid name
         list_plasmids = [i  for i in list_taxon if not re.match("^[0-9]*$", i)]
         # Construct the Tree object and Add the taxonID of plasmid
-        tree_topo = cls.construct_tree(cls, list_taxond_id + [36549])
+        tree_topo = cls.construct_tree(cls, list_taxond_id + [36549], end_point)
         # Insert plasmid under node plasmid
         for plasmid in list_plasmids:
             cls.insert_plasmid(cls, plasmid, end_point, tree_topo)
@@ -200,9 +200,9 @@ class MaxiTree(object):
     def is_member(self, taxid):
         return taxid in self.all_spc
 
-    def insert(self, taxid):
+    def insert(self, taxid, end_point):
         # Check if can connect to the database
-        couchdb.setServerUrl("http://127.0.0.1:5984/taxon_db")
+        couchdb.setServerUrl(end_point)
         if not couchdb.couchPing():
             print("Program terminated&Can't connect to the Taxon database")
             sys.exit()

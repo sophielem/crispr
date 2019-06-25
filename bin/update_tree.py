@@ -29,7 +29,7 @@ def args_gestion():
 if __name__ == '__main__':
     PARAM = args_gestion()
     MAXITREE = mt.MaxiTree.from_database(PARAM.url)
-    MAXITREE.insert(PARAM.taxid) if PARAM.taxid else MAXITREE.insert_plasmid(PARAM.name, PARAM.taxonDB)
+    MAXITREE.insert(PARAM.taxid, PARAM.taxonDB) if PARAM.taxid else MAXITREE.insert_plasmid(PARAM.name, PARAM.taxonDB)
 
     try:
         os.mkdir("./treeDB_data/")
