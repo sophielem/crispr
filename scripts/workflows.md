@@ -8,7 +8,7 @@ Usage:
     filter_specie.py --ref=<specieDictionary.json> --query=<specie1&specie2>
 ```
 
-Then, use *setCompare.c* script to make a dichotomous search from index files. 
+Then, use *setCompare.c* script to make a dichotomous search from index files.
 
 ## crispr workflow
 
@@ -98,16 +98,18 @@ Load the MaxiTree object from the taxon_tree_db and insert a new member.
 Then, create a pickle file to insert it into the database.
 
 ```sh
-usage: update_tree.py [-h] -url <str> [-taxid <str>] [-name <str>]
+usage: update_tree.py [-h] -url <str> -taxonDB <str> [-taxid <str>]
+                      [-name <str>]
 
 Update the MaxiTree object from the database
 
 optional arguments:
-  -h, --help    show this help message and exit
-  -url <str>    The endpoint with the name of the database where the MaxiTree
-                object is saved
-  -taxid <str>  Taxonomy ID to update or to add
-  -name <str>   Name of plasmid to add
+  -h, --help      show this help message and exit
+  -url <str>      The endpoint with the name of the database where the
+                  MaxiTree object is saved
+  -taxonDB <str>  The endpoint to the taxon database
+  -taxid <str>    Taxonomy ID to update or to add
+  -name <str>     Name of plasmid to add
 ```
 
 ## Date

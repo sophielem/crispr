@@ -150,7 +150,7 @@ class MaxiTree(object):
         tree_topo = cls.construct_tree(cls, list_taxond_id + [36549])
         # Insert plasmid under node plasmid
         for plasmid in list_plasmids:
-            cls.insert_plasmid(cls, plasmid, tree_topo)
+            cls.insert_plasmid(cls, plasmid, end_point, tree_topo)
         # Generate the list of TaxonID from leaves
         list_taxid = [int(node.taxon) for node in tree_topo.iter_descendants() if hasattr(node, "taxon")]
         return cls(tree_topo, list_taxid)
@@ -268,9 +268,9 @@ class MaxiTree(object):
         self.all_spc = [int(node.taxon) for node in tree_topo.iter_descendants() if hasattr(node, "taxon")]
         return True
 
-    def insert_plasmid(self, name, tree=None):
+    def insert_plasmid(self, name, end_point, tree=None):
         # Check if can connect to the database
-        couchdb.setServerUrl("http://127.0.0.1:5984/taxon_db")
+        couchdb.setServerUrl(end_point)
         if not couchdb.couchPing():
             print("Program terminated&Can't connect to the Taxon database")
             sys.exit()

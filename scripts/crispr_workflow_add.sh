@@ -77,8 +77,8 @@ else
               else
                 argPlas="-taxid"
               fi
-              echo python -u $CRISPR_TOOL_SCRIPT_PATH/update_tree.py -url $URL_TREE"/"$DB_TREE_NAME $argPlas "$TAXID" >> cmd.log
-              python -u $CRISPR_TOOL_SCRIPT_PATH/update_tree.py -url $URL_TREE"/"$DB_TREE_NAME $argPlas "$TAXID"  2> ./update_tree.err 1> ./update_tree.log
+              echo python -u $CRISPR_TOOL_SCRIPT_PATH/update_tree.py -url $URL_TREE"/"$DB_TREE_NAME -taxonDB $URL_TAXON"/"$DB_TAXON_NAME $argPlas "$TAXID" >> cmd.log
+              python -u $CRISPR_TOOL_SCRIPT_PATH/update_tree.py -url $URL_TREE"/"$DB_TREE_NAME -taxonDB $URL_TAXON"/"$DB_TAXON_NAME $argPlas "$TAXID"  2> ./update_tree.err 1> ./update_tree.log
 
               # Check if no problem to connect to the database (taxon_db and taxon_tree_db), to access to GCF
               parse_logFile ./update_tree.log
