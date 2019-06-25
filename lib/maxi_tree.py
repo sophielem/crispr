@@ -361,5 +361,8 @@ if __name__ == '__main__':
     # pickle.dump(DIC_TREE, open("jsontree_full.p", "wb"), protocol=3)
     TREE = MaxiTree.from_taxon_database("http://localhost:5984/taxon_db")
     JSON_TREE = TREE.get_json(True)
-    json.dump(JSON_TREE, open("test_tree.json", "w"))
-    print(TREE.tree)
+    DIC_TREE = {}
+    DIC_TREE["maxi_tree"] = {}
+    DIC_TREE["maxi_tree"]["tree"] = JSON_TREE
+    DIC_TREE["maxi_tree"]["date"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    pickle.dump(DIC_TREE, open("jsontree_full.p", "wb"), protocol=3)
