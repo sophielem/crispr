@@ -133,6 +133,28 @@ class MaxiTree(object):
         tree_topo.name = ncbi.get_taxid_translator([int(tree_topo.name)])[int(tree_topo.name)]
         return tree_topo
 
+    @classmethod
+    def from_taxon_database(cls, end_point):
+        couchdb.setServerUrl(end_point)
+        if not couchdb.couchPing():
+            print("Program terminated&Can't connect to the Taxon database")
+            sys.exit()
+        # Retrieve all taxon ID and plasmid name
+        all_entries = couchdb.couchGetRequest("_all_docs")
+        list_taxon = [row['key'] for row in all_entries['rows']]
+        # Only keep taxon id and cast into int
+        list_taxond_id = [int(i)  for i in list_taxon if re.match("^[0-9]*$", i)]
+        # Only keep plasmid name
+        list_plasmids = [i  for i in list_taxon if not re.match("^[0-9]*$", i)]
+        # Construct the Tree object and Add the taxonID of plasmid
+        tree_topo = cls.construct_tree(cls, list_taxond_id + [36549])
+        # Insert plasmid under node plasmid
+        for plasmid in list_plasmids:
+            cls.insert_plasmid(cls, plasmid, tree_topo)
+        # Generate the list of TaxonID from leaves
+        list_taxid = [int(node.taxon) for node in tree_topo.iter_descendants() if hasattr(node, "taxon")]
+        return cls(tree_topo, list_taxid)
+
     ### Write AND Representation of tree ###
     def __repr__(self):
         return "Number of leaves : {} from the root \"{}\"".format(len(self.all_spc), self.tree.name)
@@ -246,7 +268,7 @@ class MaxiTree(object):
         self.all_spc = [int(node.taxon) for node in tree_topo.iter_descendants() if hasattr(node, "taxon")]
         return True
 
-    def insert_plasmid(self, name):
+    def insert_plasmid(self, name, tree=None):
         # Check if can connect to the database
         couchdb.setServerUrl("http://127.0.0.1:5984/taxon_db")
         if not couchdb.couchPing():
@@ -254,7 +276,7 @@ class MaxiTree(object):
             sys.exit()
         gcf = couchdb.couchGetRequest(name)["current"]
         name = "{} {}".format(name, gcf)
-        plasmid_node = self.tree.search_nodes(taxon="36549")[0]
+        plasmid_node = tree.search_nodes(taxon="36549")[0] if tree else self.tree.search_nodes(taxon="36549")[0]
         plasmid_node.add_child(name=name)
         new_plasmid = plasmid_node.search_nodes(name=name)[0]
         new_plasmid.add_feature("plasmid", name)
@@ -329,11 +351,15 @@ def args_gestion():
     return parser.parse_args()
 
 if __name__ == '__main__':
-    PARAM = args_gestion()
-    TREE = MaxiTree.from_gen_ref(PARAM.file)
+    # PARAM = args_gestion()
+    # TREE = MaxiTree.from_gen_ref(PARAM.file)
+    # JSON_TREE = TREE.get_json(True)
+    # DIC_TREE = {}
+    # DIC_TREE["maxi_tree"] = {}
+    # DIC_TREE["maxi_tree"]["tree"] = JSON_TREE
+    # DIC_TREE["maxi_tree"]["date"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    # pickle.dump(DIC_TREE, open("jsontree_full.p", "wb"), protocol=3)
+    TREE = MaxiTree.from_taxon_database("http://localhost:5984/taxon_db")
     JSON_TREE = TREE.get_json(True)
-    DIC_TREE = {}
-    DIC_TREE["maxi_tree"] = {}
-    DIC_TREE["maxi_tree"]["tree"] = JSON_TREE
-    DIC_TREE["maxi_tree"]["date"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    pickle.dump(DIC_TREE, open("jsontree_full.p", "wb"), protocol=3)
+    json.dump(JSON_TREE, open("test_tree.json", "w"))
+    print(TREE.tree)
