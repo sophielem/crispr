@@ -99,7 +99,7 @@ Then, create a pickle file to insert it into the database.
 
 ```sh
 usage: update_tree.py [-h] -url <str> -taxonDB <str> [-taxid <str>]
-                      [-name <str>]
+                      [-name <str>] --no-proxy
 
 Update the MaxiTree object from the database
 

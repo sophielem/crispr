@@ -6,6 +6,7 @@ Then, create a pickle file to insert it into the database
 
 import os
 import argparse
+import requests
 import maxi_tree as mt
 
 
@@ -23,11 +24,17 @@ def args_gestion():
                         help="Taxonomy ID to update or to add")
     parser.add_argument("-name", metavar="<str>",
                         help="Name of plasmid to add")
+    parser.add_argument('--no-proxy', action='store_true')
     return parser.parse_args()
 
 
 if __name__ == '__main__':
     PARAM = args_gestion()
+    print(PARAM)
+    if PARAM.no_proxy:
+        req_func = requests.Session()
+        req_func.trust_env = False
+
     MAXITREE = mt.MaxiTree.from_database(PARAM.url)
     MAXITREE.insert(PARAM.taxid, PARAM.taxonDB) if PARAM.taxid else MAXITREE.insert_plasmid(PARAM.name, PARAM.taxonDB)
 
