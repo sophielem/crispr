@@ -55,7 +55,7 @@ def volDocAdd(iterable, updateFunc=lambdaFuse):
     for regExp, cQueue in QUEUE_MAPPER.items():
         if not cQueue["queue"]:
             continue
-        # print("inserting ", regExp, str(len(cQueue["queue"])), "element(s) =>", cQueue["volName"])
+        print("inserting ", regExp, str(len(cQueue["queue"])), "element(s) =>", cQueue["volName"])
         if DEBUG_MODE:
             print("DM",cQueue["queue"])
         joker = 0

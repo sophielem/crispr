@@ -1,0 +1,926 @@
+[
+    {
+        "sequence": "GGGGCTGCTCCTAGTACGAGAGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(3343195,3343217)",
+                            "+(4024428,4024450)",
+                            "+(4269842,4269864)",
+                            "+(4360914,4360936)",
+                            "+(4466657,4466679)",
+                            "-(255461,255483)",
+                            "-(842961,842983)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "+(626364,626386)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GGTGTTTGGCACCTCGATGTCGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(3343350,3343372)",
+                            "+(4024583,4024605)",
+                            "+(4269997,4270019)",
+                            "+(4361069,4361091)",
+                            "+(4466812,4466834)",
+                            "-(255306,255328)",
+                            "-(842806,842828)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "+(626519,626541)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GCCATCGCTCAACGGATAAAAGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(3343422,3343444)",
+                            "+(4024655,4024677)",
+                            "+(4270069,4270091)",
+                            "+(4361141,4361163)",
+                            "+(4466884,4466906)",
+                            "-(255234,255256)",
+                            "-(842734,842756)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "+(626591,626613)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GTCATGCCAATGGCATTGCCCGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(3343140,3343162)",
+                            "+(4024373,4024395)",
+                            "+(4269787,4269809)",
+                            "+(4360859,4360881)",
+                            "+(4466602,4466624)",
+                            "-(255516,255538)",
+                            "-(843016,843038)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "+(626309,626331)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GTTCGGTCCCTATCTGCCGTGGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(3343234,3343256)",
+                            "+(4024467,4024489)",
+                            "+(4269881,4269903)",
+                            "+(4360953,4360975)",
+                            "+(4466696,4466718)",
+                            "-(255422,255444)",
+                            "-(842922,842944)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "+(626403,626425)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GATGTGATGAGCCGACATCGAGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(255317,255339)",
+                            "+(842817,842839)",
+                            "-(3343339,3343361)",
+                            "-(4024572,4024594)",
+                            "-(4269986,4270008)",
+                            "-(4361058,4361080)",
+                            "-(4466801,4466823)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "-(626508,626530)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "GATGTCGGCTCATCACATCCTGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(3343335,3343357)",
+                            "+(4024568,4024590)",
+                            "+(4269982,4270004)",
+                            "+(4361054,4361076)",
+                            "+(4466797,4466819)",
+                            "-(255321,255343)",
+                            "-(842821,842843)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "+(626504,626526)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CGCCGTCGATATGAACTCTTGGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(255284,255306)",
+                            "+(842784,842806)",
+                            "-(3343372,3343394)",
+                            "-(4024605,4024627)",
+                            "-(4270019,4270041)",
+                            "-(4361091,4361113)",
+                            "-(4466834,4466856)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "-(626541,626563)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CGCCCAAGAGTTCATATCGACGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(3343374,3343396)",
+                            "+(4024607,4024629)",
+                            "+(4270021,4270043)",
+                            "+(4361093,4361115)",
+                            "+(4466836,4466858)",
+                            "-(255282,255304)",
+                            "-(842782,842804)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "+(626543,626565)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CGTCGATATGAACTCTTGGGCGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(255281,255303)",
+                            "+(842781,842803)",
+                            "-(3343375,3343397)",
+                            "-(4024608,4024630)",
+                            "-(4270022,4270044)",
+                            "-(4361094,4361116)",
+                            "-(4466837,4466859)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "-(626544,626566)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CCGCCGTCGATATGAACTCTTGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(255285,255307)",
+                            "+(842785,842807)",
+                            "-(3343371,3343393)",
+                            "-(4024604,4024626)",
+                            "-(4270018,4270040)",
+                            "-(4361090,4361112)",
+                            "-(4466833,4466855)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "-(626540,626562)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CCAAGAGTTCATATCGACGGCGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(3343371,3343393)",
+                            "+(4024604,4024626)",
+                            "+(4270018,4270040)",
+                            "+(4361090,4361112)",
+                            "+(4466833,4466855)",
+                            "-(255285,255307)",
+                            "-(842785,842807)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "+(626540,626562)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CTAGTACGAGAGGACCGGAGTGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(3343185,3343207)",
+                            "+(4024418,4024440)",
+                            "+(4269832,4269854)",
+                            "+(4360904,4360926)",
+                            "+(4466647,4466669)",
+                            "-(255471,255493)",
+                            "-(842971,842993)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "+(626354,626376)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CACTCCGGTCCTCTCGTACTAGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(255470,255492)",
+                            "+(842970,842992)",
+                            "-(3343186,3343208)",
+                            "-(4024419,4024441)",
+                            "-(4269833,4269855)",
+                            "-(4360905,4360927)",
+                            "-(4466648,4466670)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "-(626355,626377)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "CAACGGATAAAAGGTACTCCGGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(3343413,3343435)",
+                            "+(4024646,4024668)",
+                            "+(4270060,4270082)",
+                            "+(4361132,4361154)",
+                            "+(4466875,4466897)",
+                            "-(255243,255265)",
+                            "-(842743,842765)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "+(626582,626604)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TGCTCCTAGTACGAGAGGACCGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(3343190,3343212)",
+                            "+(4024423,4024445)",
+                            "+(4269837,4269859)",
+                            "+(4360909,4360931)",
+                            "+(4466652,4466674)",
+                            "-(255466,255488)",
+                            "-(842966,842988)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "+(626359,626381)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TGTCGGCTCATCACATCCTGGGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(3343333,3343355)",
+                            "+(4024566,4024588)",
+                            "+(4269980,4270002)",
+                            "+(4361052,4361074)",
+                            "+(4466795,4466817)",
+                            "-(255323,255345)",
+                            "-(842823,842845)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "+(626502,626524)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TGTTCGGGTTGTCATGCCAATGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(3343150,3343172)",
+                            "+(4024383,4024405)",
+                            "+(4269797,4269819)",
+                            "+(4360869,4360891)",
+                            "+(4466612,4466634)",
+                            "-(255506,255528)",
+                            "-(843006,843028)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "+(626319,626341)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TCAACGGATAAAAGGTACTCCGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(3343414,3343436)",
+                            "+(4024647,4024669)",
+                            "+(4270061,4270083)",
+                            "+(4361133,4361155)",
+                            "+(4466876,4466898)",
+                            "-(255242,255264)",
+                            "-(842742,842764)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "+(626583,626605)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TTCATATCGACGGCGGTGTTTGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(3343364,3343386)",
+                            "+(4024597,4024619)",
+                            "+(4270011,4270033)",
+                            "+(4361083,4361105)",
+                            "+(4466826,4466848)",
+                            "-(255292,255314)",
+                            "-(842792,842814)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "+(626533,626555)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TTTAAAGTGGTACGCGAGCTGGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(3343276,3343298)",
+                            "+(4024509,4024531)",
+                            "+(4269923,4269945)",
+                            "+(4360995,4361017)",
+                            "+(4466738,4466760)",
+                            "-(255380,255402)",
+                            "-(842880,842902)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "+(626445,626467)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TAGCTACCGGGCAATGCCATTGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(255522,255544)",
+                            "+(843022,843044)",
+                            "-(3343134,3343156)",
+                            "-(4024367,4024389)",
+                            "-(4269781,4269803)",
+                            "-(4360853,4360875)",
+                            "-(4466596,4466618)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "-(626303,626325)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "TAGAACGTCGTGAGACAGTTCGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(3343251,3343273)",
+                            "+(4024484,4024506)",
+                            "+(4269898,4269920)",
+                            "+(4360970,4360992)",
+                            "+(4466713,4466735)",
+                            "-(255405,255427)",
+                            "-(842905,842927)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "+(626420,626442)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "AGTTCGGTCCCTATCTGCCGTGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(3343235,3343257)",
+                            "+(4024468,4024490)",
+                            "+(4269882,4269904)",
+                            "+(4360954,4360976)",
+                            "+(4466697,4466719)",
+                            "-(255421,255443)",
+                            "-(842921,842943)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "+(626404,626426)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "ACCTTTTATCCGTTGAGCGATGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(255235,255257)",
+                            "+(842735,842757)",
+                            "-(3343421,3343443)",
+                            "-(4024654,4024676)",
+                            "-(4270068,4270090)",
+                            "-(4361140,4361162)",
+                            "-(4466883,4466905)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "-(626590,626612)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "ATGTCGGCTCATCACATCCTGGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(3343334,3343356)",
+                            "+(4024567,4024589)",
+                            "+(4269981,4270003)",
+                            "+(4361053,4361075)",
+                            "+(4466796,4466818)",
+                            "-(255322,255344)",
+                            "-(842822,842844)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "+(626503,626525)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "AACGGATAAAAGGTACTCCGGGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(3343412,3343434)",
+                            "+(4024645,4024667)",
+                            "+(4270059,4270081)",
+                            "+(4361131,4361153)",
+                            "+(4466874,4466896)",
+                            "-(255244,255266)",
+                            "-(842744,842766)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "+(626581,626603)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "sequence": "AAAGGTACTCCGGGGATAACAGG",
+        "occurences": [
+            {
+                "org": "Enterobacter sp. 638 GCF_000016325.1",
+                "all_ref": [
+                    {
+                        "ref": "NC_009436.1",
+                        "coords": [
+                            "+(3343404,3343426)",
+                            "+(4024637,4024659)",
+                            "+(4270051,4270073)",
+                            "+(4361123,4361145)",
+                            "+(4466866,4466888)",
+                            "-(255252,255274)",
+                            "-(842752,842774)"
+                        ]
+                    }
+                ]
+            },
+            {
+                "org": "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2",
+                "all_ref": [
+                    {
+                        "ref": "NC_014909.2",
+                        "coords": [
+                            "+(626573,626595)"
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]
