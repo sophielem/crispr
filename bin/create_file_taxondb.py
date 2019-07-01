@@ -84,7 +84,7 @@ def load_json_file(file_name, user) :
     dic_ref = json.load(open(file_name, "r"))
     for org in dic_ref:
         taxid = dic_ref[org][1]
-        gcf = "_".join(dic_ref[org][0].split("_")[:-1])
+        gcf = "_".join(dic_ref[org][0].split("_")[:2])
         list_gcf = [gcf] if taxid not in taxon_dt.keys() else taxon_dt[taxid]["GCF"] + [gcf]
         if len(list_gcf) > 1: duplicate.append(taxid)
         taxon_dt[taxid] = init_taxondt(list_gcf, user)
@@ -103,7 +103,7 @@ def load_list_file(file_name, user):
         filin = open(file_name, 'r')
         content = csv.reader(filin, delimiter="\t")
         for line in content:
-            taxid = int(line[0])
+            taxid = line[0]
             gcf = line[1]
             list_gcf = [gcf] if taxid not in taxon_dt.keys() else taxon_dt[taxid]["GCF"] + [gcf]
             if len(list_gcf) > 1: duplicate_taxon.append(taxid)
