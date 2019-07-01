@@ -131,7 +131,7 @@ optional arguments:
 ```
 
 Convert the genome_ref_taxid.json to a pickle file ready to be insert into
-database
+database or list file with the format : taxonId \t GCF_id
 ```sh
 usage: create_file_taxondb.py scratch [-h] -file <str> [-user [<str>]]
                                       [-out [<str>]] --no-proxy

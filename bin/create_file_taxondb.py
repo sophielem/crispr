@@ -1,6 +1,7 @@
 """
 Create pickle file to inset into Taxonomy database
-It can create from a GCF and Taxonomy ID given or from the json file genome_ref_taxid.json file
+It can create from a GCF and Taxonomy ID given, from the json file genome_ref_taxid.json file or
+from a list file in csv format
 
 OUTUPUT:
 taxon_dt={"1234": {"GCF": ["GCF_111", "GCF_112", "GCF_113"], "date": "19-04-2019", "User": "Queen"},
@@ -13,6 +14,7 @@ import datetime
 import json
 import pickle
 import argparse
+import csv
 import pycouch.wrapper as couchdb
 
 
@@ -29,11 +31,13 @@ def args_gestion():
     scratch_parser = subparsers.add_parser("scratch", help="Create files to insert from\
                                                             the genomre_ref_taxid.json file")
     scratch_parser.add_argument("-file", metavar="<str>", required=True,
-                                help="The json file to convert")
+                                help="The json file to convert or the list file in csv")
     scratch_parser.add_argument("-user", metavar="<str>", nargs="?", help="The user",
                                 default="MMSB")
     scratch_parser.add_argument("-out", metavar="<str>", nargs="?",
                                 help="The name of the outputfile", default="taxon_dt.p")
+    scratch_parser.add_argument('--no-proxy', action='store_true')
+    scratch_parser.add_argument('--json', action='store_true')
 
     # Parser for a SINGLE genome
     single_parser = subparsers.add_parser("single", help="Create file to insert")
@@ -44,6 +48,7 @@ def args_gestion():
                                help="End pooint for taxon Database with the name of the database")
     single_parser.add_argument("-out", metavar="<str>", nargs="?",
                                help="The name of the outputfile", default="taxon_dt.p")
+    single_parser.add_argument('--no-proxy', action='store_true')
 
     return parser.parse_args(), command
 
@@ -73,26 +78,57 @@ def init_taxondt(gcfs, user):
 
     return tmp_dic
 
+def load_json_file(file_name, user) :
+    taxon_dt = {}
+    duplicate = []
+    dic_ref = json.load(open(file_name, "r"))
+    for org in dic_ref:
+        taxid = dic_ref[org][1]
+        gcf = "_".join(dic_ref[org][0].split("_")[:-1])
+        list_gcf = [gcf] if taxid not in taxon_dt.keys() else taxon_dt[taxid]["GCF"] + [gcf]
+        if len(list_gcf) > 1: duplicate.append(taxid)
+        taxon_dt[taxid] = init_taxondt(list_gcf, user)
+
+    if duplicate:
+        with open("duplicate_taxon.log", "w") as filout:
+            [filout.write("{}\n".format(tax)) for tax in duplicate]
+
+    return taxon_dt
+
+
+def load_list_file(file_name, user):
+    taxon_dt = {}
+    duplicate_taxon = []
+    try:
+        filin = open(file_name, 'r')
+        content = csv.reader(filin, delimiter="\t")
+        for line in content:
+            taxid = int(line[0])
+            gcf = line[1]
+            list_gcf = [gcf] if taxid not in taxon_dt.keys() else taxon_dt[taxid]["GCF"] + [gcf]
+            if len(list_gcf) > 1: duplicate_taxon.append(taxid)
+            taxon_dt[taxid] = init_taxondt(list_gcf, user)
+
+        if duplicate_taxon:
+            with open("duplicate_taxon.log", "w") as filout:
+                [filout.write("{}\n".format(tax)) for tax in duplicate_taxon]
+    except:
+        sys.exit("Problem with file.\n{}\n* FORMAT *\n{}\ntaxId{}GCF_id".format("*"*10, "*"*10, r"\t"))
+    filin.close()
+    return taxon_dt
+
 
 if __name__ == '__main__':
     PARAM, COMMAND = args_gestion()
+
+    if PARAM.no_proxy:
+        req_func = requests.Session()
+        req_func.trust_env = False
     # Insert from SCRATCH
     if COMMAND == "scratch":
         set_env(PARAM.file)
-        DIC_REF = json.load(open(PARAM.file, "r"))
+        TAXON_DT = load_json_file(PARAM.file, PARAM.user) if PARAM.json else load_list_file(PARAM.file, PARAM.user)
 
-        TAXON_DT = {}
-        DUPLICATE = []
-        for org in DIC_REF:
-            taxid = DIC_REF[org][1]
-            gcf = "_".join(DIC_REF[org][0].split("_")[:-1])
-            list_gcf = [gcf] if taxid not in TAXON_DT.keys() else TAXON_DT[taxid]["GCF"] + [gcf]
-            if len(list_gcf) > 1: DUPLICATE.append(taxid)
-            TAXON_DT[taxid] = init_taxondt(list_gcf, PARAM.user)
-
-        if DUPLICATE:
-            with open("duplicate_taxon.log", "w") as filout:
-                [filout.write("{}\n".format(tax)) for tax in DUPLICATE]
     # Insert for a SINGLE genome
     else:
         set_env()
