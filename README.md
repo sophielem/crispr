@@ -119,7 +119,7 @@ positional arguments:
 Create a taxon file for a single genome. The url is needed to check if an entry exists for this taxon ID. If so, it takes the list of GCF, add the new GCF and make it the current one.
 ```sh
 usage: create_file_taxondb.py single [-h] [-user [<str>]] -gcf <str> -taxid
-                                     <str> -url <str> [-out [<str>]]
+                                     <str> -url <str> [-out [<str>]] --no-proxy
 
 optional arguments:
   -h, --help     show this help message and exit
@@ -134,7 +134,7 @@ Convert the genome_ref_taxid.json to a pickle file ready to be insert into
 database
 ```sh
 usage: create_file_taxondb.py scratch [-h] -file <str> [-user [<str>]]
-                                      [-out [<str>]]
+                                      [-out [<str>]] --no-proxy
 
 optional arguments:
   -h, --help     show this help message and exit
