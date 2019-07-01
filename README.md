@@ -41,6 +41,9 @@ word    ref : coordinates   ref : coordinates   ref : coordinates...
 ### Plain text
 In a folder *crispr_clean*, index files are saved in *genome_index* folder on arwen-dev cluster and fasta files are saved in *genome_fasta* folder. Pickle files are saved in *genome_pickle* in the folder *crispr_clean* on arwen. These files are not needed for scripts, they are just a backup of the CRISPR database.
 The database for BLAST is in *crispr_clean* on arwen-dev.
+*genome_index* : name + space + GCF + .index
+*genome_pickle* : name + space + GCF + .p
+*genome_fasta* : GCF + undescrore + ASM + tar.gz
 
 ### CRISPR database
 This database contains several volumes, 64. Each volume can be accessed from a regex, which is the length prefix 3 of the sgRNA. The entry is the sgRNA sequence and it contains a dictionary of organism and coordinates under the key **data**.
