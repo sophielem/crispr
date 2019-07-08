@@ -109,5 +109,5 @@ def display_hits(dic_hits, genomes_in, genomes_not_in, pam, non_pam_motif_length
             for ref in dic_hits[seq].genomes_dict[genome]:
                 if ref not in dic_sorted_by_org[genome]:
                     dic_sorted_by_org[genome][ref] = {}
-                dic_sorted_by_org[genome][ref][seq] = ddic_hits[seq].genomes_dict[genome][ref]
+                dic_sorted_by_org[genome][ref][seq] = dic_hits[seq].genomes_dict[genome][ref]
     json.dump(dic_sorted_by_org, open("results_by_org.json", "w"))
