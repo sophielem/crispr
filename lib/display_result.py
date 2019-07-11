@@ -113,8 +113,8 @@ def display_hits(dic_hits, genomes_in, genomes_not_in, pam, non_pam_motif_length
     else:
         for seq in dic_hits:
             for genome in genomes_in:
-                for ref in dic_hits[seq].dic_org[genome]:
-                    if ref not in dic_sorted_by_org[genome]:
+                for coord_seq in dic_hits[seq].dic_org[genome]:
+                    if coord_seq.ref not in dic_sorted_by_org[genome]:
                         dic_sorted_by_org[genome][ref] = {}
-                    dic_sorted_by_org[genome][ref][seq] = dic_hits[seq].dic_org[genome][ref]
+                    dic_sorted_by_org[genome][ref][seq] = coord_seq.list_coord
     json.dump(dic_sorted_by_org, open("results_by_org.json", "w"))
