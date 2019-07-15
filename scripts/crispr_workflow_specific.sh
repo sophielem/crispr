@@ -109,6 +109,7 @@ else
         echo "$number_hits" >> ./stuff.log;
         echo "$tag" >> ./stuff.log;
         loc=$(pwd | perl -ne '@tmp = split(/\//, $_); print "$tmp[$#tmp - 1]/$tmp[$#tmp]";');
-        echo "{\"out\" : {\"data\" : $(cat ./results.json),  \"not_in\" : \""$not_in"\",  \"number_hits\" : \""$number_hits"\", \"tag\" : \""$loc"\"}}"
+        echo "{\"out\" : {\"data_card\": $(cat ./results_by_org.json), \"data\" : $(cat ./results.json),  \"not_in\" : \""$not_in"\",\"gi\" : \""$gi"\",  \"number_hits\" : \""$number_hits"\", \"tag\" : \""$loc"\"}}"
+
     fi
 fi
