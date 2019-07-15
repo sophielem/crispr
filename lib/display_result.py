@@ -103,11 +103,19 @@ def display_hits(dic_hits, genomes_in, genomes_not_in, pam, non_pam_motif_length
     # Output formatting for printing to interface
     output_interface(dic_hits, workdir, 100)
     dic_sorted_by_org = {genome : {} for genome in genomes_in}
-
-    for seq in dic_hits:
-        for genome in genomes_in:
-            for ref in dic_hits[seq].genomes_dict[genome]:
-                if ref not in dic_sorted_by_org[genome]:
-                    dic_sorted_by_org[genome][ref] = {}
-                dic_sorted_by_org[genome][ref][seq] = ddic_hits[seq].genomes_dict[genome][ref]
+    if hit_obj:
+        for seq in dic_hits:
+            for genome in genomes_in:
+                for ref in dic_hits[seq].genomes_dict[genome]:
+                    if ref not in dic_sorted_by_org[genome]:
+                        dic_sorted_by_org[genome][ref] = {}
+                    dic_sorted_by_org[genome][ref][seq] = dic_hits[seq].genomes_dict[genome][ref]
+    else:
+        for seq in dic_hits:
+            for genome in genomes_in:
+                for coord_seq in dic_hits[seq].dic_org[genome]:
+                    ref = coord_seq.ref
+                    if ref not in dic_sorted_by_org[genome]:
+                        dic_sorted_by_org[genome][ref] = {}
+                    dic_sorted_by_org[genome][ref][seq] = coord_seq.list_coord
     json.dump(dic_sorted_by_org, open("results_by_org.json", "w"))

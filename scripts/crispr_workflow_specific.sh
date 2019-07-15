@@ -71,7 +71,8 @@ else
     fi
     # Check if hits in intersection
     if [ $nb_hits = 0 ];then
-        echo "{\"emptySearch\" :  \"No common hits between the sequence and included genomes \""  > ./fail.log
+        echo "{\"emptySearch\" :  \"No common hits between the sequence and included genomes \"}"  > ./fail.log
+        cat ./fail.log
         PRG_TERMINATED=1
     fi
 
@@ -111,6 +112,7 @@ else
         echo "$tag" >> ./stuff.log;
         echo "$gene" >> ./stuff.log;
         loc=$(pwd | perl -ne '@tmp = split(/\//, $_); print "$tmp[$#tmp - 1]/$tmp[$#tmp]";');
-        echo "{\"out\" : {\"data\" : $(cat ./results.json),  \"not_in\" : \""$not_in"\", \"gene\" : \""$gene"\",  \"number_hits\" : \""$number_hits"\", \"tag\" : \""$loc"\"}}"
+        echo "{\"out\" : {\"data_card\": $(cat ./results_by_org.json), \"data\" : $(cat ./results.json),  \"not_in\" : \""$not_in"\",\"gi\" : \""$gi"\",  \"gene\" : \""$gene"\", \"number_hits\" : \""$number_hits"\", \"tag\" : \""$loc"\"}}"
+
     fi
 fi
