@@ -189,7 +189,7 @@ def coord_on_gene(list_coord, list_gene, ref):
     return None
 
 
-def check_on_gene(blast_file, dic_index, nb_gi):
+def check_on_gene(blastoutput, dic_index, nb_gi):
     """
     Return a dictionary of ResumeSeq object for each sequence which is at least
     on one gene in one organism.
@@ -233,7 +233,7 @@ if __name__ == "__main__":
     DIC_HITS = pp.create_dic_hits(PARAM, GENOMES_IN)
 
     # Keep sgrna which are on gene
-    BLASTOUTPUT = pickle.load(open(blast_file, "rb"))
+    BLASTOUTPUT = pickle.load(open(PARAM.blast, "rb"))
     RESUME_SEQ = check_on_gene(BLASTOUTPUT, DIC_HITS, len(GENOMES_IN))
     # Sort sgrna by the proportion of organism containing this sgrna on a gene
     LIST_ORDERED = sorted(RESUME_SEQ, key=lambda hit: RESUME_SEQ[hit].proportion, reverse=True)
