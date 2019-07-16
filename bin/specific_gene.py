@@ -8,6 +8,7 @@ import sys
 import argparse
 import pickle
 import re
+import json
 from collections import OrderedDict
 import wordIntegerIndexing as decoding
 import display_result as dspl
@@ -245,4 +246,4 @@ if __name__ == "__main__":
     print(','.join(GENOMES_NOTIN))
     print("TASK_KEY")
     print(len(RESUME_SEQ))
-    print(BLASTOUTPUT.json_str())
+    json.dump(BLASTOUTPUT.json_str(), open("genes.json", "w"))

@@ -105,14 +105,12 @@ else
         not_in=$(perl -ne 'chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;' ./specific_gene.log);
         number_hits=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 3){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./specific_gene.log);
         tag=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 2){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./specific_gene.log);
-        gene=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 4){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./specific_gene.log);
 
         echo "$not_in" > ./stuff.log;
         echo "$number_hits" >> ./stuff.log;
         echo "$tag" >> ./stuff.log;
-        echo "$gene" >> ./stuff.log;
         loc=$(pwd | perl -ne '@tmp = split(/\//, $_); print "$tmp[$#tmp - 1]/$tmp[$#tmp]";');
-        echo "{\"out\" : {\"data_card\": $(cat ./results_by_org.json), \"data\" : $(cat ./results.json),  \"not_in\" : \""$not_in"\",\"gi\" : \""$gi"\",  \"gene\" : \""$gene"\", \"number_hits\" : \""$number_hits"\", \"tag\" : \""$loc"\"}}"
+        echo "{\"out\" : {\"data_card\": $(cat ./results_by_org.json), \"data\" : $(cat ./results.json),  \"not_in\" : \""$not_in"\",\"gi\" : \""$gi"\",  \"gene\" : $(cat ./genes.json), \"number_hits\" : \""$number_hits"\", \"tag\" : \""$loc"\"}}"
 
     fi
 fi
