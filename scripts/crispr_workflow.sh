@@ -35,8 +35,8 @@ else
 
     #echo "curl -X GET $URL_CRISPR/handshake" > handshake.cmd
     #curl -X GET $URL_CRISPR/handshake &> handshake.log
-    gi=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gi")
-    gni=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gni")
+   # gi=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gi")
+   # gni=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gni")
 
     echo $gi > f.gi
     fileSet="set_index.txt"

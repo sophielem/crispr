@@ -59,8 +59,8 @@ else
     PRG_TERMINATED=$?
     if [ $PRG_TERMINATED = 0 ];then
         ### FILTER GENOMES ###
-        gi=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gi")
-        gni=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gni")
+       # gi=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gi")
+       # gni=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gni")
         echo $gi > f.gi
 
         ### INTERSECTION ###
