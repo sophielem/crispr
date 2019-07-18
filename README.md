@@ -38,6 +38,8 @@ word    ref : coordinates   ref : coordinates   ref : coordinates...
 ```
 
 ## Databases
+[ReadMe to launch server](https://github.com/sophielem/crispr/blob/dev_add_genome/doc/README.md)
+
 ### Plain text
 In a folder *crispr_clean*, index files are saved in *genome_index* folder on arwen-dev cluster and fasta files are saved in *genome_fasta* folder. Pickle files are saved in *genome_pickle* in the folder *crispr_clean* on arwen. These files are not needed for scripts, they are just a backup of the CRISPR database.
 The database for BLAST is in *crispr_clean* on arwen-dev.
@@ -182,7 +184,6 @@ The main function allows to create this Tree from the genome_ref_taxid.json file
 ## Workflows
 
 [ReadMe for workflows](https://github.com/sophielem/crispr/blob/dev_add_genome/scripts/workflows.md)
-
 
 ## Date
 June 24 2019
