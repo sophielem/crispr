@@ -60,6 +60,8 @@ for (( i = 0; i < 64; i++ )); do
 done
 ```
 
+python couchBuild.py --map ../data/3letter_prefixe_rules.json --url http://127.0.0.1:5984 --data ../../reference_genomes_pickle/test/ --min 0 --max 1 --size 1000
+
 ### Fill it
 From the JsonTree file and the genome_ref_taxid file, use search_leaves_from_node which copy all fasta files from a subnode in a repository and create a config file with GCF, taxonID and ASM.
 With these fasta file and necessary arguments, you can add them in the database and create their pickle and index file.
