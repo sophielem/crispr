@@ -59,8 +59,8 @@ else
     PRG_TERMINATED=$?
     if [ $PRG_TERMINATED = 0 ];then
         ### FILTER GENOMES ###
-        gi=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gi")
-        gni=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gni")
+       # gi=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gi")
+       # gni=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gni")
         echo $gi > f.gi
 
         ### INTERSECTION ###
@@ -71,7 +71,8 @@ else
     fi
     # Check if hits in intersection
     if [ $nb_hits = 0 ];then
-        echo "{\"emptySearch\" :  \"No common hits between the sequence and included genomes \""  > ./fail.log
+        echo "{\"emptySearch\" :  \"No common hits between the sequence and included genomes \"}"  > ./fail.log
+        cat ./fail.log
         PRG_TERMINATED=1
     fi
 
@@ -104,10 +105,12 @@ else
         not_in=$(perl -ne 'chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;' ./specific_gene.log);
         number_hits=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 3){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./specific_gene.log);
         tag=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 2){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./specific_gene.log);
+
         echo "$not_in" > ./stuff.log;
         echo "$number_hits" >> ./stuff.log;
         echo "$tag" >> ./stuff.log;
         loc=$(pwd | perl -ne '@tmp = split(/\//, $_); print "$tmp[$#tmp - 1]/$tmp[$#tmp]";');
-        echo "{\"out\" : {\"data\" : $(cat ./results.json),  \"not_in\" : \""$not_in"\",  \"number_hits\" : \""$number_hits"\", \"tag\" : \""$loc"\"}}"
+        echo "{\"out\" : {\"data_card\": $(cat ./results_by_org.json), \"data\" : $(cat ./results.json),  \"not_in\" : \""$not_in"\",\"gi\" : \""$gi"\",  \"gene\" : $(cat ./genes.json), \"number_hits\" : \""$number_hits"\", \"tag\" : \""$loc"\"}}"
+
     fi
 fi

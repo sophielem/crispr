@@ -94,6 +94,19 @@ class BlastReport(object):
             return list(self[org_name][ref_name])
         return None
 
+    def json_str(self):
+        """
+        Return a string in JSON format
+        """
+        tmp = {}
+        for org in self.homolog_gene:
+            tmp[org] = {}
+            for ref in self.homolog_gene[org]:
+                tmp[org][ref] = []
+                for blastObj in self.homolog_gene[org][ref]:
+                    tmp[org][ref].append({"start": str(blastObj.start), "end":str(blastObj.end)})
+        return tmp
+
 
 def check_in_gi(gi_name, blast_name):
     """

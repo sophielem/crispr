@@ -34,8 +34,8 @@ else
 
     #echo "curl -X GET $URL_CRISPR/handshake" > handshake.cmd
     #curl -X GET $URL_CRISPR/handshake &> handshake.log
-    gi=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gi")
-    gni=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gni")
+   # gi=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gi")
+   # gni=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gni")
 
     echo $gi > f.gi
     fileSet="set_index.txt"
@@ -63,7 +63,7 @@ else
         echo "$tag" >> ./stuff.log;
         loc=$(pwd | perl -ne '@tmp = split(/\//, $_); print "$tmp[$#tmp - 1]/$tmp[$#tmp]";');
     	#number_hits=lines[2].strip()
-        echo "{\"out\" : {\"data\" : $(cat ./results.json),  \"not_in\" : \""$not_in"\",  \"number_hits\" : \""$number_hits"\", \"tag\" : \""$loc"\"}}"
+        echo "{\"out\" : {\"data_card\": $(cat ./results_by_org.json), \"data\" : $(cat ./results.json),  \"not_in\" : \""$not_in"\",\"gi\" : \""$gi"\",  \"number_hits\" : \""$number_hits"\", \"tag\" : \""$loc"\"}}"
     fi
 
 
