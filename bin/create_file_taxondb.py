@@ -36,6 +36,8 @@ def args_gestion():
                                 default="MMSB")
     scratch_parser.add_argument("-out", metavar="<str>", nargs="?",
                                 help="The name of the outputfile", default="taxon_dt.p")
+    scratch_parser.add_argument("-rfg", metavar="<str>", required=True,
+                                help="Path of the fasta file")
     scratch_parser.add_argument('--no-proxy', action='store_true')
     scratch_parser.add_argument('--json', action='store_true')
 
@@ -48,6 +50,8 @@ def args_gestion():
                                help="End pooint for taxon Database with the name of the database")
     single_parser.add_argument("-out", metavar="<str>", nargs="?",
                                help="The name of the outputfile", default="taxon_dt.p")
+    single_parser.add_argument("-rfg", metavar="<str>", required=True,
+                                help="Path of the fasta file")
     single_parser.add_argument('--no-proxy', action='store_true')
 
     return parser.parse_args(), command
@@ -66,10 +70,24 @@ def set_env(json_file=None):
         sys.exit("The file does not exist, check your path")
 
 
-def init_taxondt(gcfs, user):
+def size_fasta(fasta_file):
+    tmp = {}
+    try:
+        for record in SeqIO.parse(fasta_file, "fasta"):
+            tmp[record.id] = len(record.seq)
+    except:
+        with open(".taxon.log", "a") as filout:
+            filout.write(fasta_file + "\n")
+        return 1
+    return tmp
+
+
+def init_taxondt(gcfs, user, taxon_id, fasta_path):
     """
     Initialize the dictionary of taxon and return it
     """
+    tmp_dic["size"] = size_fasta(fasta_path + taxon_id + "_" + doc["current"] + ".fna")
+    if(tmp_dic["size"] == 1): return 1
     tmp_dic = {}
     tmp_dic["GCF"] = gcfs
     tmp_dic["date"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -78,7 +96,8 @@ def init_taxondt(gcfs, user):
 
     return tmp_dic
 
-def load_json_file(file_name, user) :
+
+def load_json_file(file_name, user, fasta_path) :
     taxon_dt = {}
     duplicate = []
     dic_ref = json.load(open(file_name, "r"))
@@ -87,7 +106,8 @@ def load_json_file(file_name, user) :
         gcf = "_".join(dic_ref[org][0].split("_")[:2])
         list_gcf = [gcf] if taxid not in taxon_dt.keys() else taxon_dt[taxid]["GCF"] + [gcf]
         if len(list_gcf) > 1: duplicate.append(taxid)
-        taxon_dt[taxid] = init_taxondt(list_gcf, user)
+        tmp_taxon_dt = init_taxondt(list_gcf, user, taxid, fasta_path)
+        if (tmp_taxon_dt != 1) taxon_dt[taxid] = tmp_taxon_dt
 
     if duplicate:
         with open("duplicate_taxon.log", "w") as filout:
@@ -96,7 +116,7 @@ def load_json_file(file_name, user) :
     return taxon_dt
 
 
-def load_list_file(file_name, user):
+def load_list_file(file_name, user, fasta_path):
     taxon_dt = {}
     duplicate_taxon = []
     try:
@@ -107,7 +127,8 @@ def load_list_file(file_name, user):
             gcf = line[1]
             list_gcf = [gcf] if taxid not in taxon_dt.keys() else taxon_dt[taxid]["GCF"] + [gcf]
             if len(list_gcf) > 1: duplicate_taxon.append(taxid)
-            taxon_dt[taxid] = init_taxondt(list_gcf, user)
+            tmp_taxon_dt = init_taxondt(list_gcf, user, taxid, fasta_path)
+            if (tmp_taxon_dt != 1) taxon_dt[taxid] = tmp_taxon_dt
 
         if duplicate_taxon:
             with open("duplicate_taxon.log", "w") as filout:
@@ -127,7 +148,7 @@ if __name__ == '__main__':
     # Insert from SCRATCH
     if COMMAND == "scratch":
         set_env(PARAM.file)
-        TAXON_DT = load_json_file(PARAM.file, PARAM.user) if PARAM.json else load_list_file(PARAM.file, PARAM.user)
+        TAXON_DT = load_json_file(PARAM.file, PARAM.user, PARAM.rfg) if PARAM.json else load_list_file(PARAM.file, PARAM.user, PARAM.rfg)
 
     # Insert for a SINGLE genome
     else:
@@ -139,6 +160,7 @@ if __name__ == '__main__':
             sys.exit()
         DOC = couchdb.couchGetDoc("", PARAM.taxid)
         LIST_GCF = PARAM.gcf + DOC["GCF"] if DOC else [PARAM.gcf]
-        TAXON_DT[PARAM.taxid] = init_taxondt(LIST_GCF, PARAM.user)
+        tmp_taxon_dt = init_taxondt(LIST_GCF, PARAM.user, PARAM.taxid, PARAM.rfg)
+        if(tmp_taxon_dt =! 1) TAXON_DT[PARAM.taxid] = tmp_taxon_dt
 
     pickle.dump(TAXON_DT, open("./taxonDB_data/" + PARAM.out, "wb"), protocol=3)

@@ -9,11 +9,15 @@ import os
 import time
 import argparse
 import re
+import maxi_tree as MT
+import pycouch.wrapper as couchdb
+import json
 import operator
 from collections import OrderedDict
 import requests
 import wordIntegerIndexing as decoding
 import display_result as dspl
+
 
 def valid_file(parser, filename):
     """
@@ -47,6 +51,12 @@ def args_gestion():
                         required=True)
     parser.add_argument("-r", metavar="<str>",
                         help="The end point",
+                        required=True)
+    parser.add_argument("-taxon_db", metavar="<str>",
+                        help="The end point of the taxon database",
+                        required=True)
+    parser.add_argument("-tree_db", metavar="<str>",
+                        help="The end point of the taxon database",
                         required=True)
     parser.add_argument("-c", metavar="<int>",
                         help="The length of the slice for the request",
@@ -94,7 +104,7 @@ def couchdb_search(sgrna_list, end_point, len_slice, no_poxy_bool):
             dspl.eprint("Error LOG is ", str(e))
             joker += 1
             if joker > 3:
-                print("Program terminated&after 50 tries to access to the database")
+                print("Progam terminated&after 50 tries to access to the database")
                 sys.exit(1)
             time.sleep(5)
             continue
@@ -261,6 +271,39 @@ def create_dic_hits(param, genomes_in):
     return dic_hits
 
 
+def get_size(tree_db, taxon_db, genomes_in):
+    tree = MT.MaxiTree.from_database(tree_db)
+    json_tree = tree.get_json(True)
+    taxon_orgname = {}
+
+    try:
+        for org in genomes_in:
+            taxon_orgname[re.search(org + " : (.*)", json_tree).group(1)] = org
+
+        couchdb.setServerUrl(taxon_db)
+        if not couchdb.couchPing():
+            print("Program terminated&Can't connect to the taxon database with the URL : {}".format(taxon_db))
+            sys.exit()
+
+        size_dic = {}
+        joker = 0
+        while joker < 3 :
+            try:
+                for res in couchdb.bulkRequestByKey(list(taxon_orgname.keys()), "")["results"]:
+                    taxon = res["docs"][0]["ok"]["_id"]
+                    size_dic[taxon_orgname[taxon]] = res["docs"][0]["ok"]["size"]
+            except:
+                dspl.eprint("something wrong append, try again")
+                joker += 1
+            break
+
+    except:
+        print("Program terminated&Error with genomes size")
+        sys.exit()
+
+    json.dump(size_dic, open("size_org.json", "w"))
+
+
 if __name__ == '__main__':
     PARAM = args_gestion()
     GENOMES_IN = PARAM.gi.split("&")
@@ -271,6 +314,8 @@ if __name__ == '__main__':
     dspl.display_hits(DIC_HITS, GENOMES_IN, GENOMES_NOTIN,
                       PARAM.pam, int(PARAM.sl), ".", int(PARAM.nb_top),
                       True, list(DIC_HITS.keys()))
+
+    get_size(PARAM.tree_db, PARAM.taxon_db, GENOMES_IN)
 
     print(','.join(GENOMES_NOTIN))
     print("TASK_KEY")

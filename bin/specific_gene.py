@@ -158,6 +158,12 @@ def args_gestion():
     parser.add_argument("-c", metavar="<int>",
                         help="The length of the slice for the request",
                         required=True)
+    parser.add_argument("-taxon_db", metavar="<str>",
+                        help="The end point of the taxon database",
+                        required=True)
+    parser.add_argument("-tree_db", metavar="<str>",
+                        help="The end point of the taxon database",
+                        required=True)
 
     return parser.parse_args()
 
@@ -241,6 +247,8 @@ if __name__ == "__main__":
     # Display the result for the navigator
     dspl.display_hits(RESUME_SEQ, GENOMES_IN, GENOMES_NOTIN,
                       PARAM.pam, int(PARAM.sl), ".", int(PARAM.nb_top), False, LIST_ORDERED)
+
+    pp.get_size(PARAM.tree_db, PARAM.taxon_db, GENOMES_IN)
 
     print(','.join(GENOMES_NOTIN))
     print("TASK_KEY")
