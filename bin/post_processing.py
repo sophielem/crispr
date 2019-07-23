@@ -93,7 +93,7 @@ def couchdb_search(sgrna_list, end_point, len_slice, no_poxy_bool):
             dspl.eprint("Something wrong append, retrying time", str(joker))
             dspl.eprint("Error LOG is ", str(e))
             joker += 1
-            if joker > 50:
+            if joker > 3:
                 print("Program terminated&after 50 tries to access to the database")
                 sys.exit(1)
             time.sleep(5)
@@ -235,7 +235,7 @@ def parse_setcompare_out(output_c, nb_top):
 
 def create_dic_hits(param, genomes_in):
     """
-    Definition
+    Treat the search into database and return a dictionary of hits
     """
     dic_index, nb_hits = parse_setcompare_out(param.f, int(param.nb_top)) if int(param.sl) == 20 else parse_setcompare_other(param.f, int(param.nb_top))
     dspl.eprint("NB_HITS  ==>  {}     Length DIC_INDEX  ==>  {}".format(nb_hits, len(dic_index)))

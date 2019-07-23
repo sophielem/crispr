@@ -12,7 +12,6 @@ import json
 from docopt import docopt
 
 
-
 if __name__ == "__main__":
     ARGUMENTS = docopt(__doc__, version='filter_specie 1.0')
 
@@ -25,7 +24,7 @@ if __name__ == "__main__":
 
 
     with open(ARGUMENTS['--ref'], "r") as fp:
-        data = json.load(fp)
-        #print(data)
+        DATA = json.load(fp)
+        #print(DATA)
 
-        print ( '&'.join([ sp for sp in ARGUMENTS['--query'].split('&') if sp in data ]) ) 
+        print('&'.join([sp for sp in ARGUMENTS['--query'].split('&') if sp in DATA]))
