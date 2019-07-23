@@ -1,4 +1,16 @@
 #!/bin/bash
+# unset HTTP_PROXY
+# unset HTTPS_PROXY
+# pam="NGG"
+# CRISPR_TOOL_SCRIPT_PATH="../crispr/bin"
+# URL_CRISPR="http://localhost:2345"
+# sl="20"
+# fileSet="../crispr/test/data/ag_simple/set_index.txt"
+# gi="Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1&Aliivibrio wodanis GCF_000953695.1"
+# gni=""
+# rfg="../reference_genomes_pickle/"
+# URL_TAXON="http://localhost:5984/taxon_db_size"
+# URL_TREE="http://localhost:5984/taxon_tree_db"
 
 error_json () {
     echo "{\"emptySearch\": \"There is a problem, impossible to finish the program\"}" > fail.log
@@ -7,9 +19,6 @@ error_json () {
 
 if [ "$pam" != "NGG" ]; then
     error_json
-
-#elif [ "$sl" != "20" ]; then
-#    error_json
 
 elif [ "$CRISPR_TOOL_SCRIPT_PATH" = "" ]; then
     error_json
@@ -28,14 +37,10 @@ else
 
     BASE_FOLDER=`pwd`
 
-    #cp -r $BASE_FOLDER/* $WORKDIR
-    #cd $WORKDIR
     pwd > pwd.log
 
     #echo "curl -X GET $URL_CRISPR/handshake" > handshake.cmd
     #curl -X GET $URL_CRISPR/handshake &> handshake.log
-   # gi=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gi")
-   # gni=$(python $CRISPR_TOOL_SCRIPT_PATH/filter_specie.py --ref $SPECIE_REF_JSON --query "$gni")
 
     echo $gi > f.gi
     fileSet="set_index.txt"
@@ -55,15 +60,15 @@ else
     }' ./post_processing.log > ./fail.log;
     cat ./fail.log;
     else
-        not_in=$(perl -ne 'chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;' ./post_processing.log);
-        number_hits=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 3){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./post_processing.log);
-        tag=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 2){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./post_processing.log);
+        not_in=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 5){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./post_processing.log);
+        number_hits=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 7){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./post_processing.log);
+        tag=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 6){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./post_processing.log);
         echo "$not_in" > ./stuff.log;
         echo "$number_hits" >> ./stuff.log;
         echo "$tag" >> ./stuff.log;
         loc=$(pwd | perl -ne '@tmp = split(/\//, $_); print "$tmp[$#tmp - 1]/$tmp[$#tmp]";');
     	#number_hits=lines[2].strip()
-        echo "{\"out\" : {\"data_card\": $(cat ./results_by_org.json), \"data\" : $(cat ./results.json),  \"not_in\" : \""$not_in"\",\"gi\" : \""$gi"\",  \"number_hits\" : \""$number_hits"\", \"tag\" : \""$loc"\"}}"
+        echo "{\"out\" : {\"data_card\": $(cat ./results_by_org.json), \"data\" : $(cat ./results.json),  \"not_in\" : \""$not_in"\",\"gi\" : \""$gi"\",  \"number_hits\" : \""$number_hits"\", \"tag\" : \""$loc"\", \"size\" : $(cat ./size_org.json)}}"
     fi
 
 

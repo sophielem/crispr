@@ -1,4 +1,19 @@
 #!/bin/bash
+# unset HTTP_PROXY
+# unset HTTPS_PROXY
+# pam="NGG"
+# CRISPR_TOOL_SCRIPT_PATH="../crispr/bin"
+# URL_CRISPR="http://localhost:2345"
+# sl="20"
+# fileSet="../crispr/test/data/sg/output_c.txt"
+# gi="Enterobacter sp. 638 GCF_000016325.1&Candidatus Blochmannia vafer str. BVAF GCF_000185985.2"
+# gni=""
+# rfg="../reference_genomes_pickle/"
+# URL_TAXON="http://localhost:5984/taxon_db_size"
+# URL_TREE="http://localhost:5984/taxon_tree_db"
+# fileBlast="../crispr/test/data/sg/blast.xml"
+# pid=70
+
 
 error_json () {
     echo "{\"emptySearch\": \"There is a problem, impossible to finish the program\"}" > fail.log
@@ -47,7 +62,7 @@ else
 
     pwd > pwd.log
 
-    ### CREATE METAFILE ###
+    ## CREATE METAFILE ###
     queryFasta="query.fasta"
     printf ">query\n$seq\n" > $queryFasta
 
@@ -102,15 +117,15 @@ else
     fi
 
     if [ $PRG_TERMINATED = 0 ];then
-        not_in=$(perl -ne 'chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;' ./specific_gene.log);
-        number_hits=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 3){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./specific_gene.log);
-        tag=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 2){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./specific_gene.log);
+        not_in=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 5){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./specific_gene.log);
+        number_hits=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 7){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./specific_gene.log);
+        tag=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 6){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./specific_gene.log);
 
         echo "$not_in" > ./stuff.log;
         echo "$number_hits" >> ./stuff.log;
         echo "$tag" >> ./stuff.log;
         loc=$(pwd | perl -ne '@tmp = split(/\//, $_); print "$tmp[$#tmp - 1]/$tmp[$#tmp]";');
-        echo "{\"out\" : {\"data_card\": $(cat ./results_by_org.json), \"data\" : $(cat ./results.json),  \"not_in\" : \""$not_in"\",\"gi\" : \""$gi"\",  \"gene\" : $(cat ./genes.json), \"number_hits\" : \""$number_hits"\", \"tag\" : \""$loc"\"}}"
+        echo "{\"out\" : {\"data_card\": $(cat ./results_by_org.json), \"data\" : $(cat ./results.json),  \"not_in\" : \""$not_in"\",\"gi\" : \""$gi"\",  \"gene\" : $(cat ./genes.json), \"number_hits\" : \""$number_hits"\", \"tag\" : \""$loc"\", \"size\" : $(cat ./size_org.json)}}"
 
     fi
 fi

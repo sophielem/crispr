@@ -100,7 +100,7 @@ def couchdb_search(sgrna_list, end_point, len_slice, no_poxy_bool):
                 results["request"].update(req_func.post(end_point + "/bulk_request",
                                                         json=request_sliced).json()["request"])
         except Exception as e:
-            dspl.eprint("Something wrong append, retrying time", str(joker))
+            dspl.eprint("Something wrong append '{}', retrying time {}".format(end_point, joker))
             dspl.eprint("Error LOG is ", str(e))
             joker += 1
             if joker > 3:
@@ -275,11 +275,9 @@ def get_size(tree_db, taxon_db, genomes_in):
     tree = MT.MaxiTree.from_database(tree_db)
     json_tree = tree.get_json(True)
     taxon_orgname = {}
-
     try:
         for org in genomes_in:
-            taxon_orgname[re.search(org + " : (.*)", json_tree).group(1)] = org
-
+            taxon_orgname[re.search(org.replace("(", "\(").replace(")", "\)") + " : ([^']*)", json_tree).group(1)] = org
         couchdb.setServerUrl(taxon_db)
         if not couchdb.couchPing():
             print("Program terminated&Can't connect to the taxon database with the URL : {}".format(taxon_db))
@@ -287,19 +285,21 @@ def get_size(tree_db, taxon_db, genomes_in):
 
         size_dic = {}
         joker = 0
+
         while joker < 3 :
             try:
                 for res in couchdb.bulkRequestByKey(list(taxon_orgname.keys()), "")["results"]:
                     taxon = res["docs"][0]["ok"]["_id"]
                     size_dic[taxon_orgname[taxon]] = res["docs"][0]["ok"]["size"]
+                break
             except:
-                dspl.eprint("something wrong append, try again")
+                dspl.eprint("something wrong append '{}', {} times".format(list(taxon_orgname.keys()), joker))
                 joker += 1
-            break
 
     except:
-        print("Program terminated&Error with genomes size")
-        sys.exit()
+        # print("Program terminated&Error with genomes size")
+        json.dump("", open("size_org.json", "w"))
+        # sys.exit()
 
     json.dump(size_dic, open("size_org.json", "w"))
 
