@@ -272,6 +272,8 @@ def create_dic_hits(param, genomes_in):
 
 
 def get_size(tree_db, taxon_db, genomes_in):
+    req_func = requests.Session()
+    req_func.trust_env = False
     tree = MT.MaxiTree.from_database(tree_db)
     json_tree = tree.get_json(True)
     taxon_orgname = {}

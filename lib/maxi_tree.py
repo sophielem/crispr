@@ -26,6 +26,7 @@ import pickle
 import argparse
 import datetime
 import pickle
+import requests
 import pycouch.wrapper as couchdb
 from ete3 import Tree,NCBITaxa
 
@@ -38,6 +39,8 @@ class MaxiTree(object):
 
     @classmethod
     def from_database(cls, end_point):
+        req_func = requests.Session()
+        req_func.trust_env = False
         couchdb.setServerUrl(end_point)
         # Check if it can connect to the database
         if not couchdb.couchPing():
@@ -136,6 +139,8 @@ class MaxiTree(object):
 
     @classmethod
     def from_taxon_database(cls, end_point):
+        req_func = requests.Session()
+        req_func.trust_env = False
         couchdb.setServerUrl(end_point)
         if not couchdb.couchPing():
             print("Program terminated&Can't connect to the Taxon database")
