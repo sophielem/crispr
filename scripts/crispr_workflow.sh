@@ -43,8 +43,8 @@ else
     #curl -X GET $URL_CRISPR/handshake &> handshake.log
 
     echo $gi > f.gi
-    # fileSet="set_index.txt"
-    # setCompare $slFlag -i "$gi" -o "$gni" -l $rfg -e index -f $fileSet 2>> ./setCompare.err 1> ./setCompare.log
+     fileSet="set_index.txt"
+     setCompare $slFlag -i "$gi" -o "$gni" -l $rfg -e index -f $fileSet 2>> ./setCompare.err 1> ./setCompare.log
 
     echo python -u $CRISPR_TOOL_SCRIPT_PATH/post_processing.py -f $fileSet -sl $sl -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR" -taxon_db "$NAME_TAXON" -tree_db "$NAME_TREE" -end_point "$URL_TREE_TAXON" -c 2000 --no-proxy > pp.cmd
     python -u $CRISPR_TOOL_SCRIPT_PATH/post_processing.py -f $fileSet -sl $sl -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR" -taxon_db "$NAME_TAXON" -tree_db "$NAME_TREE" -end_point "$URL_TREE_TAXON" -c 2000 --no-proxy 2>> ./post_processing.err 1> ./post_processing.log
