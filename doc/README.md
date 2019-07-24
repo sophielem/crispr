@@ -23,6 +23,12 @@ npm install
 tsc
 logRoot="/data/www_dev/crispr/log/motifBroker"
 nohup node build/index.js --map /data/software/mobi/pycouch/1.0.0/data/3letter_prefixe_rules.json -r http://arwen-cdb.ibcp.fr:5984 > $logRoot.log 2> $logRoot.err &
+
+cd /data/www_dev/crispr/lib/motif-broker-2
+npm install
+tsc
+logRoot="/data/www_dev/crispr/log/motifBroker"
+nohup node build/index.js -f /data/software/mobi/pycouch/1.0.0/data/3letter_prefixe_rules.json -p 5984 -l 2346 -d http://arwen-cdb.ibcp.fr >$logRoot.log 2> $logRoot.err &
 ```
 
 #### Server
