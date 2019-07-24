@@ -53,10 +53,13 @@ def args_gestion():
                         help="The end point",
                         required=True)
     parser.add_argument("-taxon_db", metavar="<str>",
-                        help="The end point of the taxon database",
+                        help="The name of the taxon database",
                         required=True)
     parser.add_argument("-tree_db", metavar="<str>",
-                        help="The end point of the taxon database",
+                        help="The name of the taxon database",
+                        required=True)
+    parser.add_argument("-end_point", metavar="<str>",
+                        help="The end point of the taxon and tree database",
                         required=True)
     parser.add_argument("-c", metavar="<int>",
                         help="The length of the slice for the request",
@@ -271,26 +274,32 @@ def create_dic_hits(param, genomes_in):
     return dic_hits
 
 
-def get_size(tree_db, taxon_db, genomes_in):
-    tree = MT.MaxiTree.from_database(tree_db)
+def get_size(end_point, tree_db_name, taxon_db, genomes_in):
+    tree = MT.MaxiTree.from_database(end_point, tree_db_name)
     json_tree = tree.get_json(True)
     taxon_orgname = {}
+
+    req_func = requests.Session()
+    req_func.trust_env = False
+    try:
+        res = req_func.get(end_point + "handshake").json()
+        dspl.eprint("HANDSHAKE PACKET (taxon_db) : {}".format(res))
+    except Exception as e:
+        dspl.eprint("Could not perform handshake, exiting")
+        print("Program terminated&No handshake with taxon database")
+        sys.exit(1)
+
     try:
         for org in genomes_in:
             taxon_orgname[re.search(org.replace("(", "\(").replace(")", "\)") + " : ([^']*)", json_tree).group(1)] = org
-        couchdb.setServerUrl(taxon_db)
-        if not couchdb.couchPing():
-            print("Program terminated&Can't connect to the taxon database with the URL : {}".format(taxon_db))
-            sys.exit()
 
         size_dic = {}
         joker = 0
-
         while joker < 3 :
             try:
-                for res in couchdb.bulkRequestByKey(list(taxon_orgname.keys()), "")["results"]:
-                    taxon = res["docs"][0]["ok"]["_id"]
-                    size_dic[taxon_orgname[taxon]] = res["docs"][0]["ok"]["size"]
+                res = req_func.post(end_point + taxon_db ,json={"keys" : list(taxon_orgname.keys())}).json()["request"]
+                for taxon in res :
+                    size_dic[taxon_orgname[taxon]] = res[taxon]["size"]
                 break
             except:
                 dspl.eprint("something wrong append '{}', {} times".format(list(taxon_orgname.keys()), joker))
@@ -315,7 +324,7 @@ if __name__ == '__main__':
                       PARAM.pam, int(PARAM.sl), ".", int(PARAM.nb_top),
                       True, list(DIC_HITS.keys()))
 
-    get_size(PARAM.tree_db, PARAM.taxon_db, GENOMES_IN)
+    get_size(PARAM.end_point, PARAM.tree_db, PARAM.taxon_db, GENOMES_IN)
 
     print(','.join(GENOMES_NOTIN))
     print("TASK_KEY")

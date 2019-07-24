@@ -109,8 +109,8 @@ else
     ### CHECK IG SGRNA ARE ON HOMOLOGOUS GENES ###
     if [ $PRG_TERMINATED = 0 ];then
         # Post-processing with setCompare output and blast output
-        echo python -u $CRISPR_TOOL_SCRIPT_PATH/specific_gene.py -f $fileSet -sl $sl -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR" -taxon_db "$URL_TAXON" -tree_db "$URL_TREE" -c 2000 --no-proxy -blast $parseBlast >> sg.cmd
-        python -u $CRISPR_TOOL_SCRIPT_PATH/specific_gene.py -f $fileSet -sl $sl -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR"  -taxon_db "$URL_TAXON" -tree_db "$URL_TREE" -c 2000 --no-proxy -blast $parseBlast 2>> ./specific_gene.err 1> ./specific_gene.log
+        echo python -u $CRISPR_TOOL_SCRIPT_PATH/specific_gene.py -f $fileSet -sl $sl -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR" -taxon_db "$NAME_TAXON" -tree_db "$NAME_TREE" -end_point "$URL_TREE_TAXON" -c 2000 --no-proxy -blast $parseBlast >> sg.cmd
+        python -u $CRISPR_TOOL_SCRIPT_PATH/specific_gene.py -f $fileSet -sl $sl -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR"  -taxon_db "$NAME_TAXON" -tree_db "$NAME_TREE" -end_point "$URL_TREE_TAXON" -c 2000 --no-proxy -blast $parseBlast 2>> ./specific_gene.err 1> ./specific_gene.log
         # Check if exist sgrna on genes
         parse_logFile ./specific_gene.log
         PRG_TERMINATED=$?

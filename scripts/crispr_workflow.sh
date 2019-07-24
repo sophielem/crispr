@@ -1,16 +1,16 @@
 #!/bin/bash
-# unset HTTP_PROXY
-# unset HTTPS_PROXY
+
 # pam="NGG"
 # CRISPR_TOOL_SCRIPT_PATH="../crispr/bin"
-# URL_CRISPR="http://localhost:2345"
+# URL_CRISPR="http://localhost:2346"
 # sl="20"
 # fileSet="../crispr/test/data/ag_simple/set_index.txt"
 # gi="Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1&Aliivibrio wodanis GCF_000953695.1"
 # gni=""
 # rfg="../reference_genomes_pickle/"
-# URL_TAXON="http://localhost:5984/taxon_db_size"
-# URL_TREE="http://localhost:5984/taxon_tree_db"
+# NAME_TAXON="taxon_db"
+# NAME_TREE="taxon_tree"
+# URL_TREE_TAXON="http://localhost:2346/"
 
 error_json () {
     echo "{\"emptySearch\": \"There is a problem, impossible to finish the program\"}" > fail.log
@@ -43,11 +43,11 @@ else
     #curl -X GET $URL_CRISPR/handshake &> handshake.log
 
     echo $gi > f.gi
-    fileSet="set_index.txt"
-    setCompare $slFlag -i "$gi" -o "$gni" -l $rfg -e index -f $fileSet 2>> ./setCompare.err 1> ./setCompare.log
+    # fileSet="set_index.txt"
+    # setCompare $slFlag -i "$gi" -o "$gni" -l $rfg -e index -f $fileSet 2>> ./setCompare.err 1> ./setCompare.log
 
-    echo python -u $CRISPR_TOOL_SCRIPT_PATH/post_processing.py -f $fileSet -sl $sl -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR" -taxon_db "$URL_TAXON" -tree_db "$URL_TREE" -c 2000 --no-proxy > pp.cmd
-    python -u $CRISPR_TOOL_SCRIPT_PATH/post_processing.py -f $fileSet -sl $sl -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR" -taxon_db "$URL_TAXON" -tree_db "$URL_TREE" -c 2000 --no-proxy 2>> ./post_processing.err 1> ./post_processing.log
+    echo python -u $CRISPR_TOOL_SCRIPT_PATH/post_processing.py -f $fileSet -sl $sl -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR" -taxon_db "$NAME_TAXON" -tree_db "$NAME_TREE" -end_point "$URL_TREE_TAXON" -c 2000 --no-proxy > pp.cmd
+    python -u $CRISPR_TOOL_SCRIPT_PATH/post_processing.py -f $fileSet -sl $sl -pam "NGG" -gi "$gi" -gni "$gni" -r "$URL_CRISPR" -taxon_db "$NAME_TAXON" -tree_db "$NAME_TREE" -end_point "$URL_TREE_TAXON" -c 2000 --no-proxy 2>> ./post_processing.err 1> ./post_processing.log
 
 
     if grep "Program terminated" ./post_processing.log > /dev/null;

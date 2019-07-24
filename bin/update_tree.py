@@ -16,8 +16,9 @@ def args_gestion():
     """
     parser = argparse.ArgumentParser(description="Update the MaxiTree object from the database")
     parser.add_argument("-url", metavar="<str>", required=True,
-                        help="The endpoint with the name of the database where\
-                              the MaxiTree object is saved")
+                        help="The endpoint of the tree database")
+    parser.add_argument("-treeName", metavar="<str>", required=True,
+                        help="Name of the tree database where the MxiTree object is saved")
     parser.add_argument("-taxonDB", metavar="<str>", required=True,
                         help="The endpoint to the taxon database")
     parser.add_argument("-taxid", metavar="<str>",
@@ -35,7 +36,7 @@ if __name__ == '__main__':
         req_func = requests.Session()
         req_func.trust_env = False
 
-    MAXITREE = mt.MaxiTree.from_database(PARAM.url)
+    MAXITREE = mt.MaxiTree.from_database(PARAM.url, PARAM.treeName)
     MAXITREE.insert(PARAM.taxid, PARAM.taxonDB) if PARAM.taxid else MAXITREE.insert_plasmid(PARAM.name, PARAM.taxonDB)
 
     try:

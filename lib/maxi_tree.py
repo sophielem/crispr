@@ -26,7 +26,9 @@ import pickle
 import argparse
 import datetime
 import pickle
+import requests
 import pycouch.wrapper as couchdb
+import display_result as dspl
 from ete3 import Tree,NCBITaxa
 
 
@@ -37,18 +39,22 @@ class MaxiTree(object):
         self.all_spc = all_spc
 
     @classmethod
-    def from_database(cls, end_point):
-        couchdb.setServerUrl(end_point)
-        # Check if it can connect to the database
-        if not couchdb.couchPing():
-            print("Program terminated&Can't connect to the Taxon Tree database")
-            sys.exit()
-        # Try to get the MaxiTree object by the key maxi_tree
-        maxi_tree = couchdb.couchGetDoc("", "maxi_tree")
+    def from_database(cls, end_point, db_name):
+        req_func = requests.Session()
+        req_func.trust_env = False
         try:
+            res = req_func.get(end_point + "handshake").json()
+            dspl.eprint("HANDSHAKE PACKET (tree_db) : {}".format(res))
+        except Exception as e:
+            dspl.eprint("Could not perform handshake, exiting")
+            print("Program terminated&No handshake with taxon database")
+            sys.exit(1)
+        try:
+            # Try to get the MaxiTree object by the key maxi_tree
+            maxi_tree = req_func.post(end_point + db_name, json={"keys": ["maxi_tree"]}).json()["request"]["maxi_tree"]
             maxi_tree = json.loads(maxi_tree["tree"].replace("'", '"'))
-        except json.JSONDecodeError:
-            print("Program terminated&Problem with the maxi_tree in the database")
+        except Exception as e:
+            print("Program terminated&Problem with the maxi_tree in the database {}".format (e))
             sys.exit()
         # Convert the json string into a Tree object
         tree_topo = Tree()
