@@ -60,9 +60,9 @@ else
     }' ./post_processing.log > ./fail.log;
     cat ./fail.log;
     else
-        not_in=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 5){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./post_processing.log);
-        number_hits=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 7){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./post_processing.log);
-        tag=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 6){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./post_processing.log);
+        not_in=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 1){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./post_processing.log);
+        number_hits=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 3){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./post_processing.log);
+        tag=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 2){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./post_processing.log);
         echo "$not_in" > ./stuff.log;
         echo "$number_hits" >> ./stuff.log;
         echo "$tag" >> ./stuff.log;
