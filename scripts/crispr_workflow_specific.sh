@@ -117,9 +117,9 @@ else
     fi
 
     if [ $PRG_TERMINATED = 0 ];then
-        not_in=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 5){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./specific_gene.log);
-        number_hits=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 7){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./specific_gene.log);
-        tag=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 6){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./specific_gene.log);
+        not_in=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 1){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./specific_gene.log);
+        number_hits=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 3){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./specific_gene.log);
+        tag=$(perl -ne 'BEGIN{$NR=0};$NR++; if($NR == 2){chomp;$_ =~ s/^[\s]*([\S].*[\S])[\s]*$/$1/;print $_; exit;}' ./specific_gene.log);
 
         echo "$not_in" > ./stuff.log;
         echo "$number_hits" >> ./stuff.log;
