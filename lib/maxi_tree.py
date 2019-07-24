@@ -142,6 +142,8 @@ class MaxiTree(object):
 
     @classmethod
     def from_taxon_database(cls, end_point):
+        req_func = requests.Session()
+        req_func.trust_env = False
         couchdb.setServerUrl(end_point)
         if not couchdb.couchPing():
             print("Program terminated&Can't connect to the Taxon database")
