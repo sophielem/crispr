@@ -6,10 +6,6 @@ if the GCF given for this taxonomy ID already exists in the Taxonomy database
 
 import argparse
 import requests
-import pickle
-import datetime
-import getpass
-import pycouch.wrapper as couchdb
 from ete3 import NCBITaxa
 
 
@@ -32,8 +28,8 @@ def args_gestion():
                         help="The taxonomy ID", required=True)
     parser.add_argument("-gcf", metavar="<str>",
                         help="The GCF associated to the taxonomy ID", required=True)
-    parser.add_argument("-url", metavar="<str>",
-                        help="End point of the taxon database", required=True)
+    parser.add_argument("-r", metavar="<str>",
+                        help="End point of the taxon database with slash", required=True)
     parser.add_argument("-dbName", metavar="<str>",
                         help="Name of the taxon database", required=True)
     parser.add_argument("-plasmid", type=str2bool,
@@ -56,15 +52,17 @@ is not in the NCBI taxonomy database !".format(taxid))
         sys.exit()
 
 
-def check_taxid_exists(taxid, db_name):
+def check_taxid_exists(taxid, end_point, db_name):
     """
     Check if taxon ID exists in the database
     If yes, return the content else return None
     """
-    req = couchdb.couchGetRequest(db_name + "/" + taxid)
-    if not couchdb.docNotFound(req):
+    req_func = check_connexion(end_point)
+
+    req = req_func.post(end_point + db_name, json={"keys": [taxid]}).json()["request"]
+    if req:
         msg = "Be careful&Taxon ID ({}) already exists : ".format(taxid)
-        return req, msg
+        return req[taxid], msg
     return None, None
 
 
@@ -84,16 +82,25 @@ Please contact the support if you really really really want to change this genom
     return True
 
 
+def check_connexion(end_point):
+    req_func = requests.Session()
+    req_func.trust_env = False
+    try:
+        res = req_func.get(end_point + "handshake").json()
+        dspl.eprint("HANDSHAKE PACKET (tree_db) : {}".format(res))
+        return True
+    except Exception as e:
+        dspl.eprint("Could not perform handshake, exiting")
+        print("Program terminated&No handshake with taxon database")
+        sys.exit(1)
+
+
 if __name__ == '__main__':
     PARAM = args_gestion()
-    couchdb.setServerUrl(PARAM.url)
-    if not couchdb.couchPing():
-        print("Program terminated&Can't connect to the database with URL {}".format(PARAM.url))
-        sys.exit()
     # Taxonomy ID
     if not PARAM.plasmid:
         valid_taxid(PARAM.taxid)
-    TAXID_EXIST, MSG = check_taxid_exists(PARAM.taxid, PARAM.dbName)
+    TAXID_EXIST, MSG = check_taxid_exists(PARAM.taxid, PARAM.r, PARAM.dbName)
     # GCF
     if TAXID_EXIST:
         check_gcf(PARAM.gcf, TAXID_EXIST["GCF"], MSG)

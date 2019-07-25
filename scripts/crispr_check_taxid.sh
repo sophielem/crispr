@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo python -u $CRISPR_TOOL_SCRIPT_PATH/check_taxonomy.py -taxid $TAXID -gcf $GCF -url $URL_TAXON -dbName $DB_TAXON_NAME 2> ./check_taxon.err 1> ./check_taxon.log
-python -u $CRISPR_TOOL_SCRIPT_PATH/check_taxonomy.py -taxid $TAXID -gcf $GCF -url $URL_TAXON -dbName $DB_TAXON_NAME 2> ./check_taxon.err 1> ./check_taxon.log
+echo python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/check_taxonomy.py -taxid $TAXID -gcf $GCF -url $URL_TAXON -dbName $DB_TAXON_NAME 2> ./check_taxon.err 1> ./check_taxon.log
+python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/check_taxonomy.py -taxid $TAXID -gcf $GCF -url $URL_TAXON -dbName $DB_TAXON_NAME 2> ./check_taxon.err 1> ./check_taxon.log
 
 if grep "Be careful" ./check_taxon.log > /dev/null;
 then
