@@ -54,8 +54,8 @@ else
     if [ $PRG_TERMINATED = 0 ]; then
 
         ## Create pickle file to insert into taxon_db ##
-        echo python -u $CRISPR_TOOL_SCRIPT_PATH/create_file_taxondb.py single -gcf $GCF -taxid $TAXID -url $URL_TAXON"/"$DB_TAXON_NAME --no-proxy>> cmd.log
-        python -u $CRISPR_TOOL_SCRIPT_PATH/create_file_taxondb.py single -gcf $GCF -taxid "$TAXID" -url $URL_TAXON"/"$DB_TAXON_NAME --no-proxy 2> ./taxondb_file.err 1> ./taxondb_file.log
+        echo python -u $CRISPR_TOOL_SCRIPT_PATH/create_file_taxondb.py single -gcf $GCF -taxid $TAXID -r $URL_TAXON -dbName $DB_TAXON_NAME >> cmd.log
+        python -u $CRISPR_TOOL_SCRIPT_PATH/create_file_taxondb.py single -gcf $GCF -taxid "$TAXID" -r $URL_TAXON -dbName $DB_TAXON_NAME 2> ./taxondb_file.err 1> ./taxondb_file.log
 
         parse_logFile ./taxondb_file.log
         PRG_TERMINATED=$?

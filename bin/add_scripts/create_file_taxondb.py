@@ -15,7 +15,6 @@ import json
 import pickle
 import argparse
 import csv
-import pycouch.wrapper as couchdb
 
 
 def args_gestion():
@@ -46,13 +45,14 @@ def args_gestion():
     single_parser.add_argument("-user", metavar="<str>", help="The user", nargs="?", default="MMSB")
     single_parser.add_argument("-gcf", metavar="<str>", required=True, help="GCF id")
     single_parser.add_argument("-taxid", metavar="<str>", required=True, help="Taxonomy id")
-    single_parser.add_argument("-url", metavar="<str>", required=True,
-                               help="End pooint for taxon Database with the name of the database")
+    single_parser.add_argument("-r", metavar="<str>", required=True,
+                               help="End point for taxon Database")
+    single_parser.add_argument("-dbName", metavar="<str>", required=True,
+                               help="Name of the taxon Database")
     single_parser.add_argument("-out", metavar="<str>", nargs="?",
                                help="The name of the outputfile", default="taxon_dt.p")
     single_parser.add_argument("-rfg", metavar="<str>", required=True,
                                 help="Path of the fasta file")
-    single_parser.add_argument('--no-proxy', action='store_true')
 
     return parser.parse_args(), command
 
@@ -139,12 +139,22 @@ def load_list_file(file_name, user, fasta_path):
     return taxon_dt
 
 
+def check_connexion(end_point):
+    req_func = requests.Session()
+    req_func.trust_env = False
+    try:
+        res = req_func.get(end_point + "handshake").json()
+        dspl.eprint("HANDSHAKE PACKET (tree_db) : {}".format(res))
+        return True
+    except Exception as e:
+        dspl.eprint("Could not perform handshake, exiting")
+        print("Program terminated&No handshake with taxon database")
+        sys.exit(1)
+
+
 if __name__ == '__main__':
     PARAM, COMMAND = args_gestion()
 
-    if PARAM.no_proxy:
-        req_func = requests.Session()
-        req_func.trust_env = False
     # Insert from SCRATCH
     if COMMAND == "scratch":
         set_env(PARAM.file)
@@ -154,11 +164,8 @@ if __name__ == '__main__':
     else:
         set_env()
         TAXON_DT = {}
-        couchdb.setServerUrl(PARAM.url)
-        if not couchdb.couchPing():
-            print("Program terminated&Can't connect to the taxon database with the URL : {}".format(PARAM.url))
-            sys.exit()
-        DOC = couchdb.couchGetDoc("", PARAM.taxid)
+        req_func = check_connexion(PARAM.r)
+        DOC = req_func.post(PARAM.r + PARAM.dbName, json={"keys": [PARAM.taxid]}).json()["request"][PARAM.taxid]
         LIST_GCF = PARAM.gcf + DOC["GCF"] if DOC else [PARAM.gcf]
         tmp_taxon_dt = init_taxondt(LIST_GCF, PARAM.user, PARAM.taxid, PARAM.rfg)
         if(tmp_taxon_dt =! 1) TAXON_DT[PARAM.taxid] = tmp_taxon_dt

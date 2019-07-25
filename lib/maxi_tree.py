@@ -40,7 +40,7 @@ class MaxiTree(object):
 
     @classmethod
     def from_database(cls, end_point, db_name):
-        check_connexion(end_point)
+        req_func = check_connexion(end_point)
         try:
             # Try to get the MaxiTree object by the key maxi_tree
             maxi_tree = req_func.post(end_point + db_name, json={"keys": ["maxi_tree"]}).json()["request"]["maxi_tree"]
@@ -107,7 +107,7 @@ class MaxiTree(object):
     @staticmethod
     def construct_tree(cls, list_taxid, end_point, db_name):
         # Check if it can connect to the database
-        check_connexion(end_point)
+        req_func = check_connexion(end_point)
 
         ncbi = NCBITaxa()
         # Create the topology Tree with taxon ID
@@ -198,7 +198,7 @@ class MaxiTree(object):
 
     def insert(self, taxid, end_point, db_name):
         # Check if can connect to the database
-        check_connexion(end_point)
+        req_func = check_connexion(end_point)
 
         # If the taxonID is already present, it is just a change of the GCF
         if self.is_member(taxid):
@@ -263,7 +263,7 @@ class MaxiTree(object):
 
     def insert_plasmid(self, name, end_point, db_name, tree=None):
         # Check if can connect to the database
-        check_connexion(end_point)
+        req_func = check_connexion(end_point)
 
         gcf = req_func.post(end_point + db_name, json={"keys": [name]}).json()["request"][name]["current"]
         name = "{} {}".format(name, gcf)
@@ -291,7 +291,7 @@ def check_connexion(end_point):
     try:
         res = req_func.get(end_point + "handshake").json()
         dspl.eprint("HANDSHAKE PACKET (tree_db) : {}".format(res))
-        return True
+        return req_func
     except Exception as e:
         dspl.eprint("Could not perform handshake, exiting")
         print("Program terminated&No handshake with taxon database")
