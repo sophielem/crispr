@@ -11,8 +11,8 @@ import re
 import json
 import argparse
 import shutil
+import requests
 import maxi_tree as mt
-import pycouch.wrapper as couchdb
 
 
 def valid_file(parser, filename):
@@ -61,8 +61,14 @@ def args_gestion():
     parser_db.add_argument("-tree", metavar="<str>",
                            help="End point to the Tree Database",
                            required=True)
+    parser_db.add_argument("-treeName", metavar="<str>",
+                           help="Name of the Tree Database",
+                           required=True)
     parser_db.add_argument("-taxon", metavar="<str>",
                            help="End point to the Taxon Database",
+                           required=True)
+    parser_db.add_argument("-taxonName", metavar="<str>",
+                           help="Name of the Taxon Database",
                            required=True)
     parser_db.add_argument("-node", metavar="<str>",
                            help="The node to search after",
@@ -145,20 +151,26 @@ def configfile(list_leaves, rfg, path_folder):
             print("Problem with the organism {}".format(leaf))
 
 
-def configfile_from_db(list_leaves, rfg, url_taxon, path_folder):
+def configfile_from_db(list_leaves, rfg, end_point, db_taxon, path_folder):
     """
     Write a config file with the taxonID and the GCF for each organism to add them in the database
     """
-    couchdb.setServerUrl(url_taxon)
-    if not couchdb.couchPing():
-        print("Can't connect to the Taxon Database")
-        sys.exit()
+    req_func = requests.Session()
+    req_func.trust_env = False
+    try:
+        res = req_func.get(end_point + "handshake").json()
+        dspl.eprint("HANDSHAKE PACKET (tree_db) : {}".format(res))
+        return True
+    except Exception as e:
+        dspl.eprint("Could not perform handshake, exiting")
+        print("Program terminated&No handshake with taxon database")
+        sys.exit(1)
 
     error = []
     path_fasta = rfg + "/genome_fasta/"
     for leaf in list_leaves:
         taxid = leaf.split(":")[-1]
-        doc = couchdb.couchGetDoc("", str(taxid))
+        doc = req_func.post(end_point + db_taxon, json={"keys": [str(taxid)]}).json()["request"][str(taxid)]
         if not doc:
             error.append(taxid)
         else:
@@ -172,11 +184,11 @@ def configfile_from_db(list_leaves, rfg, url_taxon, path_folder):
             [filout.write(err + "\n") for err in error]
 
 
-def load_tree(url_tree):
+def load_tree(url_tree, db_tree):
     """
     Load the tree from the database and return it under a dictionary
     """
-    MAXITREE = mt.MaxiTree.from_database(PARAM.url)
+    MAXITREE = mt.MaxiTree.from_database(url_tree, db_tree)
     # Get the tree with taxonID to find the GCF in taxon database
     json_tree = MAXITREE.get_json(True)
     return json.loads(json_tree)
@@ -186,7 +198,7 @@ if __name__ == '__main__':
     PARAM, COMMAND= args_gestion()
     PATH_FOLDER = PARAM.dir + "/genomes_add/"
     create_folder(PATH_FOLDER)
-    TREE = json.load(open(PARAM.tree, "r")) if COMMAND == "scratch" else load_tree(PARAM.tree)
+    TREE = json.load(open(PARAM.tree, "r")) if COMMAND == "scratch" else load_tree(PARAM.tree, PARAM.treeName)
     SUBTREE = search_subtree(TREE, PARAM.node)
     if not SUBTREE:
         sys.exit("No subtree found, check the name of the node")
@@ -194,4 +206,4 @@ if __name__ == '__main__':
     with open("genomes_from_node.log", "w") as filout:
         for leaf in LIST_LEAVES:
             filout.write(leaf + "\n")
-    configfile(LIST_LEAVES, PARAM.rfg, PATH_FOLDER) if COMMAND == "scratch" else configfile_from_db(LIST_LEAVES, PARAM.rfg, PARAM.taxon, PATH_FOLDER)
+    configfile(LIST_LEAVES, PARAM.rfg, PATH_FOLDER) if COMMAND == "scratch" else configfile_from_db(LIST_LEAVES, PARAM.rfg, PARAM.taxon, PARAM.taxonName, PATH_FOLDER)
