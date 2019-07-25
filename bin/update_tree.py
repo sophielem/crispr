@@ -21,6 +21,8 @@ def args_gestion():
                         help="Name of the tree database where the MxiTree object is saved")
     parser.add_argument("-taxonDB", metavar="<str>", required=True,
                         help="The endpoint to the taxon database")
+    parser.add_argument("-taxonName", metavar="<str>", required=True,
+                        help="Name of the taxon database")
     parser.add_argument("-taxid", metavar="<str>",
                         help="Taxonomy ID to update or to add")
     parser.add_argument("-name", metavar="<str>",
@@ -37,7 +39,7 @@ if __name__ == '__main__':
         req_func.trust_env = False
 
     MAXITREE = mt.MaxiTree.from_database(PARAM.url, PARAM.treeName)
-    MAXITREE.insert(PARAM.taxid, PARAM.taxonDB) if PARAM.taxid else MAXITREE.insert_plasmid(PARAM.name, PARAM.taxonDB)
+    MAXITREE.insert(PARAM.taxid, PARAM.taxonDB, PARAM.taxonName) if PARAM.taxid else MAXITREE.insert_plasmid(PARAM.name, PARAM.taxonDB, PARAM.taxonName)
 
     try:
         os.mkdir("./treeDB_data/")
