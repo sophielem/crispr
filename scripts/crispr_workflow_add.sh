@@ -54,8 +54,8 @@ else
     if [ $PRG_TERMINATED = 0 ]; then
 
         ## Create pickle file to insert into taxon_db ##
-        echo python -u $CRISPR_TOOL_SCRIPT_PATH/create_file_taxondb.py single -gcf $GCF -taxid $TAXID -r $URL_TAXON -dbName $DB_TAXON_NAME >> cmd.log
-        python -u $CRISPR_TOOL_SCRIPT_PATH/create_file_taxondb.py single -gcf $GCF -taxid "$TAXID" -r $URL_TAXON -dbName $DB_TAXON_NAME 2> ./taxondb_file.err 1> ./taxondb_file.log
+        echo python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/create_file_taxondb.py single -gcf $GCF -taxid $TAXID -r $URL_TAXON -dbName $DB_TAXON_NAME >> cmd.log
+        python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/create_file_taxondb.py single -gcf $GCF -taxid "$TAXID" -r $URL_TAXON -dbName $DB_TAXON_NAME 2> ./taxondb_file.err 1> ./taxondb_file.log
 
         parse_logFile ./taxondb_file.log
         PRG_TERMINATED=$?
@@ -66,8 +66,8 @@ else
           else
             argPlas="-taxid"
           fi
-          echo python -u $CRISPR_TOOL_SCRIPT_PATH/update_tree.py -url $URL_TREE -treeName $DB_TREE_NAME -taxonDB $URL_TAXON -taxonName $DB_TAXON_NAME $argPlas "$TAXID" --no-proxy>> cmd.log
-          python -u $CRISPR_TOOL_SCRIPT_PATH/update_tree.py -url $URL_TREE -treeName $DB_TREE_NAME -taxonDB $URL_TAXON -taxonName $DB_TAXON_NAME $argPlas "$TAXID"  --no-proxy 2> ./update_tree.err 1> ./update_tree.log
+          echo python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/update_tree.py -url $URL_TREE -treeName $DB_TREE_NAME -taxonDB $URL_TAXON -taxonName $DB_TAXON_NAME $argPlas "$TAXID" --no-proxy>> cmd.log
+          python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/update_tree.py -url $URL_TREE -treeName $DB_TREE_NAME -taxonDB $URL_TAXON -taxonName $DB_TAXON_NAME $argPlas "$TAXID"  --no-proxy 2> ./update_tree.err 1> ./update_tree.log
 
           # Check if no problem to connect to the database (taxon_db and taxon_tree_db), to access to GCF
           parse_logFile ./update_tree.log
@@ -88,8 +88,8 @@ fi
 # ****************************
 # NAME_FILE=`cat ./create_meta.log`
 # ## Add the new genome into the CRISPR database
-# echo python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild.py --url $URL_CRISPR --map $MAP_FILE --data $rfg"/genome_pickle/"$NAME_FILE".p" > cmd.log
-# python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild.py --url $URL_CRISPR --map $MAP_FILE --data $rfg"/genome_pickle/"$NAME_FILE".p"
+# echo python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/couchBuild.py --url $URL_CRISPR --map $MAP_FILE --data $rfg"/genome_pickle/"$NAME_FILE".p" > cmd.log
+# python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/couchBuild.py --url $URL_CRISPR --map $MAP_FILE --data $rfg"/genome_pickle/"$NAME_FILE".p"
 # if [ -f error_add_db.err ]; then
 #     echo "{\"emptySearch\": \"There is a problem during the insertion into CRISPR database. Contact us \"}" > fail.log
 #     cat fail.log
@@ -97,10 +97,10 @@ fi
 
 
 # ## Add into taxon database ##
-# echo python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild.py $DB_TAXON_NAME --url $URL_TAXON --data "./taxonDB_data/" >> cmd.log
-# python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild.py $DB_TAXON_NAME --url $URL_TAXON --data "./taxonDB_data/"
+# echo python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/couchBuild.py $DB_TAXON_NAME --url $URL_TAXON --data "./taxonDB_data/" >> cmd.log
+# python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/couchBuild.py $DB_TAXON_NAME --url $URL_TAXON --data "./taxonDB_data/"
 #
 # if [ $PRG_TERMINATED = 0 ]; then
-#   echo python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild.py $DB_TREE_NAME --url $URL_TREE --data "./treeDB_data/" >> cmd.log
-#   python -u $CRISPR_TOOL_SCRIPT_PATH/couchBuild.py $DB_TREE_NAME --url $URL_TREE --data "./treeDB_data/"
+#   echo python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/couchBuild.py $DB_TREE_NAME --url $URL_TREE --data "./treeDB_data/" >> cmd.log
+#   python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/couchBuild.py $DB_TREE_NAME --url $URL_TREE --data "./treeDB_data/"
 # fi
