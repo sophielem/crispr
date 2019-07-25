@@ -278,54 +278,6 @@ class MaxiTree(object):
         new_plasmid.add_feature("plasmid", name)
         return True
 
-        ### WiP : keep the original Tree and just insert necessary nodes ###
-        # Rename the new node
-        # try:
-        #     ncbi = NCBITaxa()
-        #     tree_topo = ncbi.get_topology(self.all_spc + [taxid])
-        #     new_node = tree_topo.search_nodes(name=taxid)[0]
-        #     # Rename the new node
-        #     new_node.add_feature("taxon", new_node.name)
-        #     new_node.name = rename_node(taxid, ncbi)
-        #     # gcf = couchdb.couchGetRequest(taxid)["current"]
-        #     gcf = "GCF_1234"
-        #     new_node.name = "{} {} : {}".format(new_node.name, gcf, new_node.taxon)
-        # except ValueError:
-        #     print("Program terminated&This taxon does not exist in the NCBI database")
-        #     sys.exit()
-        # except Exception as e:
-        #     print("Program terminated&Problem with the taxon {} in the Taxon database".format(taxid))
-        #     print(e)
-        #     sys.exit()
-        #
-        # self.__set_tree__(new_node, ncbi)
-        # self.tree = tree_topo
-        # self.all_spc = self.all_spc + [taxid]
-        # return True
-
-    # def __set_tree__(self, new_node, ncbi):
-    #     parent = new_node.up
-    #     if not parent:
-    #
-    #     # The parent is a parent of another leaf, so exists in the original tree
-    #     res = self.tree.search_nodes(name=ncbi.get_taxid_translator([int(parent.name)])[int(parent.name)])
-    #
-    #     if not res:
-    #         # The parent is a leaf from the original tree
-    #         res = self.tree.search_nodes(taxon=parent.name)
-    #         # Remove the taxid and the GCF from the node because now it becomes a parent and not a leaf
-    #         if res:
-    #             remove = re.search("GCF_[0-9]+\.?[0-9]* : [0-9]+", res[0].name)[0]
-    #             res[0].name = res[0].name.replace(remove, "").strip()
-    #             res[0].del_feature("taxon")
-    #
-    #     if res:
-    #          res[0].add_child(new_node)
-    #     else:
-    #         # The parent does not exist in the original tree
-    #         parent.name = rename_node(parent.name, ncbi)
-    #         self.__set_tree__(parent, ncbi)
-
 
 def rename_node(taxid, ncbi):
     """
