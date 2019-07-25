@@ -131,7 +131,7 @@ class MaxiTree(object):
 
     @classmethod
     def from_taxon_database(cls, end_point, db_name):
-        couchdb.setServerUrl(end_point)
+        couchdb.setServerUrl(end_point + db_name)
         if not couchdb.couchPing():
             print("Program terminated&Can't connect to the Taxon database")
             sys.exit()
@@ -196,12 +196,9 @@ class MaxiTree(object):
     def is_member(self, taxid):
         return taxid in self.all_spc
 
-    def insert(self, taxid, end_point):
+    def insert(self, taxid, end_point, db_name):
         # Check if can connect to the database
-        couchdb.setServerUrl(end_point)
-        if not couchdb.couchPing():
-            print("Program terminated&Can't connect to the Taxon database")
-            sys.exit()
+        check_connexion(end_point)
 
         # If the taxonID is already present, it is just a change of the GCF
         if self.is_member(taxid):
@@ -209,7 +206,7 @@ class MaxiTree(object):
             node = self.tree.search_nodes(taxon=str(taxid))[0]
             # Retrieve the GCF and compare it to the GCF given by the user
             gcf_old = re.search("GCF_[0-9]+\.?[0-9]*", node.name)[0]
-            gcf_new = couchdb.couchGetRequest(str(taxid))["current"]
+            gcf_new = req_func.post(end_point + db_name, json={"keys": [str(taxid)]}).json()["request"][str(taxid)]["current"]
             if gcf_old == gcf_new:
                 print("Program terminated&Error, the new GCF is the same than the old GCF")
                 sys.exit()
@@ -239,7 +236,7 @@ class MaxiTree(object):
                      try:
                          node.add_feature("taxon", node.name)
                          node.name = rename_node(node.name, ncbi)
-                         gcf = couchdb.couchGetRequest(node.taxon)["current"]
+                         gcf = req_func.post(end_point + db_name, json={"keys": [node.taxon]}).json()["request"][node.taxon]["current"]
                          node.name = "{} {} : {}".format(node.name, gcf, node.taxon)
                      except:
                          print("Program terminated&Problem with the taxon {} in the Taxon database \
@@ -264,13 +261,11 @@ class MaxiTree(object):
         self.all_spc = [int(node.taxon) for node in tree_topo.iter_descendants() if hasattr(node, "taxon")]
         return True
 
-    def insert_plasmid(self, name, end_point, tree=None):
+    def insert_plasmid(self, name, end_point, db_name, tree=None):
         # Check if can connect to the database
-        couchdb.setServerUrl(end_point)
-        if not couchdb.couchPing():
-            print("Program terminated&Can't connect to the Taxon database")
-            sys.exit()
-        gcf = couchdb.couchGetRequest(name)["current"]
+        check_connexion(end_point)
+
+        gcf = req_func.post(end_point + db_name, json={"keys": [name]}).json()["request"][name]["current"]
         name = "{} {}".format(name, gcf)
         plasmid_node = tree.search_nodes(taxon="36549")[0] if tree else self.tree.search_nodes(taxon="36549")[0]
         plasmid_node.add_child(name=name)
