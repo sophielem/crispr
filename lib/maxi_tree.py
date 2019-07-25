@@ -40,15 +40,7 @@ class MaxiTree(object):
 
     @classmethod
     def from_database(cls, end_point, db_name):
-        req_func = requests.Session()
-        req_func.trust_env = False
-        try:
-            res = req_func.get(end_point + "handshake").json()
-            dspl.eprint("HANDSHAKE PACKET (tree_db) : {}".format(res))
-        except Exception as e:
-            dspl.eprint("Could not perform handshake, exiting")
-            print("Program terminated&No handshake with taxon database")
-            sys.exit(1)
+        check_connexion(end_point)
         try:
             # Try to get the MaxiTree object by the key maxi_tree
             maxi_tree = req_func.post(end_point + db_name, json={"keys": ["maxi_tree"]}).json()["request"]["maxi_tree"]
@@ -97,7 +89,7 @@ class MaxiTree(object):
         return cls(tree_topo, list_taxid)
 
     @classmethod
-    def from_gen_ref(cls, gen_ref_file, end_point):
+    def from_gen_ref(cls, gen_ref_file, end_point, db_name):
         # Check if the genome_ref_taxid.json file exists
         if not os.path.isfile(gen_ref_file): sys.exit("*** File does not exist ***")
         try:
@@ -107,18 +99,15 @@ class MaxiTree(object):
             sys.exit("Problem with the format of the file {}".format(gen_ref_file))
         # Construct the Tree object
         # Add the taxonID of plasmid
-        tree_topo = cls.construct_tree(cls, all_taxid + [36549], end_point)
+        tree_topo = cls.construct_tree(cls, all_taxid + [36549], end_point, db_name)
         # Generate the list of TaxonID from leaves
         list_taxid = [int(node.taxon) for node in tree_topo.iter_descendants() if hasattr(node, "taxon")]
         return cls(tree_topo, list_taxid)
 
     @staticmethod
-    def construct_tree(cls, list_taxid, end_point):
+    def construct_tree(cls, list_taxid, end_point, db_name):
         # Check if it can connect to the database
-        couchdb.setServerUrl(end_point)
-        if not couchdb.couchPing():
-            print("Program terminated&Can't connect to the Taxon database")
-            sys.exit()
+        check_connexion(end_point)
 
         ncbi = NCBITaxa()
         # Create the topology Tree with taxon ID
@@ -134,16 +123,14 @@ class MaxiTree(object):
             node.name = rename_node(node.name, ncbi)
             if hasattr(node, "taxon"):
                 # Add the GCF and taxon ID to the name
-                gcf = couchdb.couchGetRequest(node.taxon)["current"]
+                gcf = req_func.post(end_point + db_name, json={"keys": [node.taxon]}).json()["request"][node.taxon]["current"]
                 node.name = "{} {} : {}".format(node.name, gcf, node.taxon)
         # Name for the root
         tree_topo.name = ncbi.get_taxid_translator([int(tree_topo.name)])[int(tree_topo.name)]
         return tree_topo
 
     @classmethod
-    def from_taxon_database(cls, end_point):
-        req_func = requests.Session()
-        req_func.trust_env = False
+    def from_taxon_database(cls, end_point, db_name):
         couchdb.setServerUrl(end_point)
         if not couchdb.couchPing():
             print("Program terminated&Can't connect to the Taxon database")
@@ -156,7 +143,7 @@ class MaxiTree(object):
         # Only keep plasmid name
         list_plasmids = [i  for i in list_taxon if not re.match("^[0-9]*$", i)]
         # Construct the Tree object and Add the taxonID of plasmid
-        tree_topo = cls.construct_tree(cls, list_taxond_id + [36549], end_point)
+        tree_topo = cls.construct_tree(cls, list_taxond_id + [36549], end_point, db_name)
         # Insert plasmid under node plasmid
         for plasmid in list_plasmids:
             cls.insert_plasmid(cls, plasmid, end_point, tree_topo)
@@ -351,21 +338,33 @@ def rename_node(taxid, ncbi):
     return node_name
 
 
+def check_connexion(end_point):
+    req_func = requests.Session()
+    req_func.trust_env = False
+    try:
+        res = req_func.get(end_point + "handshake").json()
+        dspl.eprint("HANDSHAKE PACKET (tree_db) : {}".format(res))
+        return True
+    except Exception as e:
+        dspl.eprint("Could not perform handshake, exiting")
+        print("Program terminated&No handshake with taxon database")
+        sys.exit(1)
+
+
 def args_gestion():
     """
     Takes and treat arguments given
     """
     parser = argparse.ArgumentParser(description="Construct the MaxiTree and save it in the database")
     parser.add_argument("-file", metavar="<str>", required=False, help="The genome_ref_taxid.json file")
-    parser.add_argument("-url", metavar="<str>", required=False, help="Whole end_point for taxon_database")
+    parser.add_argument("-url", metavar="<str>", required=True, help="End_point for taxon_database")
+    parser.add_argument("-dbName", metavar="<str>", required=True, help="Name for the database")
     return parser.parse_args()
 
 if __name__ == '__main__':
     PARAM = args_gestion()
-    if len(sys.argv) < 2 or len(sys.argv) > 3:
-        sys.exit("Give a file or the end point for the taxon database")
 
-    TREE = MaxiTree.from_gen_ref(PARAM.file) if PARAM.file else MaxiTree.from_taxon_database(PARAM.url)
+    TREE = MaxiTree.from_gen_ref(PARAM.file, PARAM.url, PARAM.dbName) if PARAM.file else MaxiTree.from_taxon_database(PARAM.url, PARAM.dbName)
     JSON_TREE = TREE.get_json(True)
     DIC_TREE = {}
     DIC_TREE["maxi_tree"] = {}
