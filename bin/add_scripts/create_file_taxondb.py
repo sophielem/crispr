@@ -108,7 +108,8 @@ def load_json_file(file_name, user, fasta_path) :
         list_gcf = [gcf] if taxid not in taxon_dt.keys() else taxon_dt[taxid]["GCF"] + [gcf]
         if len(list_gcf) > 1: duplicate.append(taxid)
         tmp_taxon_dt = init_taxondt(list_gcf, user, taxid, fasta_path)
-        if (tmp_taxon_dt != 1) taxon_dt[taxid] = tmp_taxon_dt
+        if (tmp_taxon_dt != 1):
+            taxon_dt[taxid] = tmp_taxon_dt
 
     if duplicate:
         with open("duplicate_taxon.log", "w") as filout:
@@ -129,7 +130,7 @@ def load_list_file(file_name, user, fasta_path):
             list_gcf = [gcf] if taxid not in taxon_dt.keys() else taxon_dt[taxid]["GCF"] + [gcf]
             if len(list_gcf) > 1: duplicate_taxon.append(taxid)
             tmp_taxon_dt = init_taxondt(list_gcf, user, taxid, fasta_path)
-            if (tmp_taxon_dt != 1) taxon_dt[taxid] = tmp_taxon_dt
+            if (tmp_taxon_dt != 1): taxon_dt[taxid] = tmp_taxon_dt
 
         if duplicate_taxon:
             with open("duplicate_taxon.log", "w") as filout:
@@ -169,6 +170,6 @@ if __name__ == '__main__':
         DOC = req_func.post(PARAM.r + PARAM.dbName, json={"keys": [PARAM.taxid]}).json()["request"][PARAM.taxid]
         LIST_GCF = PARAM.gcf + DOC["GCF"] if DOC else [PARAM.gcf]
         tmp_taxon_dt = init_taxondt(LIST_GCF, PARAM.user, PARAM.taxid, PARAM.rfg)
-        if(tmp_taxon_dt =! 1) TAXON_DT[PARAM.taxid] = tmp_taxon_dt
+        if(tmp_taxon_dt != 1): TAXON_DT[PARAM.taxid] = tmp_taxon_dt
 
     pickle.dump(TAXON_DT, open("./taxonDB_data/" + PARAM.out, "wb"), protocol=3)
