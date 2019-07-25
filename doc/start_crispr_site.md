@@ -6,6 +6,7 @@ sh /data/www_dev/crispr/bin/start_nCSTB.sh
 ```
 
 In details with installation of dependencies and compilation :
+First of all, open a screen crispr_site : *screen -r crispr_site*
 #### Job-manager
 ```sh
 cd /data/www_dev/crispr/lib/ms-jobmanager
@@ -41,19 +42,6 @@ sudo -u ${USER} nohup node build/index.js -p 1234  -c /data/www_dev/crispr/lib/c
 ```
 
 
-## Test
-#### Motif-broker
-```sh
-cd /data/www_dev/crispr/lib/nCSTB
-python test/motif_broker_test.py
-```
-
-### Server
-```sh
-cd /data/www_dev/crispr/lib/nCSTB
-python test/requests_test.py
-```
-
 # Construct Databases
 
 ## Crispr Database
@@ -66,7 +54,7 @@ for (( i = 0; i < 64; i++ )); do
 done
 ```
 
-python couchBuild.py --map ../data/3letter_prefixe_rules.json --url http://127.0.0.1:5984 --data ../../reference_genomes_pickle/test/ --min 0 --max 1 --size 1000
+python couchBuild.py --map ../data/3letter_prefixe_rules.json --url http://127.0.0.1:5984 --data ../../reference_genomes_pickle/ --min 0 --max 1 --size 1000
 
 ### Fill it
 From the JsonTree file and the genome_ref_taxid file, use search_leaves_from_node which copy all fasta files from a subnode in a repository and create a config file with GCF, taxonID and ASM.
@@ -116,13 +104,12 @@ python couchBuild.py taxon_db --url http://127.0.0.1:5984 --data path_folder
 ```sh
 curl -X PUT http://127.0.0.1:5984/taxon_tree_db
 ```
-3. Create the MaxiTree json file with the python script from the genome_ref_taxid.json file or from the taxon database created giving the end point.
+3. Create the MaxiTree json file with the python script from the taxon database created giving the end point.
 ```sh
-python lib/maxi_tree.py -file genome_ref_taxid.json
-python lib/maxi_tree.py -url http://127.0.0.1:5984/taxon_db
+python lib/maxi_tree.py -url http://127.0.0.1:5984/ -dbName "taxon_db"
 ```
 4. Move the created json file in an empty folder
 5. Fill the database
 ```sh
-python couchBuild.py taxon_tree_db --url http://127.0.0.1:5984 --data path_folder
+python couchBuild.py taxon_tree --url http://127.0.0.1:5984 --data path_folder
 ```

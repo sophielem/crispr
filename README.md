@@ -13,15 +13,26 @@ To execute this script, you need few dependencies :
 You also need blastn.
 
 ## Results files
-Only genomes selected by user are conserved and results are displayed by a *json* file containing the first 100 hits and a *text* file containing the first 1,000 hits.
+Only genomes selected by user are conserved and results are displayed by two *json* file containing the first 100 hits organized by sgRNA or by organism and a *text* file containing the first 1,000 hits.
 Another *json* file contains results sorted by organism name and not by sgRNAs.
-##### Format of the *json* file :
+##### Format of *json* files :
+Organized by sequences
 ```json
 {'sequence' : word, 'occurences' :
                                     {'org' : genome, 'all_ref' :
                                                                 {'ref' : ref, 'coords' : [coordinates]
                                                                }
                                     }
+}
+```
+
+Organized by organisms
+```json
+{org : {
+          ref : {
+                  sgRNA : [coordinates]
+                }
+        }
 }
 ```
 
@@ -94,13 +105,16 @@ It contains entries with taxonomy ID for name. This document contains the list o
 ```JSON
 {
   "_id": "100226",
-  "_rev": "3-1b24a526d9bbfd803bf97125b1419dc7",
+  "_rev": "7-c85bed6b4690fa9f8c456490df9d3895",
   "GCF": [
     "GCF_000203835.1"
   ],
-  "date": "2019-04-19 12:50",
+  "date": "2019-07-17 15:35",
   "user": "MMSB",
-  "current": "GCF_000203835.1"
+  "current": "GCF_000203835.1",
+  "size": {
+    "NC_003888.3": 8667507
+  }
 }
 ```
 
@@ -108,46 +122,56 @@ It contains entries with taxonomy ID for name. This document contains the list o
 ```sh
 usage: create_file_taxondb.py [-h] {scratch,single} ...
 
-Convert the genome_ref_taxid.json to a pickle file ready to be insert into
+Convert the genomre_ref_taxid.json to a pickle file ready to be insert into
 database
 
 positional arguments:
   {scratch,single}  commands
-    scratch         Create files to insert from the genome_ref_taxid.json
+    scratch         Create files to insert from the genomre_ref_taxid.json
                     file
     single          Create file to insert
+
+optional arguments:
+  -h, --help        show this help message and exit
 ```
 
 Create a taxon file for a single genome. The url is needed to check if an entry exists for this taxon ID. If so, it takes the list of GCF, add the new GCF and make it the current one.
 ```sh
 usage: create_file_taxondb.py single [-h] [-user [<str>]] -gcf <str> -taxid
-                                     <str> -url <str> [-out [<str>]] --no-proxy
+                                     <str> -r <str> -dbName <str>
+                                     [-out [<str>]] -rfg <str>
 
 optional arguments:
   -h, --help     show this help message and exit
   -user [<str>]  The user
   -gcf <str>     GCF id
   -taxid <str>   Taxonomy id
-  -url <str>     End point for taxon Database with the name of the database
+  -r <str>       End point for taxon Database
+  -dbName <str>  Name of the taxon Database
   -out [<str>]   The name of the outputfile
+  -rfg <str>     Path of the fasta file
 ```
 
 Convert the genome_ref_taxid.json to a pickle file ready to be insert into
 database or list file with the format : taxonId \t GCF_id
 ```sh
 usage: create_file_taxondb.py scratch [-h] -file <str> [-user [<str>]]
-                                      [-out [<str>]] --no-proxy
+                                      [-out [<str>]] -rfg <str> [--no-proxy]
+                                      [--json]
 
 optional arguments:
   -h, --help     show this help message and exit
-  -file <str>    The json file to convert
+  -file <str>    The json file to convert or the list file in csv
   -user [<str>]  The user
   -out [<str>]   The name of the outputfile
+  -rfg <str>     Path of the fasta file
+  --no-proxy
+  --json
 ```
 
 The output will be :</br>
-taxon_dt={"1234": {"GCF": ["GCF_111", "GCF_112", "GCF_113"], "date": "19-04-2019", "User": "Queen"},</br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"2345": {"GCF": ["GCF_211", "GCF_212", "GCF_213"], "date": "19-04-2019", "User": "Queen"}}
+taxon_dt={"1234": {"GCF": ["GCF_111", "GCF_112", "GCF_113"], "date": "19-04-2019", "User": "Queen", "current": "GCF_111", "size":{"NC_123": 20003}},</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"2345": {"GCF": ["GCF_211", "GCF_212", "GCF_213"], "date": "19-04-2019", "User": "Queen", "current": "GCF_211", "size":{"NC_132": 74563}}}
 
 ### Tree database
 It contains only one entry, **maxi_tree**. This document contains a key **tree** with the tree in JSON format ({'text' : blabla, 'children': ['text': blabla....]}) and the date of the update under key **date**.  
