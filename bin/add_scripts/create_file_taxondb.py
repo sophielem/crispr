@@ -15,6 +15,7 @@ import json
 import pickle
 import argparse
 import csv
+import requests
 
 
 def args_gestion():
