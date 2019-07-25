@@ -1,4 +1,5 @@
 # CRISPR Server from Scratch
+![Schema CRISPR site](https://github.com/sophielem/crispr/blob/dev_add_genome/doc/server.png)
 
 ## Start nCSTB
 ```sh
