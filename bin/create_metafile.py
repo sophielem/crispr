@@ -37,7 +37,7 @@ def name_output(taxid, gcf):
     name_org = ncbi.get_taxid_translator([int(taxid)])[int(taxid)]
     name_org = name_org.replace("'", '')
     name_org =  name_org.replace("/", '_')
-    return name_org + "_" + gcf
+    return [name_org, name_org + "_" + gcf]
 
 
 if __name__ == '__main__':
@@ -46,12 +46,14 @@ if __name__ == '__main__':
 
     if PARAM.taxid and PARAM.plasmid:
         OUTPUT = "{} {}".format(PARAM.taxid, PARAM.gcf)
+        NAME = OUTPUT
     elif PARAM.taxid:
-        OUTPUT = name_output(PARAM.taxid, PARAM.gcf)
+        NAME, OUTPUT = name_output(PARAM.taxid, PARAM.gcf)
     else:
         OUTPUT = PARAM.out
+        NAME = OUTPUT
 
-    DIC_PICKLE = word_detect.construct_in(PARAM.file, PATH_P + OUTPUT + ".p")
+    DIC_PICKLE = word_detect.construct_in(PARAM.file, PATH_P + OUTPUT + ".p", NAME)
     if DIC_PICKLE:
         PATH = PARAM.rfg + "/genome_index/" if PARAM.rfg else ""
         decoding.indexAndOccurencePickle(PATH_P + OUTPUT + ".p", PATH + OUTPUT + ".index")
