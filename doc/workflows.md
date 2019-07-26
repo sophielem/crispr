@@ -90,7 +90,7 @@ optional arguments:
  ```
 
 ## Add genome
-![Schema CRISPR site](https://github.com/sophielem/crispr/blob/dev_add_genome/doc/add_new_genome.png)
+![Schema workflow add new genome](https://github.com/sophielem/crispr/blob/dev_add_genome/doc/add_new_genome.png)
 
 ### Check taxonomy
 Check if a taxonomy ID given exists in the NCBI database. Then, check if this taxonomy ID is
