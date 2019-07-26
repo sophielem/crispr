@@ -16,6 +16,8 @@ import pickle
 import argparse
 import csv
 import requests
+import display_result as dspl
+from Bio import SeqIO
 
 
 def args_gestion():
@@ -83,18 +85,17 @@ def size_fasta(fasta_file):
     return tmp
 
 
-def init_taxondt(gcfs, user, taxon_id, fasta_path):
+def init_taxondt(gcfs, user, taxon_id, fasta_path, gcf_given):
     """
     Initialize the dictionary of taxon and return it
     """
-    tmp_dic["size"] = size_fasta(fasta_path + taxon_id + "_" + doc["current"] + ".fna")
-    if(tmp_dic["size"] == 1): return 1
     tmp_dic = {}
+    tmp_dic["size"] = size_fasta(fasta_path + taxon_id + "_" + gcf_given + ".fna")
+    if(tmp_dic["size"] == 1): return 1
     tmp_dic["GCF"] = gcfs
     tmp_dic["date"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     tmp_dic["user"] = user
     tmp_dic["current"] = gcfs[0]
-
     return tmp_dic
 
 
@@ -107,7 +108,7 @@ def load_json_file(file_name, user, fasta_path) :
         gcf = "_".join(dic_ref[org][0].split("_")[:2])
         list_gcf = [gcf] if taxid not in taxon_dt.keys() else taxon_dt[taxid]["GCF"] + [gcf]
         if len(list_gcf) > 1: duplicate.append(taxid)
-        tmp_taxon_dt = init_taxondt(list_gcf, user, taxid, fasta_path)
+        tmp_taxon_dt = init_taxondt(list_gcf, user, taxid, fasta_path, gcf)
         if (tmp_taxon_dt != 1):
             taxon_dt[taxid] = tmp_taxon_dt
 
@@ -129,7 +130,7 @@ def load_list_file(file_name, user, fasta_path):
             gcf = line[1]
             list_gcf = [gcf] if taxid not in taxon_dt.keys() else taxon_dt[taxid]["GCF"] + [gcf]
             if len(list_gcf) > 1: duplicate_taxon.append(taxid)
-            tmp_taxon_dt = init_taxondt(list_gcf, user, taxid, fasta_path)
+            tmp_taxon_dt = init_taxondt(list_gcf, user, taxid, fasta_path, gcf)
             if (tmp_taxon_dt != 1): taxon_dt[taxid] = tmp_taxon_dt
 
         if duplicate_taxon:
@@ -147,7 +148,7 @@ def check_connexion(end_point):
     try:
         res = req_func.get(end_point + "handshake").json()
         dspl.eprint("HANDSHAKE PACKET (tree_db) : {}".format(res))
-        return True
+        return req_func
     except Exception as e:
         dspl.eprint("Could not perform handshake, exiting")
         print("Program terminated&No handshake with taxon database")
@@ -167,9 +168,9 @@ if __name__ == '__main__':
         set_env()
         TAXON_DT = {}
         req_func = check_connexion(PARAM.r)
-        DOC = req_func.post(PARAM.r + PARAM.dbName, json={"keys": [PARAM.taxid]}).json()["request"][PARAM.taxid]
-        LIST_GCF = PARAM.gcf + DOC["GCF"] if DOC else [PARAM.gcf]
-        tmp_taxon_dt = init_taxondt(LIST_GCF, PARAM.user, PARAM.taxid, PARAM.rfg)
+        DOC = req_func.post(PARAM.r + PARAM.dbName, json={"keys": [PARAM.taxid]}).json()["request"]
+        LIST_GCF = [PARAM.gcf] + DOC[PARAM.taxid]["GCF"] if DOC else [PARAM.gcf]
+        tmp_taxon_dt = init_taxondt(LIST_GCF, PARAM.user, PARAM.taxid, PARAM.rfg, PARAM.gcf)
         if(tmp_taxon_dt != 1): TAXON_DT[PARAM.taxid] = tmp_taxon_dt
 
     pickle.dump(TAXON_DT, open("./taxonDB_data/" + PARAM.out, "wb"), protocol=3)
