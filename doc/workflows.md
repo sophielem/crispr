@@ -90,10 +90,12 @@ optional arguments:
  ```
 
 ## Add genome
+![Schema CRISPR site](https://github.com/sophielem/crispr/blob/dev_add_genome/doc/add_new_genome.png)
+
 ### Check taxonomy
 Check if a taxonomy ID given exists in the NCBI database. Then, check if this taxonomy ID is
 present in a Taxonomy database and check if the GCF given for this taxonomy ID already exists in the Taxonomy database.
-Print a message with the key word __becareful__ if the taxonomy is already in the database, __Program terminated__ if the ID does not exist in the NCBI database, or if the GCF is the current one. Otherwise, no message. 
+Print a message with the key word __becareful__ if the taxonomy is already in the database, __Program terminated__ if the ID does not exist in the NCBI database, or if the GCF is the current one. Otherwise, no message.
 
 ```sh
 usage: check_taxonomy.py [-h] -taxid <str> -gcf <str> -r <str> -dbName <str>

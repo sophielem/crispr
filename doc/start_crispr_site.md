@@ -70,15 +70,15 @@ Then, create a loop in bash to launch *crispr_workflow_add.sh* . You must give :
 | $DB_TAXON_NAME           |           Name of the Taxonomy Database           |
 | $DB_TREE_NAME            |               Name of the Tree Database           |
 | $GCF                     |                GCF of the organism                |
-| $INFO_FILE               | Name of the file to insert into Taxonomy Database |
 | $FASTA_FILE              |               Name of the fasta file              |
-| $ORG_NAME                |                Name of the organism               |
+| $PLASMID                 |      If it is a plasmid, assign 0 else nothing    |
 | $MAP_FILE                |      The Mapping file for the CRISPR Database     |
 | $rfg                     |          Path to the plain file Database          |
 | $TAXID                   |                    Taxonomy ID                    |
 | $URL_CRISPR              |          End_point to the CRISPR Database         |
 | $URL_TAXON               |         End_point to the Taxonomy Database        |
 | $URL_TREE                |             End point to the Tree Database        |
+| $FOLDER                  |         Folder where to create pickle file        |
 
 
 

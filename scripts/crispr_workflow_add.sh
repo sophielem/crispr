@@ -31,8 +31,9 @@ elif  [ "$URL_CRISPR" = "" ]; then
     error_json
 elif [ "$DB_TAXON_NAME" = "" ]; then
     error_json
-elif [ "$PLASMID" = "" ]; then
-    error_json
+elif [ "$FOLDER" = "" ]; then
+    FOLDER=$(echo "$TAXID""_pickle")
+    mkdir $FOLDER
 else
 
     ### CREATE PICKLE AND INDEX METAFILE ###
@@ -56,6 +57,7 @@ else
         ## Create pickle file to insert into taxon_db ##
         echo python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/create_file_taxondb.py single -gcf $GCF -taxid $TAXID -r $URL_TAXON -dbName $DB_TAXON_NAME >> cmd.log
         python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/create_file_taxondb.py single -gcf $GCF -taxid "$TAXID" -r $URL_TAXON -dbName $DB_TAXON_NAME 2> ./taxondb_file.err 1> ./taxondb_file.log
+        mv ./taxonDB_data $FOLDER/taxonDB_data
 
         parse_logFile ./taxondb_file.log
         PRG_TERMINATED=$?
@@ -68,12 +70,13 @@ else
           fi
           echo python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/update_tree.py -url $URL_TREE -treeName $DB_TREE_NAME -taxonDB $URL_TAXON -taxonName $DB_TAXON_NAME $argPlas "$TAXID" --no-proxy>> cmd.log
           python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/update_tree.py -url $URL_TREE -treeName $DB_TREE_NAME -taxonDB $URL_TAXON -taxonName $DB_TAXON_NAME $argPlas "$TAXID"  --no-proxy 2> ./update_tree.err 1> ./update_tree.log
+          mv ./treeDB_data $FOLDER
 
           # Check if no problem to connect to the database (taxon_db and taxon_tree_db), to access to GCF
           parse_logFile ./update_tree.log
           PRG_TERMINATED=$?
           folder=`pwd`
-          mail -s "[CRISPR] : Add new genome" sophie.lematre@ibcp.fr <<< "The genome with the taxid $TAXID  is ready.        $folder"
+          mail -s "[CRISPR] : Add new genome" sophie.lematre@ibcp.fr <<< "The genome with the taxid $TAXID  and the GCF  $GCF  is ready.        $folder"
         fi
     fi
 fi
@@ -97,10 +100,10 @@ fi
 
 
 # ## Add into taxon database ##
-# echo python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/couchBuild.py $DB_TAXON_NAME --url $URL_TAXON --data "./taxonDB_data/" >> cmd.log
-# python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/couchBuild.py $DB_TAXON_NAME --url $URL_TAXON --data "./taxonDB_data/"
+# echo python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/couchBuild.py $DB_TAXON_NAME --url $URL_TAXON --data "$FOLDER/taxonDB_data/" >> cmd.log
+# python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/couchBuild.py $DB_TAXON_NAME --url $URL_TAXON --data "$FOLDER/taxonDB_data/"
 #
 # if [ $PRG_TERMINATED = 0 ]; then
-#   echo python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/couchBuild.py $DB_TREE_NAME --url $URL_TREE --data "./treeDB_data/" >> cmd.log
-#   python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/couchBuild.py $DB_TREE_NAME --url $URL_TREE --data "./treeDB_data/"
+#   echo python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/couchBuild.py $DB_TREE_NAME --url $URL_TREE --data "$FOLDER/treeDB_data/" >> cmd.log
+#   python -u $CRISPR_TOOL_SCRIPT_PATH/add_scripts/couchBuild.py $DB_TREE_NAME --url $URL_TREE --data "$FOLDER/treeDB_data/"
 # fi
